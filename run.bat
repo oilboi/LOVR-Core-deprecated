@@ -1,0 +1,1 @@
+lovrc.bat core
