@@ -1,5 +1,6 @@
 lovr.keyboard = require 'lovr-keyboard'
 lovr.mouse = require 'lovr-mouse'
+require 'input'
 require 'camera'
 
 
@@ -15,25 +16,8 @@ function lovr.load()
     }
 end
 
-function lovr.keypressed(key)
-    if key == "escape" then
-        lovr.event.quit()
-    end
-end
-
-
 function lovr.update(dt)
     camera_look(dt)
-end
-
-function lovr.mousemoved(x, y, dx, dy)
-    camera.pitch = camera.pitch - dy * .001
-    if camera.pitch > math.pi/2 then
-        camera.pitch = math.pi/2
-    elseif camera.pitch < -math.pi/2 then
-        camera.pitch = -math.pi/2
-    end
-    camera.yaw   = camera.yaw   - dx * .001
 end
 
 function lovr.draw()
