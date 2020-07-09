@@ -31,13 +31,13 @@ function generate_chunk_vertices()
     
     for x,datax in pairs(chunk_data) do
     for y,datay in pairs(datax) do
-    for z,data in pairs(datay) do
+    for z,data in pairs(datay) do        
         if data > 0 then
         -- Face front
-        chunk_vertices[#chunk_vertices+1] = {x+0-0.5,y+0-0.5,z+0-0.5, 0,0,-1}
-        chunk_vertices[#chunk_vertices+1] = {x+0-0.5,y+1-0.5,z+0-0.5, 0,0,-1}
-        chunk_vertices[#chunk_vertices+1] = {x+1-0.5,y+1-0.5,z+0-0.5, 0,0,-1}
-        chunk_vertices[#chunk_vertices+1] = {x+1-0.5,y+0-0.5,z+0-0.5, 0,0,-1}
+        chunk_vertices[#chunk_vertices+1] = {x+0-0.5,y+0-0.5,z+0-0.5, 0,0,-1,lovr.math.newVec3(0,0,0),lovr.math.newVec2(16, 16)}
+        chunk_vertices[#chunk_vertices+1] = {x+0-0.5,y+1-0.5,z+0-0.5, 0,0,-1,lovr.math.newVec3(0,0,0),lovr.math.newVec2(16, 16)}
+        chunk_vertices[#chunk_vertices+1] = {x+1-0.5,y+1-0.5,z+0-0.5, 0,0,-1,lovr.math.newVec3(0,0,0),lovr.math.newVec2(16, 16)}
+        chunk_vertices[#chunk_vertices+1] = {x+1-0.5,y+0-0.5,z+0-0.5, 0,0,-1,lovr.math.newVec3(0,0,0),lovr.math.newVec2(16, 16)}
 
         for i = 1,6 do
             chunk_indexes[#chunk_indexes+1] = index_translation[1][i]+block_count

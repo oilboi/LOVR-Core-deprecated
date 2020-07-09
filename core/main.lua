@@ -12,7 +12,7 @@ function lovr.load()
     lovr.mouse.setRelativeMode(true)
     lovr.graphics.setCullingEnabled(true)
 
-    lovr.graphics.setWireframe(true)
+    --lovr.graphics.setWireframe(true)
 
     camera = {
         transform = lovr.math.newMat4(),
@@ -21,8 +21,9 @@ function lovr.load()
         pitch = 0,
         yaw = 0
     }
-    dirt = lovr.graphics.newTexture('textures/dirt.png', { mipmaps = false })
+    dirt = lovr.graphics.newMaterial('textures/dirt.png')
     chunk = generate_chunk_vertices()
+    chunk:setMaterial(dirt)
 end
 
 function lovr.update(dt)
@@ -32,12 +33,7 @@ end
 function lovr.draw()
     --this is transformed from the camera rotation class
     lovr.graphics.transform(mat4(camera.transform):invert())
-
-    
-    lovr.graphics.push() -- Magenta cube
-    
-    lovr.graphics.setColor(1,0,1)
-
+    lovr.graphics.push()
     lovr.graphics.rotate(1 * math.pi/2, 0, 1, 0)
     lovr.graphics.translate(3,0,0)
 
