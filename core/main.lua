@@ -11,8 +11,9 @@ local chunk
 function lovr.load()
     lovr.mouse.setRelativeMode(true)
     lovr.graphics.setCullingEnabled(true)
-    
+
     lovr.graphics.setWireframe(true)
+
     camera = {
         transform = lovr.math.newMat4(),
         position = lovr.math.newVec3(),
@@ -20,7 +21,7 @@ function lovr.load()
         pitch = 0,
         yaw = 0
     }
-
+    dirt = lovr.graphics.newTexture('textures/dirt.png', { mipmaps = false })
     chunk = generate_chunk_vertices()
 end
 
@@ -34,9 +35,12 @@ function lovr.draw()
 
     
     lovr.graphics.push() -- Magenta cube
+    
     lovr.graphics.setColor(1,0,1)
+
     lovr.graphics.rotate(1 * math.pi/2, 0, 1, 0)
     lovr.graphics.translate(3,0,0)
+
     chunk:draw(0,0,0)
     lovr.graphics.pop()
 end
