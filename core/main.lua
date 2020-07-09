@@ -24,8 +24,8 @@ function lovr.load()
         yaw = 0
     }
 
-    local dirttexture = lovr.graphics.newTexture("textures/dirt.png")
-    local dirt = lovr.graphics.newMaterial()
+    dirttexture = lovr.graphics.newTexture("textures/dirt.png")
+    dirt = lovr.graphics.newMaterial()
     dirt:setTexture("diffuse", dirttexture)
     chunk = generate_chunk_vertices()
     chunk:setMaterial(dirt)
@@ -33,7 +33,6 @@ end
 
 function lovr.update(dt)
     camera_look(dt)
-    --chunk = nil
     --chunk = generate_chunk_vertices()
     --chunk:setMaterial(dirt)
 end

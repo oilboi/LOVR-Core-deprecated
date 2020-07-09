@@ -179,7 +179,7 @@ function generate_chunk_vertices()
 
     
     time = lovr.timer.getTime()-time
-    print(time)
+    --print(time)
     
 
     return(chunk)
