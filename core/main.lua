@@ -11,7 +11,8 @@ local chunk
 function lovr.load()
     lovr.mouse.setRelativeMode(true)
     lovr.graphics.setCullingEnabled(true)
-
+    
+    lovr.graphics.setWireframe(true)
     camera = {
         transform = lovr.math.newMat4(),
         position = lovr.math.newVec3(),

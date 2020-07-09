@@ -107,18 +107,32 @@ function generate_chunk_vertices()
 
     -- The cube specified above covers the space 0..1, so it's centered at (0.5, 0.5, 0.5). That's not right.
     -- Let's edit the first three coordinates of each vertex to center it at (0,0,0):
-    local zed = 0.5
+    local x = 0.5
+    local y = 0.5
+    local z = 0.5
     local count = 0
     for _,v in ipairs(chunk_vertices) do
 
-    for i=1,3 do
-        v[i] = v[i] - zed
-    end
+    
+    v[1] = v[1] - x
+    v[2] = v[2] - y
+    v[3] = v[3] - z
 
     count = count + 1
+
     if count == 24 then
         count = 0
-        zed = zed + 1
+        x = x + 1
+        if x == 16.5 then
+            x = 0.5
+            y = y + 1
+        end
+
+        if y == 16.5 then
+            y = 0.5
+            z = z + 1
+        end
+        print(z)
     end
     end
 
