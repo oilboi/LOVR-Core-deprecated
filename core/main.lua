@@ -1,6 +1,8 @@
 lovr.keyboard = require 'lovr-keyboard'
 lovr.mouse = require 'lovr-mouse'
 
+lovr.graphics.setDefaultFilter("nearest", 0)
+
 require 'chunk_vertice_generator'
 require 'input'
 require 'camera'
@@ -21,16 +23,24 @@ function lovr.load()
         pitch = 0,
         yaw = 0
     }
-    dirt = lovr.graphics.newMaterial('textures/dirt.png')
+
+    local dirttexture = lovr.graphics.newTexture("textures/dirt.png")
+    local dirt = lovr.graphics.newMaterial()
+    dirt:setTexture("diffuse", dirttexture)
     chunk = generate_chunk_vertices()
     chunk:setMaterial(dirt)
 end
 
 function lovr.update(dt)
     camera_look(dt)
+    --chunk = nil
+    --chunk = generate_chunk_vertices()
+    --chunk:setMaterial(dirt)
 end
 
 function lovr.draw()
+    
+
     --this is transformed from the camera rotation class
     lovr.graphics.transform(mat4(camera.transform):invert())
     lovr.graphics.push()

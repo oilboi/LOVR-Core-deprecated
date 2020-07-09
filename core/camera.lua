@@ -34,6 +34,8 @@ function camera_look(dt)
         local Y = lovr.math.newVec3(0,Y,0)
         camera.position:add(Y)
     end
+
+    --io.write(math.floor(camera.position.x).." "..math.floor(camera.position.z).."\n")
     
     camera.transform:identity()
     camera.transform:translate(0, 1.7, 0)
