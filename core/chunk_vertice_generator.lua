@@ -4,7 +4,7 @@ ipairs,lovr,math
 =
 ipairs,lovr,math
 
-local chunk_size = 16
+local chunk_size = chunksize
 
 local max_ids = 2
 
@@ -31,7 +31,7 @@ function generate_chunk_vertices()
     for y = 1,chunk_size do
     chunk_data[x][y] = {}
     for z = 1,chunk_size do
-    chunk_data[x][y][z] = lovr.math.random(0,2)
+    chunk_data[x][y][z] = lovr.math.random(1,2)
     end
     end
     end
@@ -167,13 +167,7 @@ function generate_chunk_vertices()
     
 
     -- This mesh is a cube
-    local chunk = lovr.graphics.newMesh({         
-        { 'lovrPosition', 'float', 3 }, 
-        { 'lovrNormal'  , 'float', 3 },
-        { 'lovrTexCoord', 'float', 2 }
-    }, vertex_count, 'triangles')
-
-    chunk:setVertices(chunk_vertices)
+    local chunk = lovr.graphics.newMesh({{ 'lovrPosition', 'float', 3 },{ 'lovrNormal'  , 'float', 3 },{ 'lovrTexCoord', 'float', 2 }}, chunk_vertices, 'triangles', "static")
 
     chunk:setVertexMap(chunk_indexes)
 

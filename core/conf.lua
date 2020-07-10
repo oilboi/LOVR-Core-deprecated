@@ -20,7 +20,7 @@ function lovr.conf(t)
     t.modules.data = true
     t.modules.event = true
     t.modules.graphics = true
-    t.modules.headset = false
+    t.modules.headset = true
     t.modules.math = true
     t.modules.physics = true
     t.modules.thread = true
@@ -31,7 +31,7 @@ function lovr.conf(t)
     t.window.height = 600
     t.window.fullscreen = false
     t.window.msaa = 0
-    t.window.vsync = 1
+    t.window.vsync = 0
     t.window.title = 'Core'
     t.window.icon = nil
   end

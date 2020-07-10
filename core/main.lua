@@ -1,4 +1,5 @@
-key_global = 0
+vertex_exact_count = 0
+chunksize = 16
 lovr.keyboard = require 'lovr-keyboard'
 lovr.mouse = require 'lovr-mouse'
 
@@ -8,13 +9,14 @@ require 'chunk_vertice_generator'
 require 'input'
 require 'camera'
 
-local chunksize = 16
-local chunk
+local chunk_size = chunksize
+
+--local chunk
 
 
 function lovr.load()
     lovr.mouse.setRelativeMode(true)
-    --lovr.graphics.setCullingEnabled(true)
+    lovr.graphics.setCullingEnabled(true)
 
     --lovr.graphics.setWireframe(true)
     
@@ -32,9 +34,12 @@ function lovr.load()
     chunk_data = {}
     for x = 1,14 do
     chunk_data[x] = {}
+    for y = 1,3 do
+    chunk_data[x][y] = {}
     for z = 1,14 do
-        chunk_data[x][z] = generate_chunk_vertices()
-        chunk_data[x][z]:setMaterial(dirt)
+    chunk_data[x][y][z] = generate_chunk_vertices()
+    chunk_data[x][y][z]:setMaterial(dirt)
+    end
     end
     end
 end
@@ -46,12 +51,17 @@ function lovr.update(dt)
     --io.write("test\n")
 end
 
+local predef = chunk_size * 7
 function lovr.draw()
     --this is transformed from the camera rotation class
     --mat4(camera.transform):invert()
     --lovr.graphics.transform(x, y, z, sx, sy, sz, angle, ax, ay, az)
 
     local x,y,z = camera.position:unpack()
+
+    --x = x + math.random()*math.random()
+    --y = y + math.random()*math.random()
+    --z = z + math.random()*math.random()
 
     lovr.graphics.rotate(-camera.pitch, 1, 0, 0)
     lovr.graphics.rotate(-camera.yaw, 0, 1, 0)
@@ -64,11 +74,13 @@ function lovr.draw()
     lovr.graphics.translate(0,0,0)
 
     for x,xdata in ipairs(chunk_data) do
-    --lovr.graphics.print(tostring(x), 5, 1.7, 0,1,-90,0,1,0)
-    for z,data  in ipairs(xdata) do
-        data:draw(x*16-112,0,z*16-112)
+    for y,ydata in ipairs(xdata) do
+    for z,data  in ipairs(ydata) do
+        data:draw(x*chunk_size-predef,y*chunk_size-predef,z*chunk_size-predef)
     end
     end
+    end
+    lovr.graphics.print(tostring(vertex_exact_count), 5, 1.7, 0,1,-90,0,1,0)
 
 
     lovr.graphics.pop()
