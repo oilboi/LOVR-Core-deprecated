@@ -1,1 +1,1 @@
-lovr.exe --console %core
+lovr.exe %core

@@ -1,3 +1,4 @@
+
 function lovr.conf(t)
 
     -- Set the project identity
@@ -9,10 +10,10 @@ function lovr.conf(t)
     -- Headset settings
     t.headset.drivers = { 'leap', 'openxr', 'oculus', 'oculusmobile', 'openvr', 'webvr', 'desktop' }
     t.headset.msaa = 4
-    t.headset.offset = 1.7
+    t.headset.offset = 0
 
     -- Math settings
-    t.math.globals = true
+    --t.math.globals = true
 
     -- Enable or disable different modules
     t.modules.audio = true
