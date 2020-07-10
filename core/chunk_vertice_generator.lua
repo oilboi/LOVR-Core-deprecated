@@ -26,11 +26,11 @@ function generate_chunk_vertices()
     local time = lovr.timer.getTime()
     
     local chunk_data = {}
-    for x = 1,16 do
+    for x = 1,chunk_size do
     chunk_data[x] = {}
-    for y = 1,16 do
+    for y = 1,chunk_size do
     chunk_data[x][y] = {}
-    for z = 1,16 do
+    for z = 1,chunk_size do
     chunk_data[x][y][z] = lovr.math.random(0,2)
     end
     end

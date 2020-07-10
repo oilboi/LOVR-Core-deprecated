@@ -10,6 +10,7 @@ require 'camera'
 local chunksize = 16
 local chunk
 
+
 function lovr.load()
     lovr.mouse.setRelativeMode(true)
     lovr.graphics.setCullingEnabled(true)
@@ -27,8 +28,14 @@ function lovr.load()
     dirttexture = lovr.graphics.newTexture("textures/dirt.png")
     dirt = lovr.graphics.newMaterial()
     dirt:setTexture("diffuse", dirttexture)
-    chunk = generate_chunk_vertices()
-    chunk:setMaterial(dirt)
+    chunk_data = {}
+    for x = 1,3 do
+    chunk_data[x] = {}
+    for z = 1,3 do
+        chunk_data[x][z] = generate_chunk_vertices()
+        chunk_data[x][z]:setMaterial(dirt)
+    end
+    end
 end
 
 function lovr.update(dt)
@@ -38,14 +45,15 @@ function lovr.update(dt)
 end
 
 function lovr.draw()
-    
-
     --this is transformed from the camera rotation class
     lovr.graphics.transform(mat4(camera.transform):invert())
     lovr.graphics.push()
     lovr.graphics.rotate(1 * math.pi/2, 0, 1, 0)
-    lovr.graphics.translate(3,0,0)
-
-    chunk:draw(0,0,0)
+    --lovr.graphics.translate(0,0,0)
+    for x,xdata in ipairs(chunk_data) do
+    for z,data  in ipairs(xdata) do
+        data:draw(x*16,0,z*16)
+    end
+    end
     lovr.graphics.pop()
 end
