@@ -30,9 +30,9 @@ function lovr.load()
     dirt = lovr.graphics.newMaterial()
     dirt:setTexture("diffuse", dirttexture)
     chunk_data = {}
-    for x = 1,3 do
+    for x = 1,14 do
     chunk_data[x] = {}
-    for z = 1,3 do
+    for z = 1,14 do
         chunk_data[x][z] = generate_chunk_vertices()
         chunk_data[x][z]:setMaterial(dirt)
     end
@@ -63,11 +63,10 @@ function lovr.draw()
     lovr.graphics.rotate(1 * math.pi/2, 0, 1, 0)
     lovr.graphics.translate(0,0,0)
 
-    lovr.graphics.print(tostring(key_global), 5, 1.7, 0,1,-90,0,1,0)
-
     for x,xdata in ipairs(chunk_data) do
+    --lovr.graphics.print(tostring(x), 5, 1.7, 0,1,-90,0,1,0)
     for z,data  in ipairs(xdata) do
-        data:draw(x*16,0,z*16)
+        data:draw(x*16-112,0,z*16-112)
     end
     end
 
