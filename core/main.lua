@@ -1,5 +1,5 @@
 vertex_exact_count = 0
-chunksize = 16
+chunksize = 2
 lovr.keyboard = require 'lovr-keyboard'
 lovr.mouse = require 'lovr-mouse'
 
@@ -44,8 +44,20 @@ function lovr.load()
     end
 end
 
+local counter = 0
+local up = true
 function lovr.update(dt)
     camera_look(dt)
+    if up then
+        counter = counter + dt/5
+    else
+        counter = counter - dt/5
+    end
+    if counter >= 0.4 then
+        up = false
+    elseif counter <= 0 then
+        up = true
+    end
     --chunk = generate_chunk_vertices()
     --chunk:setMaterial(dirt)
     --io.write("test\n")
@@ -80,8 +92,19 @@ function lovr.draw()
     end
     end
     end
-    lovr.graphics.print(tostring(vertex_exact_count), 5, 1.7, 0,1,-90,0,1,0)
 
+    local dir = {x=math.cos(-camera.yaw),z=math.sin(-camera.yaw),y=math.sin(camera.pitch)}
+    
+    dir.x = dir.x * 2
+    dir.y = dir.y * 2
+    dir.z = dir.z * 2
+
+    local pos = {x=-z+dir.x,y=y+dir.y,z=x+dir.z}
+
+
+    --lovr.graphics.print(tostring(vertex_exact_count), pos.x, pos.y, pos.z,1,-90,0,1,0)
+
+    lovr.graphics.cube('line',  pos.x, pos.y+counter, pos.z, .5, lovr.timer.getTime())
 
     lovr.graphics.pop()
 end
