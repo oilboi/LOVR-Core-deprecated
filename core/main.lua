@@ -1,4 +1,4 @@
-chunksize = 128
+chunksize = 256
 number_of_chunks = 2 -- this is times 2 
 
 lovr.keyboard = require 'lovr-keyboard'
