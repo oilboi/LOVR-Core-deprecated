@@ -42,6 +42,7 @@ function lovr.update(dt)
     camera_look(dt)
     --chunk = generate_chunk_vertices()
     --chunk:setMaterial(dirt)
+    io.write("test\n")
 end
 
 function lovr.draw()
@@ -49,11 +50,12 @@ function lovr.draw()
     lovr.graphics.transform(mat4(camera.transform):invert())
     lovr.graphics.push()
     lovr.graphics.rotate(1 * math.pi/2, 0, 1, 0)
-    --lovr.graphics.translate(0,0,0)
+    lovr.graphics.translate(0,0,0)
     for x,xdata in ipairs(chunk_data) do
     for z,data  in ipairs(xdata) do
         data:draw(x*16,0,z*16)
     end
     end
+
     lovr.graphics.pop()
 end

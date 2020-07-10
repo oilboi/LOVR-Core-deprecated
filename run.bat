@@ -1,1 +1,1 @@
-lovrc.bat core
+lovr.exe --console %core
