@@ -24,7 +24,7 @@ function lovr.load()
     
     camera = {
         transform = lovr.math.vec3(),
-        position = lovr.math.vec3(),
+        position = lovr.math.newVec3(),
         movespeed = 10,
         pitch = 0,
         yaw = 0
