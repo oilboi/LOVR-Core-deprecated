@@ -109,7 +109,7 @@ function lovr.update(dt)
                 curr_chunk_index.x = -2
                 curr_chunk_index.y = curr_chunk_index.y + 1
                 if curr_chunk_index.y > 2 then
-                    curr_chunk_index.y = 0
+                    curr_chunk_index.y = -2
                     curr_chunk_index.z = curr_chunk_index.z + 1
                     if curr_chunk_index.z > 2 then
                         time_delay = nil
