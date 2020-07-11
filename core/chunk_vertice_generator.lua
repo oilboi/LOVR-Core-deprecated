@@ -164,8 +164,14 @@ end
 
 
 function chunk_stack_direct_update(chunk_pool,x,y,z)
+
     local chunk_x = math.floor( x / 16 )
+
+    global_time_print = chunk_x
+
     local chunk_z = math.floor( z / 16 )
+
+
     local hash = hash_position(chunk_x,chunk_z)
     if chunk_pool[hash] then
         local tower_cube = math.floor( y / 16 )
@@ -186,13 +192,13 @@ function chunk_stack_direct_update(chunk_pool,x,y,z)
     
         for y = 16*tower_cube,16*(tower_cube+1)-1 do
         
-        for z = chunk_z,chunk_z+15 do
-        
-        for x = chunk_x,chunk_x+15 do
+            for z = chunk_z*16,(chunk_z*16)+15 do
+    
+            for x = chunk_x*16,(chunk_x*16)+15 do
     
             local data = block_check(x,y,z)
     
-            if data > 0 then
+            if data and data > 0 then
     
             local translate_index = 1
     

@@ -149,8 +149,9 @@ function lovr.update(dt)
         end
     end
     
-
-    set_block(0,127,0)
+    --for x = -10,10 do
+    --    set_block(x,127,0)
+    --end
 end
 
 --local predef = chunk_size * number_of_chunks
@@ -169,6 +170,9 @@ function lovr.draw()
     lovr.graphics.transform(-x,-y,-z)
 
     lovr.graphics.rotate(1 * math.pi/2, 0, 1, 0)
+
+    lovr.graphics.translate(-0.5, -0.5, -0.5)
+
     for _,data in pairs(chunk_pool) do
 
         lovr.graphics.push()
@@ -191,7 +195,7 @@ function lovr.draw()
     local fps = lovr.timer.getFPS()
 
     --time = lovr.timer.getTime()-time
-    lovr.graphics.print(tostring(fps), pos.x, pos.y, pos.z,1,camera.yaw-math.pi/2,0,1,0)
+    lovr.graphics.print(tostring(global_time_print), pos.x, pos.y, pos.z,1,camera.yaw-math.pi/2,0,1,0)
 
     --lovr.graphics.cube('line',  pos.x, pos.y+counter, pos.z, .5, lovr.timer.getTime())
 
