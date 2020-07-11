@@ -1,6 +1,6 @@
 global_time_print = 0
 chunksize = 16
-
+gen_complete = false
 local chunk_size = chunksize
 
 lovr.keyboard = require 'lovr-keyboard'
@@ -105,11 +105,12 @@ function lovr.load()
     lovr.graphics.setCullingEnabled(true)
     lovr.graphics.setBlendMode(nil,nil)
 
+
     --lovr.graphics.setWireframe(true)
     
     camera = {
         transform = lovr.math.vec3(),
-        position = lovr.math.vec3(0,130,0),
+        position = lovr.math.vec3(0,80,0),
         movespeed = 10,
         pitch = 0,
         yaw = 0
@@ -122,6 +123,10 @@ function lovr.load()
 
     --gen_chunk(0,0)
     --gen_chunk(0,-1)
+
+    s_width, s_height = lovr.graphics.getDimensions()
+    fov = 72
+    fov_origin = fov
 end
 
 local counter = 0
@@ -145,7 +150,7 @@ function lovr.update(dt)
     
     if time_delay then
         time_delay = time_delay + dt
-        if time_delay > 0.05 then
+        --if time_delay > 0.05 then
         time_delay = 0
         gen_chunk(curr_chunk_index.x,curr_chunk_index.z)
 
@@ -155,9 +160,10 @@ function lovr.update(dt)
             curr_chunk_index.z = curr_chunk_index.z + 1
             if curr_chunk_index.z > test_view_distance then
                 time_delay = nil
+                gen_complete = true
             end
         end
-        end
+        --end
     end
     
     --for x = -10,10 do
@@ -184,6 +190,8 @@ function lovr.draw()
     lovr.graphics.transform(-x,-y,-z)
 
     lovr.graphics.rotate(1 * math.pi/2, 0, 1, 0)
+
+    lovr.graphics.setProjection(lovr.math.mat4():perspective(0.01, 1000, 90/fov,s_width/s_height))
 
     for _,data in pairs(chunk_pool) do
 

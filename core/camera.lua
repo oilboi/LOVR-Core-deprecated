@@ -1,11 +1,50 @@
+local fov_mod = 0
+local up = true
 function camera_look(dt)
     local velocity = {x=0,y=0,z=0}
 
     if lovr.keyboard.isDown('w', 'up') then
         velocity.z = 1
+        fov = fov - dt*100
+        if fov < fov_origin-20 then
+            fov = fov_origin-20
+        end
     elseif lovr.keyboard.isDown('s', 'down') then
         velocity.z = -1
+        fov = fov + dt*100
+        if fov > fov_origin+20 then
+            fov = fov_origin+20
+        end
     end
+
+    if gen_complete then
+        if up then
+            fov_mod = fov_mod + dt*50
+            if fov_mod >= 15 then
+                up = not up
+            end
+        else
+            fov_mod = fov_mod - dt*50
+            if fov_mod <= -15 then
+                up = not up
+            end
+        end
+    end
+    fov = fov_origin + fov_mod
+
+    --[[
+    if fov < fov_origin and velocity.z == 0 then
+        fov = fov + dt*100
+        if fov > fov_origin then
+            fov = fov_origin
+        end
+    elseif fov > fov_origin and velocity.z == 0 then
+        fov = fov - dt*100
+        if fov < fov_origin then
+            fov = fov_origin
+        end
+    end
+    ]]--
 
     if lovr.keyboard.isDown('a', 'left') then
         velocity.x = -1        
