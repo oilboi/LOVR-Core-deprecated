@@ -12,6 +12,9 @@ require 'chunk_vertice_generator'
 require 'input'
 require 'camera'
 
+--this holds the data for the gpu to render
+local chunk_pool = {}
+
 function hash_position(x,z)
 	return(tostring(x)..","..(z))
 end
@@ -45,14 +48,19 @@ function gen_chunk_data(x,z)
     end
 end
 
---this holds the data for the gpu to render
-local chunk_pool = {}
+
+local function set_block(x,y,z)
+    if memory_map[x] and memory_map[x][z] and memory_map[x][z][y] then
+        memory_map[x][z][y] = math.random(0,2)
+        chunk_stack_direct_update(chunk_pool,x,y,z)
+    end
+end
 
 function chunk_update_vert(x,z)
     local ref = hash_position(x,z)
     if chunk_pool[ref] then
         chunk_pool[ref] = generate_chunk_vertices(x*16,z*16)
-        for _,mesh in ipairs(chunk_pool[ref]) do
+        for _,mesh in pairs(chunk_pool[ref]) do
             mesh:setMaterial(dirt)
         end
     end
@@ -69,7 +77,7 @@ function gen_chunk(x,z)
     --chunk_pool[ref].data = chunk_data
     
     chunk_pool[ref] = generate_chunk_vertices(x*16,z*16)
-    for _,mesh in ipairs(chunk_pool[ref]) do
+    for _,mesh in pairs(chunk_pool[ref]) do
         mesh:setMaterial(dirt)
     end
 
@@ -109,7 +117,8 @@ end
 local counter = 0
 local up = true
 local time_delay = 0
-local curr_chunk_index = {x=-7,z=-7}
+local test_view_distance = 3
+local curr_chunk_index = {x=-test_view_distance,z=-test_view_distance}
 function lovr.update(dt)
     camera_look(dt)
     if up then
@@ -125,21 +134,23 @@ function lovr.update(dt)
     
     if time_delay then
         time_delay = time_delay + dt
-        if time_delay > 0.25 then
+        if time_delay > 0.05 then
         time_delay = 0
         gen_chunk(curr_chunk_index.x,curr_chunk_index.z)
 
         curr_chunk_index.x = curr_chunk_index.x + 1
-        if curr_chunk_index.x > 2 then
-            curr_chunk_index.x = -7
+        if curr_chunk_index.x > test_view_distance then
+            curr_chunk_index.x = -test_view_distance
             curr_chunk_index.z = curr_chunk_index.z + 1
-            if curr_chunk_index.z > 7 then
+            if curr_chunk_index.z > test_view_distance then
                 time_delay = nil
             end
         end
         end
     end
     
+
+    set_block(0,127,0)
 end
 
 --local predef = chunk_size * number_of_chunks
