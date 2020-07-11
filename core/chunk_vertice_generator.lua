@@ -1,27 +1,24 @@
 -- lua locals
 local
-ipairs,lovr,math
+lovr,math
 =
-ipairs,lovr,math
+lovr,math
 
 local chunk_size = chunksize
 
 local max_ids = 2
 
-local function block_check(chunk_data,x,y,z)
-    if not chunk_data[x] then
+local function block_check(x,y,z)
+    if not memory_map[x] then
         return nil
     end
-    if not chunk_data[x][y] then
+    if not memory_map[x][z] then
         return nil
     end
-    --if not chunk_data[x][y][z] then
-    --    return nil
-    --end
-    return chunk_data[x][y][z]
+    return memory_map[x][z][y]
 end
 
-function generate_chunk_vertices(chunk_data,chunk_x,chunk_y,chunk_z)
+function generate_chunk_vertices(chunk_x,chunk_z)
     
     local chunk_vertices = {
     }
@@ -35,10 +32,14 @@ function generate_chunk_vertices(chunk_data,chunk_x,chunk_y,chunk_z)
     
     local index_translation = {1,  2,  3,  1,  3,  4 }
 
-    for x,datax in ipairs(chunk_data) do
-    for y,datay in ipairs(datax) do
-    for z,data  in ipairs(datay) do
-        
+    for y = 0,127 do
+    
+    for z = chunk_z,chunk_z+15 do
+    
+    for x = chunk_x,chunk_x+15 do
+
+        local data = block_check(x,y,z)
+
         if data > 0 then
 
         local translate_index = 1
@@ -49,13 +50,13 @@ function generate_chunk_vertices(chunk_data,chunk_x,chunk_y,chunk_z)
         local id_min = (data/max_ids)-shift
         local id_max = (data/max_ids)
 
-        local block_pick = block_check(chunk_data,x,y,z-1)
+        local block_pick = block_check(x,y,z-1)
         if not block_pick or block_pick == 0 then
             -- Face left
-            chunk_vertices[#chunk_vertices+1] = { x+0+chunk_x, y+0+chunk_y,z+0+chunk_z, id_min, 0} -- 0, 0
-            chunk_vertices[#chunk_vertices+1] = { x+0+chunk_x, y+1+chunk_y,z+0+chunk_z, id_min, 1} -- 0, 1
-            chunk_vertices[#chunk_vertices+1] = { x+1+chunk_x, y+1+chunk_y,z+0+chunk_z, id_max, 1} -- 1, 1
-            chunk_vertices[#chunk_vertices+1] = { x+1+chunk_x, y+0+chunk_y,z+0+chunk_z, id_max, 0} -- 1, 0
+            chunk_vertices[#chunk_vertices+1] = { x+0, y+0,z+0, id_min, 0} -- 0, 0
+            chunk_vertices[#chunk_vertices+1] = { x+0, y+1,z+0, id_min, 1} -- 0, 1
+            chunk_vertices[#chunk_vertices+1] = { x+1, y+1,z+0, id_max, 1} -- 1, 1
+            chunk_vertices[#chunk_vertices+1] = { x+1, y+0,z+0, id_max, 0} -- 1, 0
 
 
             for i = 1,6 do
@@ -64,13 +65,13 @@ function generate_chunk_vertices(chunk_data,chunk_x,chunk_y,chunk_z)
             vertice_count = vertice_count + 4
         end
 
-        local block_pick = block_check(chunk_data,x,y+1,z)
+        local block_pick = block_check(x,y+1,z)
         if not block_pick or block_pick == 0 then
             -- Face top
-            chunk_vertices[#chunk_vertices+1] = { x+1+chunk_x, y+1+chunk_y, z+0+chunk_z, id_min, 0} -- 0, 0
-            chunk_vertices[#chunk_vertices+1] = { x+0+chunk_x, y+1+chunk_y, z+0+chunk_z, id_min, 1} -- 0, 1
-            chunk_vertices[#chunk_vertices+1] = { x+0+chunk_x, y+1+chunk_y, z+1+chunk_z, id_max, 1} -- 1, 1
-            chunk_vertices[#chunk_vertices+1] = { x+1+chunk_x, y+1+chunk_y, z+1+chunk_z, id_max, 0} -- 1, 0
+            chunk_vertices[#chunk_vertices+1] = { x+1, y+1, z+0, id_min, 0} -- 0, 0
+            chunk_vertices[#chunk_vertices+1] = { x+0, y+1, z+0, id_min, 1} -- 0, 1
+            chunk_vertices[#chunk_vertices+1] = { x+0, y+1, z+1, id_max, 1} -- 1, 1
+            chunk_vertices[#chunk_vertices+1] = { x+1, y+1, z+1, id_max, 0} -- 1, 0
 
             for i = 1,6 do
                 chunk_indexes[#chunk_indexes+1] = index_translation[i]+vertex_count+vertice_count
@@ -78,13 +79,13 @@ function generate_chunk_vertices(chunk_data,chunk_x,chunk_y,chunk_z)
             vertice_count = vertice_count + 4
         end
 
-        local block_pick = block_check(chunk_data,x+1,y,z)
+        local block_pick = block_check(x+1,y,z)
         if not block_pick or block_pick == 0 then
             -- Face front
-            chunk_vertices[#chunk_vertices+1] = { x+1+chunk_x, y+0+chunk_y, z+0+chunk_z, id_min, 0} -- 0, 0
-            chunk_vertices[#chunk_vertices+1] = { x+1+chunk_x, y+1+chunk_y, z+0+chunk_z, id_min, 1} -- 0, 1
-            chunk_vertices[#chunk_vertices+1] = { x+1+chunk_x, y+1+chunk_y, z+1+chunk_z, id_max, 1} -- 1, 1
-            chunk_vertices[#chunk_vertices+1] = { x+1+chunk_x, y+0+chunk_y, z+1+chunk_z, id_max, 0} -- 1, 0
+            chunk_vertices[#chunk_vertices+1] = { x+1, y+0, z+0, id_min, 0} -- 0, 0
+            chunk_vertices[#chunk_vertices+1] = { x+1, y+1, z+0, id_min, 1} -- 0, 1
+            chunk_vertices[#chunk_vertices+1] = { x+1, y+1, z+1, id_max, 1} -- 1, 1
+            chunk_vertices[#chunk_vertices+1] = { x+1, y+0, z+1, id_max, 0} -- 1, 0
 
             for i = 1,6 do
                 chunk_indexes[#chunk_indexes+1] = index_translation[i]+vertex_count+vertice_count
@@ -92,13 +93,13 @@ function generate_chunk_vertices(chunk_data,chunk_x,chunk_y,chunk_z)
             vertice_count = vertice_count + 4
         end
 
-        local block_pick = block_check(chunk_data,x-1,y,z)
+        local block_pick = block_check(x-1,y,z)
         if not block_pick or block_pick == 0 then
             -- Face back
-            chunk_vertices[#chunk_vertices+1] = { x+0+chunk_x, y+0+chunk_y, z+0+chunk_z, id_max, 0} -- 1, 0
-            chunk_vertices[#chunk_vertices+1] = { x+0+chunk_x, y+0+chunk_y, z+1+chunk_z, id_min, 0} -- 0, 0
-            chunk_vertices[#chunk_vertices+1] = { x+0+chunk_x, y+1+chunk_y, z+1+chunk_z, id_min, 1} -- 0, 1
-            chunk_vertices[#chunk_vertices+1] = { x+0+chunk_x, y+1+chunk_y, z+0+chunk_z, id_max, 1} -- 1, 1
+            chunk_vertices[#chunk_vertices+1] = { x+0, y+0, z+0, id_max, 0} -- 1, 0
+            chunk_vertices[#chunk_vertices+1] = { x+0, y+0, z+1, id_min, 0} -- 0, 0
+            chunk_vertices[#chunk_vertices+1] = { x+0, y+1, z+1, id_min, 1} -- 0, 1
+            chunk_vertices[#chunk_vertices+1] = { x+0, y+1, z+0, id_max, 1} -- 1, 1
 
             for i = 1,6 do
                 chunk_indexes[#chunk_indexes+1] = index_translation[i]+vertex_count+vertice_count
@@ -106,13 +107,13 @@ function generate_chunk_vertices(chunk_data,chunk_x,chunk_y,chunk_z)
             vertice_count = vertice_count + 4
         end
 
-        local block_pick = block_check(chunk_data,x,y,z+1)
+        local block_pick = block_check(x,y,z+1)
         if not block_pick or block_pick == 0 then
             -- Face right
-            chunk_vertices[#chunk_vertices+1] = { x+1+chunk_x, y+1+chunk_y, z+1+chunk_z, id_min, 1} -- 0, 1
-            chunk_vertices[#chunk_vertices+1] = { x+0+chunk_x, y+1+chunk_y, z+1+chunk_z, id_max, 1} -- 1, 1
-            chunk_vertices[#chunk_vertices+1] = { x+0+chunk_x, y+0+chunk_y, z+1+chunk_z, id_max, 0} -- 1, 0
-            chunk_vertices[#chunk_vertices+1] = { x+1+chunk_x, y+0+chunk_y, z+1+chunk_z, id_min, 0} -- 0, 0
+            chunk_vertices[#chunk_vertices+1] = { x+1, y+1, z+1, id_min, 1} -- 0, 1
+            chunk_vertices[#chunk_vertices+1] = { x+0, y+1, z+1, id_max, 1} -- 1, 1
+            chunk_vertices[#chunk_vertices+1] = { x+0, y+0, z+1, id_max, 0} -- 1, 0
+            chunk_vertices[#chunk_vertices+1] = { x+1, y+0, z+1, id_min, 0} -- 0, 0
 
             for i = 1,6 do
                 chunk_indexes[#chunk_indexes+1] = index_translation[i]+vertex_count+vertice_count
@@ -120,13 +121,13 @@ function generate_chunk_vertices(chunk_data,chunk_x,chunk_y,chunk_z)
             vertice_count = vertice_count + 4
         end
 
-        local block_pick = block_check(chunk_data,x,y-1,z)
+        local block_pick = block_check(x,y-1,z)
         if not block_pick or block_pick == 0 then
             -- Face bottom
-            chunk_vertices[#chunk_vertices+1] = { x+0+chunk_x, y+0+chunk_y, z+0+chunk_z, id_max, 1} -- 1, 1
-            chunk_vertices[#chunk_vertices+1] = { x+1+chunk_x, y+0+chunk_y, z+0+chunk_z, id_max, 0} -- 1, 0
-            chunk_vertices[#chunk_vertices+1] = { x+1+chunk_x, y+0+chunk_y, z+1+chunk_z, id_min, 0} -- 0, 0
-            chunk_vertices[#chunk_vertices+1] = { x+0+chunk_x, y+0+chunk_y, z+1+chunk_z, id_min, 1} -- 0, 1
+            chunk_vertices[#chunk_vertices+1] = { x+0, y+0, z+0, id_max, 1} -- 1, 1
+            chunk_vertices[#chunk_vertices+1] = { x+1, y+0, z+0, id_max, 0} -- 1, 0
+            chunk_vertices[#chunk_vertices+1] = { x+1, y+0, z+1, id_min, 0} -- 0, 0
+            chunk_vertices[#chunk_vertices+1] = { x+0, y+0, z+1, id_min, 1} -- 0, 1
 
             for i = 1,6 do
                 chunk_indexes[#chunk_indexes+1] = index_translation[i]+vertex_count+vertice_count

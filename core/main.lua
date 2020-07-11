@@ -12,52 +12,70 @@ require 'chunk_vertice_generator'
 require 'input'
 require 'camera'
 
-
-
-function hash_position(x,y,z)
-	return (z + 32768) * 65536 * 65536
-		 + (y + 32768) * 65536
-		 +  x + 32768
+function hash_position(x,z)
+	return(tostring(x)..","..(z))
 end
 
-function get_position_from_hash(hash)
-	local x = (hash % 65536) - 32768
-	hash  = math.floor(hash / 65536)
-	local y = (hash % 65536) - 32768
-	hash  = math.floor(hash / 65536)
-	local z = (hash % 65536) - 32768
-	return x,y,z
+memory_map = {}
+
+function gen_chunk_data(x,z)
+
+    for x = x,x+15 do
+    
+    if not memory_map[x] then
+
+        memory_map[x] = {}
+
+    end
+
+    for z = z,z+15 do
+
+    if not memory_map[x][z] then
+
+        memory_map[x][z] = {}
+
+    end
+
+    for y = 0,127 do
+
+        memory_map[x][z][y] = lovr.math.random(1,2)
+
+    end
+    end
+    end
 end
 
-
+--this holds the data for the gpu to render
 local chunk_pool = {}
 
-function gen_chunk_data()
-    local chunk_data = {}
-    for x = 1,chunk_size do
-    chunk_data[x] = {}
-    for y = 1,chunk_size do
-    chunk_data[x][y] = {}
-    for z = 1,chunk_size do
-    chunk_data[x][y][z] = lovr.math.random(1,2)
+function chunk_update_vert(x,z)
+    local ref = hash_position(x,z)
+    if chunk_pool[ref] then
+        chunk_pool[ref] = generate_chunk_vertices(x*16,z*16)
+        chunk_pool[ref]:setMaterial(dirt)
     end
-    end
-    end
-    return(chunk_data)
 end
 
 
-function gen_chunk(x,y,z)
-    local ref = hash_position(x,y,z)
-    chunk_pool[ref] = {}
+function gen_chunk(x,z)
+    local ref = hash_position(x,z)
     
-    local chunk_data = gen_chunk_data()
-    
-    chunk_pool[ref].data = chunk_data
-    
-    chunk_pool[ref].mesh = generate_chunk_vertices(chunk_data,x*chunk_size,y*chunk_size,z*chunk_size)
+    --chunk_pool[ref] = {}
 
-    chunk_pool[ref].mesh:setMaterial(dirt)
+    gen_chunk_data(x*16,z*16)
+    
+    --chunk_pool[ref].data = chunk_data
+    
+    chunk_pool[ref] = generate_chunk_vertices(x*16,z*16)
+    chunk_pool[ref]:setMaterial(dirt)
+
+    for xer = -1,1 do
+    for zer = -1,1 do
+        if math.abs(xer) + math.abs(zer) == 1 then
+            chunk_update_vert(x+xer,z+zer)
+        end
+    end
+    end
 end
 
 function lovr.load()
@@ -69,7 +87,7 @@ function lovr.load()
     
     camera = {
         transform = lovr.math.vec3(),
-        position = lovr.math.vec3(),
+        position = lovr.math.vec3(0,0,0),
         movespeed = 10,
         pitch = 0,
         yaw = 0
@@ -79,13 +97,15 @@ function lovr.load()
 
     dirt = lovr.graphics.newMaterial()
     dirt:setTexture(dirttexture)
-    
+
+    --gen_chunk(0,0)
+    --gen_chunk(0,-1)
 end
 
 local counter = 0
 local up = true
 local time_delay = 0
-local curr_chunk_index = {x=-2,y=-2,z=-2}
+local curr_chunk_index = {x=-2,z=-2}
 function lovr.update(dt)
     camera_look(dt)
     if up then
@@ -98,30 +118,26 @@ function lovr.update(dt)
     elseif counter <= 0 then
         up = true
     end
+
     if time_delay then
         time_delay = time_delay + dt
-        if time_delay >= 0.05 then
-            time_delay = 0
-            gen_chunk(curr_chunk_index.x,curr_chunk_index.y,curr_chunk_index.z)
+        if time_delay > 0.25 then
+        time_delay = 0
+        gen_chunk(curr_chunk_index.x,curr_chunk_index.z)
 
-            curr_chunk_index.x = curr_chunk_index.x + 1
-            if curr_chunk_index.x > 2 then
-                curr_chunk_index.x = -2
-                curr_chunk_index.y = curr_chunk_index.y + 1
-                if curr_chunk_index.y > 2 then
-                    curr_chunk_index.y = -2
-                    curr_chunk_index.z = curr_chunk_index.z + 1
-                    if curr_chunk_index.z > 2 then
-                        time_delay = nil
-                    end
-                end
+        curr_chunk_index.x = curr_chunk_index.x + 1
+        if curr_chunk_index.x > 2 then
+            curr_chunk_index.x = -2
+            curr_chunk_index.z = curr_chunk_index.z + 1
+            if curr_chunk_index.z > 2 then
+                time_delay = nil
             end
+        end
         end
     end
 end
 
 --local predef = chunk_size * number_of_chunks
-
 
 function lovr.draw()
     --this is transformed from the camera rotation class
@@ -139,7 +155,7 @@ function lovr.draw()
     lovr.graphics.rotate(1 * math.pi/2, 0, 1, 0)
     for _,data in pairs(chunk_pool) do
         lovr.graphics.push()
-        data.mesh:draw()
+        data:draw()
         lovr.graphics.pop()
     end
 
@@ -153,7 +169,6 @@ function lovr.draw()
 
     local pos = {x=-z+dir.x,y=y+dir.y,z=x+dir.z}
 
-    
     local fps = lovr.timer.getFPS()
 
     --time = lovr.timer.getTime()-time
