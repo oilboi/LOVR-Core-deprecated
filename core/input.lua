@@ -4,6 +4,23 @@ function lovr.keypressed(key)
     end
 end
 
+function lovr.mousepressed(x, y, button)
+    if x then
+        set_block(x,127,0)
+
+        local cx,cy,cz = camera.position:unpack()
+
+        local dir = {x=math.cos(-camera.yaw),z=math.sin(-camera.yaw),y=math.sin(camera.pitch)}
+    
+        dir.x = dir.x * 4
+        dir.y = dir.y * 4
+        dir.z = dir.z * 4
+
+        local pos = {x=math.floor(-cz+dir.x+0.5),y=math.floor(cy+dir.y-0.5),z=math.floor(cx+dir.z-0.5)}
+        set_block(pos.x,pos.y,pos.z,0)
+    end
+end
+
 function lovr.mousemoved(x, y, dx, dy)
 
     camera.pitch = camera.pitch - dy * .001

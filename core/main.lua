@@ -49,9 +49,9 @@ function gen_chunk_data(x,z)
 end
 
 
-local function set_block(x,y,z)
+function set_block(x,y,z,block)
     if memory_map[x] and memory_map[x][z] and memory_map[x][z][y] then
-        memory_map[x][z][y] = math.random(0,2)
+        memory_map[x][z][y] = block
         chunk_stack_direct_update(chunk_pool,x,y,z)
     end
 end
@@ -163,6 +163,9 @@ function lovr.draw()
    -- local time = lovr.timer.getTime()
 
     local x,y,z = camera.position:unpack()
+    x = x - 0.5
+    y = y - 0.5
+    z = z - 0.5
 
     lovr.graphics.rotate(-camera.pitch, 1, 0, 0)
     lovr.graphics.rotate(-camera.yaw, 0, 1, 0)
@@ -170,8 +173,6 @@ function lovr.draw()
     lovr.graphics.transform(-x,-y,-z)
 
     lovr.graphics.rotate(1 * math.pi/2, 0, 1, 0)
-
-    lovr.graphics.translate(-0.5, -0.5, -0.5)
 
     for _,data in pairs(chunk_pool) do
 
@@ -195,7 +196,7 @@ function lovr.draw()
     local fps = lovr.timer.getFPS()
 
     --time = lovr.timer.getTime()-time
-    lovr.graphics.print(tostring(global_time_print), pos.x, pos.y, pos.z,1,camera.yaw-math.pi/2,0,1,0)
+    lovr.graphics.print(tostring("+"), pos.x, pos.y, pos.z,1,camera.yaw-math.pi/2,0,1,0)
 
     --lovr.graphics.cube('line',  pos.x, pos.y+counter, pos.z, .5, lovr.timer.getTime())
 
