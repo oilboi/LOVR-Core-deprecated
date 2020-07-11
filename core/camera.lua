@@ -5,18 +5,23 @@ function camera_look(dt)
 
     if lovr.keyboard.isDown('w', 'up') then
         velocity.z = 1
+        --[[
         fov = fov - dt*100
         if fov < fov_origin-20 then
             fov = fov_origin-20
         end
+        ]]--
     elseif lovr.keyboard.isDown('s', 'down') then
         velocity.z = -1
+        --[[
         fov = fov + dt*100
         if fov > fov_origin+20 then
             fov = fov_origin+20
         end
+        ]]--
     end
 
+    --[[
     if gen_complete then
         if up then
             fov_mod = fov_mod + dt*50
@@ -31,7 +36,7 @@ function camera_look(dt)
         end
     end
     fov = fov_origin + fov_mod
-
+    ]]--
     --[[
     if fov < fov_origin and velocity.z == 0 then
         fov = fov + dt*100
