@@ -52,7 +52,9 @@ function chunk_update_vert(x,z)
     local ref = hash_position(x,z)
     if chunk_pool[ref] then
         chunk_pool[ref] = generate_chunk_vertices(x*16,z*16)
-        chunk_pool[ref]:setMaterial(dirt)
+        for _,mesh in ipairs(chunk_pool[ref]) do
+            mesh:setMaterial(dirt)
+        end
     end
 end
 
@@ -67,7 +69,9 @@ function gen_chunk(x,z)
     --chunk_pool[ref].data = chunk_data
     
     chunk_pool[ref] = generate_chunk_vertices(x*16,z*16)
-    chunk_pool[ref]:setMaterial(dirt)
+    for _,mesh in ipairs(chunk_pool[ref]) do
+        mesh:setMaterial(dirt)
+    end
 
     for xer = -1,1 do
     for zer = -1,1 do
@@ -118,7 +122,7 @@ function lovr.update(dt)
     elseif counter <= 0 then
         up = true
     end
-
+    
     if time_delay then
         time_delay = time_delay + dt
         if time_delay > 0.25 then
@@ -135,6 +139,7 @@ function lovr.update(dt)
         end
         end
     end
+    
 end
 
 --local predef = chunk_size * number_of_chunks
@@ -154,8 +159,11 @@ function lovr.draw()
 
     lovr.graphics.rotate(1 * math.pi/2, 0, 1, 0)
     for _,data in pairs(chunk_pool) do
+
         lovr.graphics.push()
-        data:draw()
+        for _,mesh in pairs(data) do
+            mesh:draw()
+        end
         lovr.graphics.pop()
     end
 
