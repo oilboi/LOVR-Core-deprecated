@@ -100,7 +100,7 @@ function lovr.update(dt)
     end
     if time_delay then
         time_delay = time_delay + dt
-        if time_delay >= 0.25 then
+        if time_delay >= 0.05 then
             time_delay = 0
             gen_chunk(curr_chunk_index.x,curr_chunk_index.y,curr_chunk_index.z)
 
