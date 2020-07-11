@@ -41,8 +41,11 @@ function gen_chunk_data(x,z)
 
     for y = 0,127 do
 
-        memory_map[x][z][y] = lovr.math.random(1,2)
-
+        if y < 80 then
+            memory_map[x][z][y] = lovr.math.random(1,2)
+        else
+            memory_map[x][z][y] = 0
+        end
     end
     end
     end
@@ -117,9 +120,10 @@ end
 local counter = 0
 local up = true
 local time_delay = 0
-local test_view_distance = 3
+local test_view_distance = 7
 local curr_chunk_index = {x=-test_view_distance,z=-test_view_distance}
 function lovr.update(dt)
+    dig()
     camera_look(dt)
     if up then
         counter = counter + dt/5
@@ -196,7 +200,7 @@ function lovr.draw()
     local fps = lovr.timer.getFPS()
 
     --time = lovr.timer.getTime()-time
-    lovr.graphics.print(tostring("+"), pos.x, pos.y, pos.z,1,camera.yaw-math.pi/2,0,1,0)
+    lovr.graphics.print(tostring(fps), pos.x, pos.y, pos.z,1,camera.yaw-math.pi/2,0,1,0)
 
     --lovr.graphics.cube('line',  pos.x, pos.y+counter, pos.z, .5, lovr.timer.getTime())
 
