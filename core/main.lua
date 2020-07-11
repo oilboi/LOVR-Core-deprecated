@@ -46,8 +46,10 @@ function gen_chunk_data(x,z)
     for y = 0,127 do
 
         
-        if y < noise then
-            memory_map[x][z][y] = lovr.math.random(1,2)
+        if y == noise then
+            memory_map[x][z][y] = 1
+        elseif y < noise then
+            memory_map[x][z][y] = 2
         else
             memory_map[x][z][y] = 0
         end
