@@ -87,7 +87,7 @@ function lovr.load()
     
     camera = {
         transform = lovr.math.vec3(),
-        position = lovr.math.vec3(0,0,0),
+        position = lovr.math.vec3(0,130,0),
         movespeed = 10,
         pitch = 0,
         yaw = 0
@@ -105,7 +105,7 @@ end
 local counter = 0
 local up = true
 local time_delay = 0
-local curr_chunk_index = {x=-2,z=-2}
+local curr_chunk_index = {x=-7,z=-7}
 function lovr.update(dt)
     camera_look(dt)
     if up then
@@ -127,9 +127,9 @@ function lovr.update(dt)
 
         curr_chunk_index.x = curr_chunk_index.x + 1
         if curr_chunk_index.x > 2 then
-            curr_chunk_index.x = -2
+            curr_chunk_index.x = -7
             curr_chunk_index.z = curr_chunk_index.z + 1
-            if curr_chunk_index.z > 2 then
+            if curr_chunk_index.z > 7 then
                 time_delay = nil
             end
         end
