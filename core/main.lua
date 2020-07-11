@@ -19,6 +19,8 @@ function hash_position(x,z)
 	return(tostring(x)..","..(z))
 end
 
+local seed = math.random()
+
 memory_map = {}
 
 function gen_chunk_data(x,z)
@@ -39,9 +41,12 @@ function gen_chunk_data(x,z)
 
     end
 
+    local noise = math.ceil(lovr.math.noise(x/100, z/100,seed)*100)
+
     for y = 0,127 do
 
-        if y < 80 then
+        
+        if y < noise then
             memory_map[x][z][y] = lovr.math.random(1,2)
         else
             memory_map[x][z][y] = 0
