@@ -126,3 +126,10 @@ function camera_look(dt)
 
     --camera.transform:rotate(camera.pitch, 1, 0, 0)
 end
+
+--this is a useful function for easily allowing look direction
+function get_camera_dir()
+    return math.cos(-camera.pitch) * math.cos(-camera.yaw),
+           math.sin(camera.pitch),
+           math.cos(-camera.pitch) * math.sin(-camera.yaw)
+end

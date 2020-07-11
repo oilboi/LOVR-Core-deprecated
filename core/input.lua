@@ -6,30 +6,29 @@ end
 
 function dig()
     if lovr.mouse.isDown(1) then
-        set_block(x,127,0)
-
         local cx,cy,cz = camera.position:unpack()
 
-        local dir = {x=math.cos(-camera.yaw),z=math.sin(-camera.yaw),y=math.sin(camera.pitch)}
-    
-        dir.x = dir.x * 4
-        dir.y = dir.y * 4
-        dir.z = dir.z * 4
-
-        local pos = {x=math.floor(-cz+dir.x+0.5),y=math.floor(cy+dir.y-0.5),z=math.floor(cx+dir.z-0.5)}
+        local dx,dy,dz = get_camera_dir()
+        dx = dx * 4
+        dy = dy * 4
+        dz = dz * 4
+        local pos = {x=-cz+dx,y=cy+dy,z=cx+dz}
+        pos.x =math.floor( pos.x + 0.5 )
+        pos.y =math.floor( pos.y - 0.5 )
+        pos.z =math.floor( pos.z - 0.5 )
         set_block(pos.x,pos.y,pos.z,0)
-    elseif lovr.mouse.isDown(2) then
-            set_block(x,127,0)
-    
+
+    elseif lovr.mouse.isDown(2) then    
             local cx,cy,cz = camera.position:unpack()
     
-            local dir = {x=math.cos(-camera.yaw),z=math.sin(-camera.yaw),y=math.sin(camera.pitch)}
-        
-            dir.x = dir.x * 4
-            dir.y = dir.y * 4
-            dir.z = dir.z * 4
-    
-            local pos = {x=math.floor(-cz+dir.x+0.5),y=math.floor(cy+dir.y-0.5),z=math.floor(cx+dir.z-0.5)}
+            local dx,dy,dz = get_camera_dir()
+            dx = dx * 4
+            dy = dy * 4
+            dz = dz * 4
+            local pos = {x=-cz+dx,y=cy+dy,z=cx+dz}
+            pos.x =math.floor( pos.x + 0.5 )
+            pos.y =math.floor( pos.y - 0.5 )
+            pos.z =math.floor( pos.z - 0.5 )
             set_block(pos.x,pos.y,pos.z,lovr.math.random(1,2))
     end
 end

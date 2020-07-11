@@ -204,13 +204,12 @@ function lovr.draw()
 
     lovr.graphics.push()
 
-    local dir = {x=math.cos(-camera.yaw),z=math.sin(-camera.yaw),y=math.sin(camera.pitch)}
     
-    dir.x = dir.x * 4
-    dir.y = dir.y * 4
-    dir.z = dir.z * 4
-
-    local pos = {x=-z+dir.x,y=y+dir.y,z=x+dir.z}
+    local dx,dy,dz = get_camera_dir()
+    dx = dx * 4
+    dy = dy * 4
+    dz = dz * 4
+    local pos = {x=-z+dx,y=y+dy,z=x+dz}
 
     local fps = lovr.timer.getFPS()
 
