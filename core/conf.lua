@@ -8,9 +8,9 @@ function lovr.conf(t)
     t.hotkeys = true
 
     -- Headset settings
-    --t.headset.drivers = { 'leap', 'openxr', 'oculus', 'oculusmobile', 'openvr', 'webvr', 'desktop' }
-    --t.headset.msaa = 0
-    --t.headset.offset = 0
+    t.headset.drivers = {}--{ 'leap', 'openxr', 'oculus', 'oculusmobile', 'openvr', 'webvr', 'desktop' }
+    t.headset.msaa = 0
+    t.headset.offset = 0
 
     -- Math settings
     --t.math.globals = true
@@ -30,7 +30,7 @@ function lovr.conf(t)
     t.window.width = 1900
     t.window.height = 900
     t.window.fullscreen = true
-    t.window.msaa = 16
+    t.window.msaa = 0
     t.window.vsync = 0
     t.window.title = 'Core'
     t.window.icon = nil
