@@ -165,7 +165,7 @@ end
 
 
 function raycast(length)
-    local time = lovr.timer.getTime()
+    --local time = lovr.timer.getTime()
     local r_length = 0
     local x,y,z
     local cx,cy,cz = camera.position:unpack()
@@ -197,5 +197,5 @@ function raycast(length)
             selected_block_above = nil
         end
     end
-    timer = lovr.timer.getTime() - time
+    --timer = lovr.timer.getTime() - time
 end

@@ -134,7 +134,7 @@ end
 local counter = 0
 local up = true
 local time_delay = 0
-local test_view_distance = 7
+local test_view_distance = 3
 local curr_chunk_index = {x=-test_view_distance,z=-test_view_distance}
 function lovr.update(dt)
     dig()
