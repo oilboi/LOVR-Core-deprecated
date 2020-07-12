@@ -152,16 +152,17 @@ function lovr.update(dt)
     
     if time_delay then
         time_delay = time_delay + dt
-        --if time_delay > 0.05 then
-        time_delay = 0
-        gen_chunk(curr_chunk_index.x,curr_chunk_index.z)
+        if time_delay > 0.02 then
+            time_delay = 0
+            gen_chunk(curr_chunk_index.x,curr_chunk_index.z)
 
-        curr_chunk_index.x = curr_chunk_index.x + 1
-        if curr_chunk_index.x > test_view_distance then
-            curr_chunk_index.x = -test_view_distance
-            curr_chunk_index.z = curr_chunk_index.z + 1
-            if curr_chunk_index.z > test_view_distance then
-                time_delay = nil
+            curr_chunk_index.x = curr_chunk_index.x + 1
+            if curr_chunk_index.x > test_view_distance then
+                curr_chunk_index.x = -test_view_distance
+                curr_chunk_index.z = curr_chunk_index.z + 1
+                if curr_chunk_index.z > test_view_distance then
+                    time_delay = nil
+                end
             end
         end
     end
