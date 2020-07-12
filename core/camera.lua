@@ -134,3 +134,30 @@ function get_camera_dir()
            math.cos(camera.pitch) * math.sin(-camera.yaw-math.pi/2)
 end
 
+
+function raycast(length)
+    local r_length = 0
+    local x,y,z
+    local cx,cy,cz = camera.position:unpack()
+    
+    local dx,dy,dz = get_camera_dir()
+
+    local solved = false
+    while  solved == false do
+        r_length = r_length + 0.05
+        x = math.floor(cx + (dx*r_length))
+        y = math.floor(cy + (dy*r_length))
+        z = math.floor(cz + (dz*r_length))
+
+        local found_block = block_check(x,y,z)
+
+        if found_block and found_block > 0 then
+            selected_block = {x=x,y=y,z=z}
+            return
+         end
+        if r_length >= length then
+            solved = true
+            selected_block = nil
+        end
+    end
+end

@@ -1,6 +1,7 @@
 global_time_print = 0
 chunksize = 16
 gen_complete = false
+selected_block = nil
 local chunk_size = chunksize
 
 lovr.keyboard = require 'lovr-keyboard'
@@ -160,10 +161,8 @@ function lovr.update(dt)
             curr_chunk_index.z = curr_chunk_index.z + 1
             if curr_chunk_index.z > test_view_distance then
                 time_delay = nil
-                gen_complete = true
             end
         end
-        --end
     end
     
     --for x = -10,10 do
@@ -211,9 +210,12 @@ function lovr.draw()
     local fps = lovr.timer.getFPS()
 
     --time = lovr.timer.getTime()-time
-    --lovr.graphics.print(tostring(fps), pos.x, pos.y, pos.z,1,camera.yaw,0,1,0)
+    lovr.graphics.print(tostring("+"), pos.x, pos.y, pos.z,1,camera.yaw,0,1,0)
 
-    lovr.graphics.cube('line',  pos.x, pos.y, pos.z, .5, lovr.timer.getTime())
+    if selected_block then
+        lovr.graphics.cube('line',  selected_block.x+0.5, selected_block.y+0.5, selected_block.z+0.5, 1)
+    end
+    --lovr.graphics.cube('line',  pos.x, pos.y, pos.z, .5, lovr.timer.getTime())
 
     lovr.graphics.pop()
 end
