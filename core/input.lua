@@ -13,11 +13,12 @@ function dig()
         dy = dy * 4
         dz = dz * 4
         local pos = {x=-cz+dx,y=cy+dy,z=cx+dz}
-        pos.x =math.floor( pos.x + 0.5 )
-        pos.y =math.floor( pos.y - 0.5 )
-        pos.z =math.floor( pos.z - 0.5 )
-        set_block(pos.x,pos.y,pos.z,0)
-
+        pos.x =math.floor( pos.x )
+        pos.y =math.floor( pos.y )
+        pos.z =math.floor( pos.z )
+        if block_check(pos.x,pos.y,pos.z) ~= 0 then
+            set_block(pos.x,pos.y,pos.z,0)
+        end
     elseif lovr.mouse.isDown(2) then    
             local cx,cy,cz = camera.position:unpack()
     
@@ -26,10 +27,12 @@ function dig()
             dy = dy * 4
             dz = dz * 4
             local pos = {x=-cz+dx,y=cy+dy,z=cx+dz}
-            pos.x =math.floor( pos.x + 0.5 )
-            pos.y =math.floor( pos.y - 0.5 )
-            pos.z =math.floor( pos.z - 0.5 )
-            set_block(pos.x,pos.y,pos.z,lovr.math.random(1,2))
+            pos.x =math.floor( pos.x )
+            pos.y =math.floor( pos.y )
+            pos.z =math.floor( pos.z )
+            if block_check(pos.x,pos.y,pos.z) == 0 then
+                set_block(pos.x,pos.y,pos.z,lovr.math.random(1,2))
+            end
     end
 end
 

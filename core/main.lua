@@ -180,9 +180,6 @@ function lovr.draw()
    -- local time = lovr.timer.getTime()
 
     local x,y,z = camera.position:unpack()
-    x = x - 0.5
-    y = y - 0.5
-    z = z - 0.5
 
     lovr.graphics.rotate(-camera.pitch, 1, 0, 0)
     lovr.graphics.rotate(-camera.yaw, 0, 1, 0)

@@ -8,7 +8,7 @@ local chunk_size = chunksize
 
 local max_ids = 2
 
-local function block_check(x,y,z)
+function block_check(x,y,z)
     if not memory_map[x] then
         return nil
     end
