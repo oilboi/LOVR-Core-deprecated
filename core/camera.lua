@@ -134,8 +134,38 @@ function get_camera_dir()
            math.cos(camera.pitch) * math.sin(-camera.yaw-math.pi/2)
 end
 
+function vector_to_dir(x,y,z)
+	if math.abs(y) > math.abs(x) and math.abs(y) > math.abs(z) then
+		-- above
+		if y < 0 then
+            return 0,-1,0
+		-- under
+        else
+            return 0,1,0
+		end
+    elseif math.abs(x) > math.abs(z) then
+        -- left
+		if x < 0 then
+            return -1,0,0
+        -- right
+		else
+			return 1,0,0
+		end
+    else
+        -- forwards
+		if z < 0 then
+            return 0,0,-1
+        -- backwards
+		else
+			return 0,0,1
+		end
+	end
+end
+
+
 
 function raycast(length)
+    local time = lovr.timer.getTime()
     local r_length = 0
     local x,y,z
     local cx,cy,cz = camera.position:unpack()
@@ -152,12 +182,20 @@ function raycast(length)
         local found_block = block_check(x,y,z)
 
         if found_block and found_block > 0 then
+            local check_x,check_y,check_z = vector_to_dir(
+                -dx,
+                -dy,
+                -dz
+            )
             selected_block = {x=x,y=y,z=z}
+            selected_block_above = {x=x+check_x,y=y+check_y,z=z+check_z}
             return
          end
         if r_length >= length then
             solved = true
             selected_block = nil
+            selected_block_above = nil
         end
     end
+    timer = lovr.timer.getTime() - time
 end

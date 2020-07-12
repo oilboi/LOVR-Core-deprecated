@@ -2,6 +2,7 @@ global_time_print = 0
 chunksize = 16
 gen_complete = false
 selected_block = nil
+collision_point = nil
 local chunk_size = chunksize
 
 lovr.keyboard = require 'lovr-keyboard'
@@ -171,7 +172,7 @@ function lovr.update(dt)
 end
 
 --local predef = chunk_size * number_of_chunks
-
+timer = 0
 function lovr.draw()
     --this is transformed from the camera rotation class
     --mat4(camera.transform):invert()

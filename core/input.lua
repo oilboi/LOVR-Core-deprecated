@@ -11,22 +11,10 @@ function dig()
         if block_check(selected_block.x,selected_block.y,selected_block.z) ~= 0 then
             set_block(selected_block.x,selected_block.y,selected_block.z,0)
         end
-    --[[
     elseif lovr.mouse.isDown(2) then    
-            local cx,cy,cz = camera.position:unpack()
-    
-            local dx,dy,dz = get_camera_dir()
-            dx = dx * 4
-            dy = dy * 4
-            dz = dz * 4
-            local pos = {x=-cz+dx,y=cy+dy,z=cx+dz}
-            pos.x =math.floor( pos.x )
-            pos.y =math.floor( pos.y )
-            pos.z =math.floor( pos.z )
-            if block_check(pos.x,pos.y,pos.z) == 0 then
-                set_block(pos.x,pos.y,pos.z,lovr.math.random(1,2))
-            end
-    ]]--
+        if selected_block_above and block_check(selected_block_above.x,selected_block_above.y,selected_block_above.z) == 0 then
+            set_block(selected_block_above.x,selected_block_above.y,selected_block_above.z,lovr.math.random(1,2))
+        end
     end
 
 
