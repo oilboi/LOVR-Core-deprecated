@@ -186,7 +186,7 @@ function lovr.draw()
 
     lovr.graphics.transform(-x,-y,-z)
 
-    lovr.graphics.rotate(1 * math.pi/2, 0, 1, 0)
+    --lovr.graphics.rotate(1 * math.pi/2, 0, 1, 0)
 
     lovr.graphics.setProjection(lovr.math.mat4():perspective(0.01, 1000, 90/fov,s_width/s_height))
 
@@ -206,14 +206,14 @@ function lovr.draw()
     dx = dx * 4
     dy = dy * 4
     dz = dz * 4
-    local pos = {x=-z+dx,y=y+dy,z=x+dz}
+    local pos = {x=x+dx,y=y+dy,z=z+dz}
 
     local fps = lovr.timer.getFPS()
 
     --time = lovr.timer.getTime()-time
-    lovr.graphics.print(tostring(fps), pos.x, pos.y, pos.z,1,camera.yaw-math.pi/2,0,1,0)
+    --lovr.graphics.print(tostring(fps), pos.x, pos.y, pos.z,1,camera.yaw,0,1,0)
 
-    --lovr.graphics.cube('line',  pos.x, pos.y+counter, pos.z, .5, lovr.timer.getTime())
+    lovr.graphics.cube('line',  pos.x, pos.y, pos.z, .5, lovr.timer.getTime())
 
     lovr.graphics.pop()
 end

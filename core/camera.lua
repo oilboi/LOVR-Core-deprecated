@@ -129,7 +129,8 @@ end
 
 --this is a useful function for easily allowing look direction
 function get_camera_dir()
-    return math.cos(-camera.pitch) * math.cos(-camera.yaw),
+    return math.cos(camera.pitch) * math.cos(-camera.yaw-math.pi/2),
            math.sin(camera.pitch),
-           math.cos(-camera.pitch) * math.sin(-camera.yaw)
+           math.cos(camera.pitch) * math.sin(-camera.yaw-math.pi/2)
 end
+

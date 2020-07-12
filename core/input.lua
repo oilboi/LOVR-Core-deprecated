@@ -5,6 +5,8 @@ function lovr.keypressed(key)
 end
 
 function dig()
+    raycast(4)
+    --[[
     if lovr.mouse.isDown(1) then
         local cx,cy,cz = camera.position:unpack()
 
@@ -34,6 +36,7 @@ function dig()
                 set_block(pos.x,pos.y,pos.z,lovr.math.random(1,2))
             end
     end
+    ]]--
 end
 
 function lovr.mousemoved(x, y, dx, dy)
