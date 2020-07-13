@@ -177,6 +177,8 @@ function lovr.draw()
 
     --this is where the ui should be drawn
     lovr.graphics.push()
+        
+        lovr.graphics.print("FPS:"..lovr.timer.getFPS(), -0.15, 0.072, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
         lovr.graphics.print("+", 0, 0, -0.1, 0.01, 0, 0, 1, 0)
     lovr.graphics.pop()
 
