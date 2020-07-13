@@ -17,10 +17,6 @@ require 'camera'
 --this holds the data for the gpu to render
 local chunk_pool = {}
 
-function hash_position(x,z)
-	return(tostring(x)..","..(z))
-end
-
 local seed = math.random()
 
 memory_map = {}
@@ -69,29 +65,17 @@ function set_block(x,y,z,block)
 end
 
 function chunk_update_vert(x,z)
-    local ref = hash_position(x,z)
-    if chunk_pool[ref] then
-        chunk_pool[ref] = generate_chunk_vertices(x*16,z*16)
-        for _,mesh in pairs(chunk_pool[ref]) do
-            mesh:setMaterial(dirt)
-        end
+    if chunk_pool[1] then
+        chunk_pool[1] = generate_chunk_vertices(x*16,z*16)
+        chunk_pool[1]:setMaterial(dirt)
     end
 end
 
 
 function gen_chunk(x,z)
-    local ref = hash_position(x,z)
-    
-    --chunk_pool[ref] = {}
-
     gen_chunk_data(x*16,z*16)
-    
-    --chunk_pool[ref].data = chunk_data
-    
-    chunk_pool[ref] = generate_chunk_vertices(x*16,z*16)
-    for _,mesh in pairs(chunk_pool[ref]) do
-        mesh:setMaterial(dirt)
-    end
+    chunk_pool[1] = generate_chunk_vertices(x*16,z*16)
+    chunk_pool[1]:setMaterial(dirt)
 
     for xer = -1,1 do
     for zer = -1,1 do
@@ -106,8 +90,6 @@ function lovr.load()
     lovr.mouse.setRelativeMode(true)
     lovr.graphics.setCullingEnabled(true)
     lovr.graphics.setBlendMode(nil,nil)
-
-
     --lovr.graphics.setWireframe(true)
     
     camera = {
@@ -123,7 +105,7 @@ function lovr.load()
     dirt = lovr.graphics.newMaterial()
     dirt:setTexture(dirttexture)
 
-    --gen_chunk(0,0)
+    gen_chunk(0,0)
     --gen_chunk(0,-1)
 
     s_width, s_height = lovr.graphics.getDimensions()
@@ -134,10 +116,10 @@ end
 local counter = 0
 local up = true
 local time_delay = 0
-local test_view_distance = 3
+local test_view_distance = 6
 local curr_chunk_index = {x=-test_view_distance,z=-test_view_distance}
 function lovr.update(dt)
-    dig()
+    --dig()
     camera_look(dt)
     if up then
         counter = counter + dt/5
@@ -150,6 +132,7 @@ function lovr.update(dt)
         up = true
     end
     
+    --[[
     if time_delay then
         time_delay = time_delay + dt
         if time_delay > 0.02 then
@@ -166,7 +149,7 @@ function lovr.update(dt)
             end
         end
     end
-    
+    ]]--
     --for x = -10,10 do
     --    set_block(x,127,0)
     --end
@@ -191,12 +174,10 @@ function lovr.draw()
 
     lovr.graphics.setProjection(lovr.math.mat4():perspective(0.01, 1000, 90/fov,s_width/s_height))
 
-    for _,data in pairs(chunk_pool) do
+    for _,mesh in pairs(chunk_pool) do
 
         lovr.graphics.push()
-        for _,mesh in pairs(data) do
-            mesh:draw()
-        end
+        mesh:draw()
         lovr.graphics.pop()
     end
 
@@ -212,7 +193,7 @@ function lovr.draw()
     local fps = lovr.timer.getFPS()
 
     --time = lovr.timer.getTime()-time
-    lovr.graphics.print(tostring("+"), pos.x, pos.y, pos.z,1,camera.yaw,0,1,0)
+    lovr.graphics.print(tostring(fps), pos.x, pos.y, pos.z,1,camera.yaw,0,1,0)
 
     if selected_block then
         lovr.graphics.cube('line',  selected_block.x+0.5, selected_block.y+0.5, selected_block.z+0.5, 1)
