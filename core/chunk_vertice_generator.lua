@@ -269,7 +269,7 @@ function generate_chunk_vertices(chunk_x,chunk_z)
             end
 
             local block_pick = global_block_check(adjuster_x+x,y-1,adjuster_z+z)
-            if block_pick == 0 then
+            if y > 0 and block_pick == 0 then
                 -- Face bottom
                 
                 --vertex map                
