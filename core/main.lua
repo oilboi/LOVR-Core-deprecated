@@ -1,10 +1,4 @@
-global_time_print = 0
-chunksize = 16
-gen_complete = false
-selected_block = nil
-collision_point = nil
-local chunk_size = chunksize
-
+temp_output = nil
 lovr.keyboard = require 'lovr-keyboard'
 lovr.mouse = require 'lovr-mouse'
 
@@ -13,12 +7,13 @@ lovr.graphics.setDefaultFilter("nearest", 0)
 require 'chunk_vertice_generator'
 require 'input'
 require 'camera'
+require 'game_math'
 
 --this holds the data for the gpu to render
-local chunk_pool = {}
+gpu_chunk_pool = {}
 
 --this holds the chunk data for the game to work with
-local chunk_map = {}
+chunk_map = {}
 
 local seed = math.random()
 
@@ -36,57 +31,80 @@ local function memory_position(i)
 end
 
 function gen_chunk_data(x,z)
-    --[[
-    for i = 1,16*16*128 do
+    local c_index = hash_chunk_position(x,z)
     
+    chunk_map[c_index] = {}
 
-    local noise = math.ceil(lovr.math.noise(x/100, z/100,seed)*100)
+    local x,y,z = 0,0,0
 
-    for y = 0,127 do
-
-        
-        if y == noise then
-            memory_map[x][z][y] = 1
-        elseif y < noise then
-            memory_map[x][z][y] = 2
+    for i = 1,16*16*128 do
+        local index = hash_position(x,y,z)
+        if y > 50 then
+            chunk_map[c_index][index] = 0
+        elseif y == 50 then
+            chunk_map[c_index][index] = math.random(0,1)
         else
-            memory_map[x][z][y] = 0
+            chunk_map[c_index][index] = math.random(1,2)
+        end
+        
+        --up
+        y = y + 1
+        if y > 127 then
+            y = 0
+            --forwards
+            x = x + 1
+            if x > 15 then
+                x = 0
+                --right
+                z = z + 1
+            end
         end
     end
-    end
-    end]]--
 end
 
-
+--[[
 function set_block(x,y,z,block)
     if memory_map[x] and memory_map[x][z] and memory_map[x][z][y] then
         memory_map[x][z][y] = block
-        chunk_stack_direct_update(chunk_pool,x,y,z)
+        chunk_stack_direct_update(gpu_chunk_pool,x,y,z)
     end
 end
+
+]]--
 
 function chunk_update_vert(x,z)
-    if chunk_pool[1] then
-        chunk_pool[1] = generate_chunk_vertices(x*16,z*16)
-        chunk_pool[1]:setMaterial(dirt)
+    local c_index = hash_chunk_position(x,z)
+    if gpu_chunk_pool[c_index] then
+        gpu_chunk_pool[c_index] = generate_chunk_vertices(x,z)
+        gpu_chunk_pool[c_index]:setMaterial(dirt)
     end
 end
 
+
+local dirs = {
+    {x=-1,z= 0},
+    {x= 1,z= 0},
+    {x= 0,z=-1},
+    {x= 0,z= 1},
+}
 
 function gen_chunk(x,z)
-    gen_chunk_data(x*16,z*16)
-    chunk_pool[1] = generate_chunk_vertices(x*16,z*16)
-    chunk_pool[1]:setMaterial(dirt)
+    
+    local c_index = hash_chunk_position(x,z)
 
-    for xer = -1,1 do
-    for zer = -1,1 do
-        if math.abs(xer) + math.abs(zer) == 1 then
-            chunk_update_vert(x+xer,z+zer)
-        end
+    gen_chunk_data(x,z)
+
+    gpu_chunk_pool[c_index] = generate_chunk_vertices(x,z)
+    if gpu_chunk_pool[c_index] then
+        gpu_chunk_pool[c_index]:setMaterial(dirt)
     end
+
+    for _,dir in ipairs(dirs) do
+        chunk_update_vert(x+dir.x,z+dir.z)
     end
 end
 
+local test_view_distance = 6
 function lovr.load()
     lovr.mouse.setRelativeMode(true)
     lovr.graphics.setCullingEnabled(true)
@@ -95,10 +113,10 @@ function lovr.load()
     
     camera = {
         transform = lovr.math.vec3(),
-        position = lovr.math.vec3(0,80,0),
+        position = lovr.math.vec3(0,52,0),
         movespeed = 10,
         pitch = 0,
-        yaw = 0
+        yaw = math.pi
     }    
 
     dirttexture = lovr.graphics.newTexture("textures/dirt.png")
@@ -106,8 +124,6 @@ function lovr.load()
     dirt = lovr.graphics.newMaterial()
     dirt:setTexture(dirttexture)
 
-    gen_chunk(0,0)
-    --gen_chunk(0,-1)
 
     s_width, s_height = lovr.graphics.getDimensions()
     fov = 72
@@ -117,7 +133,6 @@ end
 local counter = 0
 local up = true
 local time_delay = 0
-local test_view_distance = 6
 local curr_chunk_index = {x=-test_view_distance,z=-test_view_distance}
 function lovr.update(dt)
     --dig()
@@ -133,11 +148,11 @@ function lovr.update(dt)
         up = true
     end
     
-    --[[
+    
     if time_delay then
-        time_delay = time_delay + dt
-        if time_delay > 0.02 then
-            time_delay = 0
+       -- time_delay = time_delay + dt
+        --if time_delay > 0.02 then
+            --time_delay = 0
             gen_chunk(curr_chunk_index.x,curr_chunk_index.z)
 
             curr_chunk_index.x = curr_chunk_index.x + 1
@@ -148,9 +163,8 @@ function lovr.update(dt)
                     time_delay = nil
                 end
             end
-        end
+        --end
     end
-    ]]--
     --for x = -10,10 do
     --    set_block(x,127,0)
     --end
@@ -175,8 +189,7 @@ function lovr.draw()
 
     lovr.graphics.setProjection(lovr.math.mat4():perspective(0.01, 1000, 90/fov,s_width/s_height))
 
-    for _,mesh in pairs(chunk_pool) do
-
+    for _,mesh in pairs(gpu_chunk_pool) do
         lovr.graphics.push()
         mesh:draw()
         lovr.graphics.pop()
@@ -194,7 +207,8 @@ function lovr.draw()
     local fps = lovr.timer.getFPS()
 
     --time = lovr.timer.getTime()-time
-    lovr.graphics.print(tostring(global_time_print), pos.x, pos.y, pos.z,1,camera.yaw,0,1,0)
+
+    lovr.graphics.print(tostring(temp_output), pos.x, pos.y, pos.z,1,camera.yaw,0,1,0)
 
     if selected_block then
         lovr.graphics.cube('line',  selected_block.x+0.5, selected_block.y+0.5, selected_block.z+0.5, 1)
