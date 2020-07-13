@@ -41,10 +41,10 @@ function gen_chunk_data(x,z)
     for i = 1,16*16*128 do
         local index = hash_position(x,y,z)
 
-        --local noise = math.ceil(lovr.math.noise((cx*16)+x/100,z/100, (cz*16)+z/100,seed))
+        local noise = math.ceil(lovr.math.noise((cx*16)+x*math.pi,z*math.pi, (cz*16)+z/100,seed))
         
-        if y > 50 then
-            chunk_map[c_index][index] = 0
+        if noise >= 0.5 then
+            chunk_map[c_index][index] = 1
         --elseif y == 50 then
         --    chunk_map[c_index][index] = math.random(0,1)
         else
@@ -77,7 +77,6 @@ function chunk_update_vert(x,z)
     end
 end
 
-
 local dirs = {
     {x=-1,z= 0},
     {x= 1,z= 0},
@@ -101,7 +100,7 @@ function gen_chunk(x,z)
     end
 end
 
-local test_view_distance = 6
+local test_view_distance = 5
 function lovr.load()
     lovr.mouse.setRelativeMode(true)
     lovr.graphics.setCullingEnabled(true)
@@ -110,7 +109,7 @@ function lovr.load()
     
     camera = {
         transform = lovr.math.vec3(),
-        position = lovr.math.vec3(0,52,0),
+        position = lovr.math.vec3(0,130,0),
         movespeed = 10,
         pitch = 0,
         yaw = math.pi
@@ -177,8 +176,7 @@ function lovr.draw()
 
     --this is where the ui should be drawn
     lovr.graphics.push()
-        
-        lovr.graphics.print("FPS:"..lovr.timer.getFPS(), -0.15, 0.072, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
+        lovr.graphics.print("FPS:"..lovr.timer.getFPS(), -0.1, 0.072, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
         lovr.graphics.print("+", 0, 0, -0.1, 0.01, 0, 0, 1, 0)
     lovr.graphics.pop()
 
