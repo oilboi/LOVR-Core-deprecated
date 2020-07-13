@@ -45,8 +45,8 @@ function gen_chunk_data(x,z)
         
         if y > 50 then
             chunk_map[c_index][index] = 0
-        elseif y == 50 then
-            chunk_map[c_index][index] = math.random(0,1)
+        --elseif y == 50 then
+        --    chunk_map[c_index][index] = math.random(0,1)
         else
             chunk_map[c_index][index] = math.random(1,2)
         end
@@ -173,7 +173,12 @@ function lovr.draw()
     --this is transformed from the camera rotation class
     --mat4(camera.transform):invert()
     --lovr.graphics.transform(x, y, z, sx, sy, sz, angle, ax, ay, az)
-   -- local time = lovr.timer.getTime()
+    -- local time = lovr.timer.getTime()
+
+    --this is where the ui should be drawn
+    lovr.graphics.push()
+        lovr.graphics.print("+", 0, 0, -0.1, 0.01, 0, 0, 1, 0)
+    lovr.graphics.pop()
 
     local x,y,z = camera.position:unpack()
 
@@ -195,17 +200,17 @@ function lovr.draw()
     lovr.graphics.push()
 
     
-    local dx,dy,dz = get_camera_dir()
-    dx = dx * 4
-    dy = dy * 4
-    dz = dz * 4
-    local pos = {x=x+dx,y=y+dy,z=z+dz}
+    --local dx,dy,dz = get_camera_dir()
+    --dx = dx * 4
+    --dy = dy * 4
+    --dz = dz * 4
+    --local pos = {x=x+dx,y=y+dy,z=z+dz}
 
-    local fps = lovr.timer.getFPS()
+    --local fps = lovr.timer.getFPS()
 
     --time = lovr.timer.getTime()-time
 
-    lovr.graphics.print(tostring(temp_output), pos.x, pos.y, pos.z,1,camera.yaw,0,1,0)
+    --lovr.graphics.print(tostring(temp_output), pos.x, pos.y, pos.z,1,camera.yaw,0,1,0)
 
     if selected_block then
         lovr.graphics.cube('line',  selected_block.x+0.5, selected_block.y+0.5, selected_block.z+0.5, 1)

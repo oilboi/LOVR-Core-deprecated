@@ -8,11 +8,6 @@ local chunk_size = chunksize
 local max_ids = 2
 
 
-local function block_check(x,y,z)
-    local index = hash_position(x,y,z)
-    return(chunk_data[index])
-end
-
 local x_limit = 16
 local z_limit = 16*128
 local y_limit = 16
