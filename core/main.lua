@@ -8,6 +8,7 @@ require 'chunk_vertice_generator'
 require 'input'
 require 'camera'
 require 'game_math'
+require 'api_functions'
 
 --this holds the data for the gpu to render
 gpu_chunk_pool = {}
@@ -32,13 +33,16 @@ end
 
 function gen_chunk_data(x,z)
     local c_index = hash_chunk_position(x,z)
-    
+    local cx,cz = x,z
     chunk_map[c_index] = {}
 
     local x,y,z = 0,0,0
 
     for i = 1,16*16*128 do
         local index = hash_position(x,y,z)
+
+        --local noise = math.ceil(lovr.math.noise((cx*16)+x/100,z/100, (cz*16)+z/100,seed))
+        
         if y > 50 then
             chunk_map[c_index][index] = 0
         elseif y == 50 then
@@ -47,6 +51,8 @@ function gen_chunk_data(x,z)
             chunk_map[c_index][index] = math.random(1,2)
         end
         
+        
+
         --up
         y = y + 1
         if y > 127 then
@@ -62,15 +68,6 @@ function gen_chunk_data(x,z)
     end
 end
 
---[[
-function set_block(x,y,z,block)
-    if memory_map[x] and memory_map[x][z] and memory_map[x][z][y] then
-        memory_map[x][z][y] = block
-        chunk_stack_direct_update(gpu_chunk_pool,x,y,z)
-    end
-end
-
-]]--
 
 function chunk_update_vert(x,z)
     local c_index = hash_chunk_position(x,z)
@@ -135,7 +132,7 @@ local up = true
 local time_delay = 0
 local curr_chunk_index = {x=-test_view_distance,z=-test_view_distance}
 function lovr.update(dt)
-    --dig()
+    dig()
     camera_look(dt)
     if up then
         counter = counter + dt/5

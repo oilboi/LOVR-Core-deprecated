@@ -179,7 +179,7 @@ function raycast(length)
         y = math.floor(cy + (dy*r_length))
         z = math.floor(cz + (dz*r_length))
 
-        local found_block = block_check(x,y,z)
+        local found_block = global_block_check(x,y,z)
 
         if found_block and found_block > 0 then
             local check_x,check_y,check_z = vector_to_dir(

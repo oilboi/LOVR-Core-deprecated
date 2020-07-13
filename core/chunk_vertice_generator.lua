@@ -7,27 +7,7 @@ lovr
 local chunk_size = chunksize
 local max_ids = 2
 
-function global_block_check(x,y,z)
-    
-    local chunk_x = math.floor(x/16)
-    local chunk_z = math.floor(z/16)
 
-    local relative_x = x-(chunk_x*16)
-    local relative_z = z-(chunk_z*16)
-    if not temp_output then--or temp_output < chunk_x then
-        temp_output = relative_x
-    end
-   
-    local hash = hash_chunk_position(chunk_x,chunk_z)
-
-    if chunk_map[hash] then
-        local index = hash_position(relative_x,y,relative_z)
-        return(chunk_map[hash][index])
-    --else
-        --return nil
-    end
-    
-end
 local function block_check(x,y,z)
     local index = hash_position(x,y,z)
     return(chunk_data[index])
@@ -70,11 +50,9 @@ function generate_chunk_vertices(chunk_x,chunk_z)
 
         local index = hash_position(x,y,z)
 
-        data = chunk_data[index]--block_check(x,y,z)--global_block_check(x,y,z)
+        data = chunk_data[index]
 
         if data and data > 0 then
-
-            local translate_index = 1
 
             local id_min = (data/max_ids)-shift
             local id_max = (data/max_ids)

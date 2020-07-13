@@ -8,11 +8,11 @@ function dig()
     raycast(4)
     
     if lovr.mouse.isDown(1) and selected_block then
-        if block_check(selected_block.x,selected_block.y,selected_block.z) ~= 0 then
+        if global_block_check(selected_block.x,selected_block.y,selected_block.z) ~= 0 then
             set_block(selected_block.x,selected_block.y,selected_block.z,0)
         end
     elseif lovr.mouse.isDown(2) then    
-        if selected_block_above and block_check(selected_block_above.x,selected_block_above.y,selected_block_above.z) == 0 then
+        if selected_block_above and global_block_check(selected_block_above.x,selected_block_above.y,selected_block_above.z) == 0 then
             set_block(selected_block_above.x,selected_block_above.y,selected_block_above.z,lovr.math.random(1,2))
         end
     end
