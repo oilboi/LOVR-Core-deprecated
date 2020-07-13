@@ -78,11 +78,28 @@ function generate_chunk_vertices(chunk_x,chunk_z)
             --local block_pick = block_check(x,y,z-1)
             --if block_pick == 0 then
                 -- Face left
-                for i = 1,6 do
-                    index_count = index_count + 1
-                    chunk_indexes[index_count] = index_translation[i]+vertex_count
-                end
+                
+                --vertex map
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[1]+vertex_count
+                
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[2]+vertex_count
 
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[3]+vertex_count
+
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[4]+vertex_count
+
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[5]+vertex_count
+
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[6]+vertex_count
+
+                
+                --tris
                 vertex_count = vertex_count + 1
 
                 chunk_vertices[vertex_count] = { x+0, y+0,z+0, id_min, 0} -- 0, 0
@@ -99,15 +116,32 @@ function generate_chunk_vertices(chunk_x,chunk_z)
 
                 chunk_vertices[vertex_count] = { x+1, y+0,z+0, id_max, 0} -- 1, 0
             --end
-
+            
             --local block_pick = block_check(x,y+1,z)
             --if y == 127 or block_pick == 0 then
                 -- Face top
-                for i = 1,6 do
-                    index_count = index_count + 1
-                    chunk_indexes[index_count] = index_translation[i]+vertex_count
-                end
                 
+                --vertex map
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[1]+vertex_count
+                
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[2]+vertex_count
+
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[3]+vertex_count
+
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[4]+vertex_count
+
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[5]+vertex_count
+
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[6]+vertex_count
+                
+
+                --tris
                 vertex_count = vertex_count + 1
 
                 chunk_vertices[vertex_count] = { x+1, y+1, z+0, id_min, 0} -- 0, 0
@@ -130,11 +164,27 @@ function generate_chunk_vertices(chunk_x,chunk_z)
             --if block_pick == 0 then
                 -- Face front
                 
-                for i = 1,6 do
-                    index_count = index_count + 1
-                    chunk_indexes[index_count] = index_translation[i]+vertex_count
-                end
+                --vertex map
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[1]+vertex_count
+                
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[2]+vertex_count
 
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[3]+vertex_count
+
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[4]+vertex_count
+
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[5]+vertex_count
+
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[6]+vertex_count
+
+
+                --tris
                 vertex_count = vertex_count + 1
 
                 chunk_vertices[vertex_count] = { x+1, y+0, z+0, id_min, 0} -- 0, 0
@@ -156,11 +206,27 @@ function generate_chunk_vertices(chunk_x,chunk_z)
             --local block_pick = block_check(x-1,y,z)
             --if block_pick == 0 then
                 -- Face back
-                for i = 1,6 do
-                    index_count = index_count + 1
-                    chunk_indexes[index_count] = index_translation[i]+vertex_count
-                end
+                
+                --vertex map
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[1]+vertex_count
+                
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[2]+vertex_count
 
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[3]+vertex_count
+
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[4]+vertex_count
+
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[5]+vertex_count
+
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[6]+vertex_count
+
+                --tris
                 vertex_count = vertex_count + 1
 
                 chunk_vertices[vertex_count] = { x+0, y+0, z+0, id_max, 0} -- 1, 0
@@ -181,11 +247,27 @@ function generate_chunk_vertices(chunk_x,chunk_z)
             --local block_pick = block_check(x,y,z+1)
             --if block_pick == 0 then
                 -- Face right
-                for i = 1,6 do
-                    index_count = index_count + 1
-                    chunk_indexes[index_count] = index_translation[i]+vertex_count
-                end
 
+                --vertex map                
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[1]+vertex_count
+                
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[2]+vertex_count
+
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[3]+vertex_count
+
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[4]+vertex_count
+
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[5]+vertex_count
+
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[6]+vertex_count
+
+                --tris
                 vertex_count = vertex_count + 1
 
                 chunk_vertices[vertex_count] = { x+1, y+1, z+1, id_min, 1} -- 0, 1
@@ -207,11 +289,27 @@ function generate_chunk_vertices(chunk_x,chunk_z)
             --local block_pick = block_check(x,y-1,z)
             --if block_pick == 0 then
                 -- Face bottom
-                for i = 1,6 do
-                    index_count = index_count + 1
-                    chunk_indexes[index_count] = index_translation[i]+vertex_count
-                end
+                
+                --vertex map                
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[1]+vertex_count
+                
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[2]+vertex_count
 
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[3]+vertex_count
+
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[4]+vertex_count
+
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[5]+vertex_count
+
+                index_count = index_count + 1
+                chunk_indexes[index_count] = index_translation[6]+vertex_count
+
+                --tris
                 vertex_count = vertex_count + 1
 
                 chunk_vertices[vertex_count] = { x+0, y+0, z+0, id_max, 1} -- 1, 1
@@ -227,8 +325,9 @@ function generate_chunk_vertices(chunk_x,chunk_z)
                 vertex_count = vertex_count + 1
 
                 chunk_vertices[vertex_count] = { x+0, y+0, z+1, id_min, 1} -- 0, 1
-
+            
             --end
+            
         end
     end
     
