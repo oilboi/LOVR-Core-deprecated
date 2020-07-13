@@ -33,8 +33,10 @@ local function memory_position(i)
 end
 
 function generate_chunk_vertices(chunk_x,chunk_z)
-    -- this holds the chunk stack data
-    local chunk_stack = {}
+    
+    local time = lovr.timer.getTime()
+
+    
     -- The triangles which represent the
     -- chunk in gpu memory
     local chunk_vertices = {
@@ -42,6 +44,8 @@ function generate_chunk_vertices(chunk_x,chunk_z)
     -- Indices to draw the faces of the cube out of triangles
     local chunk_indexes = {
     }
+
+    local index_count = 0
 
     local vertex_count = 0
 
@@ -55,7 +59,7 @@ function generate_chunk_vertices(chunk_x,chunk_z)
         local data = 1
 
         local x,y,z = memory_position(i)
-
+        
         if y > 100 then
             if x > 2 then
                 data = 0
@@ -68,109 +72,181 @@ function generate_chunk_vertices(chunk_x,chunk_z)
 
             local translate_index = 1
 
-            local vertice_count = 0
-
             local id_min = (data/max_ids)-shift
             local id_max = (data/max_ids)
 
             --local block_pick = block_check(x,y,z-1)
             --if block_pick == 0 then
                 -- Face left
-                chunk_vertices[#chunk_vertices+1] = { x+0, y+0,z+0, id_min, 0} -- 0, 0
-                chunk_vertices[#chunk_vertices+1] = { x+0, y+1,z+0, id_min, 1} -- 0, 1
-                chunk_vertices[#chunk_vertices+1] = { x+1, y+1,z+0, id_max, 1} -- 1, 1
-                chunk_vertices[#chunk_vertices+1] = { x+1, y+0,z+0, id_max, 0} -- 1, 0
-
-
                 for i = 1,6 do
-                    chunk_indexes[#chunk_indexes+1] = index_translation[i]+vertex_count+vertice_count
+                    index_count = index_count + 1
+                    chunk_indexes[index_count] = index_translation[i]+vertex_count
                 end
-                vertice_count = vertice_count + 4
+
+                vertex_count = vertex_count + 1
+
+                chunk_vertices[vertex_count] = { x+0, y+0,z+0, id_min, 0} -- 0, 0
+
+                vertex_count = vertex_count + 1
+
+                chunk_vertices[vertex_count] = { x+0, y+1,z+0, id_min, 1} -- 0, 1
+
+                vertex_count = vertex_count + 1
+
+                chunk_vertices[vertex_count] = { x+1, y+1,z+0, id_max, 1} -- 1, 1
+
+                vertex_count = vertex_count + 1
+
+                chunk_vertices[vertex_count] = { x+1, y+0,z+0, id_max, 0} -- 1, 0
             --end
 
             --local block_pick = block_check(x,y+1,z)
             --if y == 127 or block_pick == 0 then
                 -- Face top
-                chunk_vertices[#chunk_vertices+1] = { x+1, y+1, z+0, id_min, 0} -- 0, 0
-                chunk_vertices[#chunk_vertices+1] = { x+0, y+1, z+0, id_min, 1} -- 0, 1
-                chunk_vertices[#chunk_vertices+1] = { x+0, y+1, z+1, id_max, 1} -- 1, 1
-                chunk_vertices[#chunk_vertices+1] = { x+1, y+1, z+1, id_max, 0} -- 1, 0
-
                 for i = 1,6 do
-                    chunk_indexes[#chunk_indexes+1] = index_translation[i]+vertex_count+vertice_count
+                    index_count = index_count + 1
+                    chunk_indexes[index_count] = index_translation[i]+vertex_count
                 end
-                vertice_count = vertice_count + 4
+                
+                vertex_count = vertex_count + 1
+
+                chunk_vertices[vertex_count] = { x+1, y+1, z+0, id_min, 0} -- 0, 0
+
+                vertex_count = vertex_count + 1
+
+                chunk_vertices[vertex_count] = { x+0, y+1, z+0, id_min, 1} -- 0, 1
+
+                vertex_count = vertex_count + 1
+
+                chunk_vertices[vertex_count] = { x+0, y+1, z+1, id_max, 1} -- 1, 1
+
+                vertex_count = vertex_count + 1
+
+                chunk_vertices[vertex_count] = { x+1, y+1, z+1, id_max, 0} -- 1, 0
+                
             --end
 
             --local block_pick = block_check(x+1,y,z)
             --if block_pick == 0 then
                 -- Face front
-                chunk_vertices[#chunk_vertices+1] = { x+1, y+0, z+0, id_min, 0} -- 0, 0
-                chunk_vertices[#chunk_vertices+1] = { x+1, y+1, z+0, id_min, 1} -- 0, 1
-                chunk_vertices[#chunk_vertices+1] = { x+1, y+1, z+1, id_max, 1} -- 1, 1
-                chunk_vertices[#chunk_vertices+1] = { x+1, y+0, z+1, id_max, 0} -- 1, 0
-
+                
                 for i = 1,6 do
-                    chunk_indexes[#chunk_indexes+1] = index_translation[i]+vertex_count+vertice_count
+                    index_count = index_count + 1
+                    chunk_indexes[index_count] = index_translation[i]+vertex_count
                 end
-                vertice_count = vertice_count + 4
+
+                vertex_count = vertex_count + 1
+
+                chunk_vertices[vertex_count] = { x+1, y+0, z+0, id_min, 0} -- 0, 0
+
+                vertex_count = vertex_count + 1
+
+                chunk_vertices[vertex_count] = { x+1, y+1, z+0, id_min, 1} -- 0, 1
+
+                vertex_count = vertex_count + 1
+
+                chunk_vertices[vertex_count] = { x+1, y+1, z+1, id_max, 1} -- 1, 1
+
+                vertex_count = vertex_count + 1
+                
+                chunk_vertices[vertex_count] = { x+1, y+0, z+1, id_max, 0} -- 1, 0
+
             --end
 
             --local block_pick = block_check(x-1,y,z)
             --if block_pick == 0 then
                 -- Face back
-                chunk_vertices[#chunk_vertices+1] = { x+0, y+0, z+0, id_max, 0} -- 1, 0
-                chunk_vertices[#chunk_vertices+1] = { x+0, y+0, z+1, id_min, 0} -- 0, 0
-                chunk_vertices[#chunk_vertices+1] = { x+0, y+1, z+1, id_min, 1} -- 0, 1
-                chunk_vertices[#chunk_vertices+1] = { x+0, y+1, z+0, id_max, 1} -- 1, 1
-
                 for i = 1,6 do
-                    chunk_indexes[#chunk_indexes+1] = index_translation[i]+vertex_count+vertice_count
+                    index_count = index_count + 1
+                    chunk_indexes[index_count] = index_translation[i]+vertex_count
                 end
-                vertice_count = vertice_count + 4
+
+                vertex_count = vertex_count + 1
+
+                chunk_vertices[vertex_count] = { x+0, y+0, z+0, id_max, 0} -- 1, 0
+
+                vertex_count = vertex_count + 1
+
+                chunk_vertices[vertex_count] = { x+0, y+0, z+1, id_min, 0} -- 0, 0
+
+                vertex_count = vertex_count + 1
+
+                chunk_vertices[vertex_count] = { x+0, y+1, z+1, id_min, 1} -- 0, 1
+
+                vertex_count = vertex_count + 1
+
+                chunk_vertices[vertex_count] = { x+0, y+1, z+0, id_max, 1} -- 1, 1
             --end
 
             --local block_pick = block_check(x,y,z+1)
             --if block_pick == 0 then
                 -- Face right
-                chunk_vertices[#chunk_vertices+1] = { x+1, y+1, z+1, id_min, 1} -- 0, 1
-                chunk_vertices[#chunk_vertices+1] = { x+0, y+1, z+1, id_max, 1} -- 1, 1
-                chunk_vertices[#chunk_vertices+1] = { x+0, y+0, z+1, id_max, 0} -- 1, 0
-                chunk_vertices[#chunk_vertices+1] = { x+1, y+0, z+1, id_min, 0} -- 0, 0
-
                 for i = 1,6 do
-                    chunk_indexes[#chunk_indexes+1] = index_translation[i]+vertex_count+vertice_count
+                    index_count = index_count + 1
+                    chunk_indexes[index_count] = index_translation[i]+vertex_count
                 end
-                vertice_count = vertice_count + 4
+
+                vertex_count = vertex_count + 1
+
+                chunk_vertices[vertex_count] = { x+1, y+1, z+1, id_min, 1} -- 0, 1
+
+                vertex_count = vertex_count + 1
+
+                chunk_vertices[vertex_count] = { x+0, y+1, z+1, id_max, 1} -- 1, 1
+
+                vertex_count = vertex_count + 1
+
+                chunk_vertices[vertex_count] = { x+0, y+0, z+1, id_max, 0} -- 1, 0
+
+                vertex_count = vertex_count + 1
+
+                chunk_vertices[vertex_count] = { x+1, y+0, z+1, id_min, 0} -- 0, 0
+
             --end
 
             --local block_pick = block_check(x,y-1,z)
             --if block_pick == 0 then
                 -- Face bottom
-                chunk_vertices[#chunk_vertices+1] = { x+0, y+0, z+0, id_max, 1} -- 1, 1
-                chunk_vertices[#chunk_vertices+1] = { x+1, y+0, z+0, id_max, 0} -- 1, 0
-                chunk_vertices[#chunk_vertices+1] = { x+1, y+0, z+1, id_min, 0} -- 0, 0
-                chunk_vertices[#chunk_vertices+1] = { x+0, y+0, z+1, id_min, 1} -- 0, 1
-
                 for i = 1,6 do
-                    chunk_indexes[#chunk_indexes+1] = index_translation[i]+vertex_count+vertice_count
+                    index_count = index_count + 1
+                    chunk_indexes[index_count] = index_translation[i]+vertex_count
                 end
-                vertice_count = vertice_count + 4
-            --end
 
-            --Move onto the next block (for vertice indexing)
-            vertex_count = vertex_count + vertice_count
+                vertex_count = vertex_count + 1
+
+                chunk_vertices[vertex_count] = { x+0, y+0, z+0, id_max, 1} -- 1, 1
+
+                vertex_count = vertex_count + 1
+                
+                chunk_vertices[vertex_count] = { x+1, y+0, z+0, id_max, 0} -- 1, 0
+
+                vertex_count = vertex_count + 1
+
+                chunk_vertices[vertex_count] = { x+1, y+0, z+1, id_min, 0} -- 0, 0
+
+                vertex_count = vertex_count + 1
+
+                chunk_vertices[vertex_count] = { x+0, y+0, z+1, id_min, 1} -- 0, 1
+
+            --end
         end
     end
-    --end
-    --end
+    
+    global_time_print = lovr.timer.getTime() - time
 
+
+    --local time = lovr.timer.getTime()
+
+    -- this holds the chunk stack data
+    local chunk_stack
     if #chunk_vertices > 0 then
         chunk_stack = lovr.graphics.newMesh({{ 'lovrPosition', 'float', 3 },{ 'lovrTexCoord', 'float', 2 }}, chunk_vertices, 'triangles', "static")
         chunk_stack:setVertexMap(chunk_indexes)
     else
         chunk_stack = nil
     end
+    --global_time_print = lovr.timer.getTime() - time
+
     return(chunk_stack)
 end
 

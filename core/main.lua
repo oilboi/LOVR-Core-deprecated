@@ -17,27 +17,28 @@ require 'camera'
 --this holds the data for the gpu to render
 local chunk_pool = {}
 
+--this holds the chunk data for the game to work with
+local chunk_map = {}
+
 local seed = math.random()
 
-memory_map = {}
+local x_limit = 16
+local z_limit = 16*128
+local y_limit = 16
+local function memory_position(i)
+	i = i - 1
+	local z = math.floor(i / z_limit)
+	i = i % z_limit
+	local y = math.floor(i / y_limit)
+    i = i  % y_limit
+	local x = math.floor(i)
+	return x,y,z
+end
 
 function gen_chunk_data(x,z)
-
-    for x = x,x+15 do
+    --[[
+    for i = 1,16*16*128 do
     
-    if not memory_map[x] then
-
-        memory_map[x] = {}
-
-    end
-
-    for z = z,z+15 do
-
-    if not memory_map[x][z] then
-
-        memory_map[x][z] = {}
-
-    end
 
     local noise = math.ceil(lovr.math.noise(x/100, z/100,seed)*100)
 
@@ -53,7 +54,7 @@ function gen_chunk_data(x,z)
         end
     end
     end
-    end
+    end]]--
 end
 
 
@@ -193,7 +194,7 @@ function lovr.draw()
     local fps = lovr.timer.getFPS()
 
     --time = lovr.timer.getTime()-time
-    lovr.graphics.print(tostring(fps), pos.x, pos.y, pos.z,1,camera.yaw,0,1,0)
+    lovr.graphics.print(tostring(global_time_print), pos.x, pos.y, pos.z,1,camera.yaw,0,1,0)
 
     if selected_block then
         lovr.graphics.cube('line',  selected_block.x+0.5, selected_block.y+0.5, selected_block.z+0.5, 1)
