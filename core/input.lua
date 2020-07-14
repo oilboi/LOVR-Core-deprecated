@@ -12,14 +12,14 @@ function dig()
     if lovr.mouse.isDown(1)then
         raycast(4)
         if selected_block then
-            if global_block_check(selected_block.x,selected_block.y,selected_block.z) ~= 0 then
+            if get_block(selected_block.x,selected_block.y,selected_block.z) ~= 0 then
                 set_block(selected_block.x,selected_block.y,selected_block.z,0)
             end
         end
     elseif lovr.mouse.isDown(2) then
         raycast(4)
         if selected_block then
-            if selected_block_above and global_block_check(selected_block_above.x,selected_block_above.y,selected_block_above.z) == 0 then
+            if selected_block_above and get_block(selected_block_above.x,selected_block_above.y,selected_block_above.z) == 0 then
                 set_block(selected_block_above.x,selected_block_above.y,selected_block_above.z,lovr.math.random(1,2))
             end
         end

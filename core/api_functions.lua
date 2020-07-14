@@ -7,7 +7,7 @@
 --mapping, then indexing the data inside of the 1D
 --sandbox and returning the data to be used in other
 --functions
-function global_block_check(x,y,z)
+function get_block(x,y,z)
     --get the literal chunk sandbox
     local chunk_x = math.floor(x/16)
     local chunk_z = math.floor(z/16)
@@ -34,7 +34,7 @@ end
 
 --this is used to set blocks
 --it is using the exact same properties explained in
---"global_block_check" but instead of returning
+--"get_block" but instead of returning
 --the indexed data it is overwriting it
 --then it tells the game engine to update the chunk
 --mesh to the newly modified data, this needs to
@@ -105,7 +105,7 @@ function raycast(length)
         y = math.floor(cy + (dy*r_length))
         z = math.floor(cz + (dz*r_length))
 
-        local found_block = global_block_check(x,y,z)
+        local found_block = get_block(x,y,z)
 
         if found_block and found_block > 0 then
             local check_x,check_y,check_z = vector_to_dir(

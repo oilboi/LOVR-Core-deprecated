@@ -88,7 +88,7 @@ function generate_gpu_chunk(chunk_x,chunk_z)
 
             --yes, this was extremely tedious to program
 
-            local block_pick = global_block_check(adjuster_x+x,y,adjuster_z+z-1)
+            local block_pick = get_block(adjuster_x+x,y,adjuster_z+z-1)
             if block_pick == 0 then
                 -- Face left
                 
@@ -130,7 +130,7 @@ function generate_gpu_chunk(chunk_x,chunk_z)
                 chunk_vertices[vertex_count] = { x+1+adjuster_x, y+0,z+0+adjuster_z, id_max, 0} -- 1, 0
             end
             
-            local block_pick = global_block_check(adjuster_x+x,y+1,adjuster_z+z)
+            local block_pick = get_block(adjuster_x+x,y+1,adjuster_z+z)
             if y == 127 or block_pick == 0 then
                 -- Face top
                 
@@ -173,7 +173,7 @@ function generate_gpu_chunk(chunk_x,chunk_z)
                 
             end
 
-            local block_pick = global_block_check(adjuster_x+x+1,y,adjuster_z+z)
+            local block_pick = get_block(adjuster_x+x+1,y,adjuster_z+z)
             if block_pick == 0 then
                 -- Face front
                 
@@ -216,7 +216,7 @@ function generate_gpu_chunk(chunk_x,chunk_z)
 
             end
 
-            local block_pick = global_block_check(adjuster_x+x-1,y,adjuster_z+z)
+            local block_pick = get_block(adjuster_x+x-1,y,adjuster_z+z)
             if block_pick == 0 then
                 -- Face back
                 
@@ -257,7 +257,7 @@ function generate_gpu_chunk(chunk_x,chunk_z)
                 chunk_vertices[vertex_count] = { x+0+adjuster_x, y+1, z+0+adjuster_z, id_max, 1} -- 1, 1
             end
 
-            local block_pick = global_block_check(adjuster_x+x,y,adjuster_z+z+1)
+            local block_pick = get_block(adjuster_x+x,y,adjuster_z+z+1)
             if block_pick == 0 then
                 -- Face right
 
@@ -299,7 +299,7 @@ function generate_gpu_chunk(chunk_x,chunk_z)
 
             end
 
-            local block_pick = global_block_check(adjuster_x+x,y-1,adjuster_z+z)
+            local block_pick = get_block(adjuster_x+x,y-1,adjuster_z+z)
             if y > 0 and block_pick == 0 then
                 -- Face bottom
                 
