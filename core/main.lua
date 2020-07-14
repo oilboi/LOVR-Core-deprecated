@@ -1,9 +1,9 @@
-temp_output = nil
+temp_output = nil -- this is a debug output 
+
+--load the libraries
 lovr.keyboard = require 'lovr-keyboard'
 lovr.mouse = require 'lovr-mouse'
-
-lovr.graphics.setDefaultFilter("nearest", 0)
-
+require 'chunk'
 require 'chunk_vertice_generator'
 require 'input'
 require 'camera'
@@ -16,103 +16,20 @@ gpu_chunk_pool = {}
 --this holds the chunk data for the game to work with
 chunk_map = {}
 
-local seed = lovr.math.random()
-
-local x_limit = 16
-local z_limit = 16*128
-local y_limit = 16
-local function memory_position(i)
-	i = i - 1
-	local z = math.floor(i / z_limit)
-	i = i % z_limit
-	local y = math.floor(i / y_limit)
-    i = i  % y_limit
-	local x = math.floor(i)
-	return x,y,z
-end
-
---local p_count = 0
---local position_hold = {}
-function gen_chunk_data(x,z)
-    local c_index = hash_chunk_position(x,z)
-    local cx,cz = x,z
-    chunk_map[c_index] = {}
-
-    local x,y,z = 0,0,0
-
-    noise = math.ceil(lovr.math.noise((x+(cx*16))/100, ((cz*16)+z)/100,seed)*100)
-
-    for i = 1,16*16*128 do
-        
-        local index = hash_position(x,y,z)
-
-        if y < noise then
-            chunk_map[c_index][index] = lovr.math.random(1,2)
-        else
-            --if y == noise + 1 then
-            --    p_count = p_count + 1
-            --    position_hold[p_count] = {x=x+(cx*16),y=y,z=z+(cz*16)}
-            --end
-            chunk_map[c_index][index] = 0
-        end
-        
-        --up
-        y = y + 1
-        if y > 127 then
-            y = 0
-            --forwards
-            x = x + 1
-            
-            noise = math.ceil(lovr.math.noise((x+(cx*16))/100, ((cz*16)+z)/100,seed)*100)
-            if x > 15 then
-                x = 0
-                --right
-                noise = math.ceil(lovr.math.noise((x+(cx*16))/100, ((cz*16)+z)/100,seed)*100)
-                z = z + 1
-            end
-        end
-    end
-end
-
-
-function chunk_update_vert(x,z)
-    local c_index = hash_chunk_position(x,z)
-    if gpu_chunk_pool[c_index] then
-        gpu_chunk_pool[c_index] = generate_chunk_vertices(x,z)
-        gpu_chunk_pool[c_index]:setMaterial(dirt)
-    end
-end
-
-local dirs = {
-    {x=-1,z= 0},
-    {x= 1,z= 0},
-    {x= 0,z=-1},
-    {x= 0,z= 1},
-}
-
-function gen_chunk(x,z)
-    
-    local c_index = hash_chunk_position(x,z)
-
-    gen_chunk_data(x,z)
-
-    gpu_chunk_pool[c_index] = generate_chunk_vertices(x,z)
-    if gpu_chunk_pool[c_index] then
-        gpu_chunk_pool[c_index]:setMaterial(dirt)
-    end
-
-    for _,dir in ipairs(dirs) do
-        chunk_update_vert(x+dir.x,z+dir.z)
-    end
-end
-
-local test_view_distance = 5
+--this is the function which is called when the game loads
+--it sets all the game setting and rendering utilities
 function lovr.load()
+    --these are the settings which optimize
+    --the gpu utilization
     lovr.mouse.setRelativeMode(true)
     lovr.graphics.setCullingEnabled(true)
     lovr.graphics.setBlendMode(nil,nil)
+    lovr.graphics.setDefaultFilter("nearest", 0)
+
     --lovr.graphics.setWireframe(true)
     
+    --this is the camera vector settings
+    --used for the player to look around
     camera = {
         transform = lovr.math.vec3(),
         position = lovr.math.vec3(0,130,0),
@@ -121,24 +38,35 @@ function lovr.load()
         yaw = math.pi
     }    
 
+    --this is the texture atlas, this is created as a texture
+    --then set to a material to utilize the default blend mode
     dirttexture = lovr.graphics.newTexture("textures/dirt.png")
-
     dirt = lovr.graphics.newMaterial()
     dirt:setTexture(dirttexture)
 
-
+    --the screen dimensions
     s_width, s_height = lovr.graphics.getDimensions()
+
+    --the FOV settings
     fov = 72
     fov_origin = fov
 end
 
+
+--this is the main loop of the game [MAIN LOOP]
+--this controls everything that happens "server side"
+--in the game engine, right now it is being used for
+--debug testing
 local counter = 0
 local up = true
-local time_delay = 0
+local do_generation = true
+local test_view_distance = 5
 local curr_chunk_index = {x=-test_view_distance,z=-test_view_distance}
 function lovr.update(dt)
     --dig()
-    camera_look(dt)
+    move(dt)
+
+    --[[ --this is debug
     if up then
         counter = counter + dt/5
     else
@@ -149,27 +77,26 @@ function lovr.update(dt)
     elseif counter <= 0 then
         up = true
     end
+    ]]--
     
-    
-    if time_delay then
-       -- time_delay = time_delay + dt
-        --if time_delay > 0.02 then
-            --time_delay = 0
-            gen_chunk(curr_chunk_index.x,curr_chunk_index.z)
+    if do_generation then
+        gen_chunk(curr_chunk_index.x,curr_chunk_index.z)
 
-            curr_chunk_index.x = curr_chunk_index.x + 1
-            if curr_chunk_index.x > test_view_distance then
-                curr_chunk_index.x = -test_view_distance
-                curr_chunk_index.z = curr_chunk_index.z + 1
-                if curr_chunk_index.z > test_view_distance then
-                    time_delay = nil
-                end
+        curr_chunk_index.x = curr_chunk_index.x + 1
+        if curr_chunk_index.x > test_view_distance then
+            curr_chunk_index.x = -test_view_distance
+            curr_chunk_index.z = curr_chunk_index.z + 1
+            if curr_chunk_index.z > test_view_distance then
+                do_generation = nil
             end
-        --end
+        end
     end
 end
 
-timer = 0
+
+--this is the rendering loop
+--this is what actually draws everything in the game
+--engine to render and where
 function lovr.draw()
     --this is where the ui should be drawn
     lovr.graphics.push()
@@ -177,13 +104,12 @@ function lovr.draw()
         lovr.graphics.print("+", 0, 0, -0.1, 0.01, 0, 0, 1, 0)
     lovr.graphics.pop()
 
+    --get the camera orientation
     local x,y,z = camera.position:unpack()
 
     lovr.graphics.rotate(-camera.pitch, 1, 0, 0)
     lovr.graphics.rotate(-camera.yaw, 0, 1, 0)
-
     lovr.graphics.transform(-x,-y,-z)
-
     lovr.graphics.setProjection(lovr.math.mat4():perspective(0.01, 1000, 90/fov,s_width/s_height))
 
     for _,mesh in pairs(gpu_chunk_pool) do

@@ -1,6 +1,10 @@
 local fov_mod = 0
 local up = true
-function camera_look(dt)
+
+--this is the function that allows the player to move
+--around the 3d environment based on the vector
+--of their camera X and Z
+function move(dt)
     local velocity = {x=0,y=0,z=0}
 
     if lovr.keyboard.isDown('w', 'up') then
@@ -69,6 +73,10 @@ function camera_look(dt)
 
         key_global = yaw_translate
 
+        --manually convert the key input to the yaw of the camera
+        --this will be updated to utilize the built in functions
+        --of lovr once the flickering issue is fixed on
+        --new versions
         if velocity.x == 1 and velocity.z == -1 then
             yaw_translate = camera.yaw-(math.pi*0.75)
         elseif velocity.x == -1 and velocity.z == -1 then
@@ -113,89 +121,12 @@ function camera_look(dt)
 
         camera.position:add(Q)
     end
-
-    --io.write(math.floor(camera.position.x).." "..math.floor(camera.position.z).."\n")
-    
-    --camera.transform:identity()
-
-    --camera.transform:add(lovr.math.vec3(0, 1.7, 0))
-
-    --camera.transform:add(camera.position)
-
-    --camera.transform:rotate(camera.yaw, 0, 1, 0)
-
-    --camera.transform:rotate(camera.pitch, 1, 0, 0)
 end
 
---this is a useful function for easily allowing look direction
+--this is a useful function for easily getting the 3D vector
+--of the camera (in radians)
 function get_camera_dir()
     return math.cos(camera.pitch) * math.cos(-camera.yaw-math.pi/2),
            math.sin(camera.pitch),
            math.cos(camera.pitch) * math.sin(-camera.yaw-math.pi/2)
-end
-
-function vector_to_dir(x,y,z)
-	if math.abs(y) > math.abs(x) and math.abs(y) > math.abs(z) then
-		-- above
-		if y < 0 then
-            return 0,-1,0
-		-- under
-        else
-            return 0,1,0
-		end
-    elseif math.abs(x) > math.abs(z) then
-        -- left
-		if x < 0 then
-            return -1,0,0
-        -- right
-		else
-			return 1,0,0
-		end
-    else
-        -- forwards
-		if z < 0 then
-            return 0,0,-1
-        -- backwards
-		else
-			return 0,0,1
-		end
-	end
-end
-
-
-
-function raycast(length)
-    --local time = lovr.timer.getTime()
-    local r_length = 0
-    local x,y,z
-    local cx,cy,cz = camera.position:unpack()
-    
-    local dx,dy,dz = get_camera_dir()
-
-    local solved = false
-    while  solved == false do
-        r_length = r_length + 0.0001
-        x = math.floor(cx + (dx*r_length))
-        y = math.floor(cy + (dy*r_length))
-        z = math.floor(cz + (dz*r_length))
-
-        local found_block = global_block_check(x,y,z)
-
-        if found_block and found_block > 0 then
-            local check_x,check_y,check_z = vector_to_dir(
-                -dx,
-                -dy,
-                -dz
-            )
-            selected_block = {x=x,y=y,z=z}
-            selected_block_above = {x=x+check_x,y=y+check_y,z=z+check_z}
-            return
-         end
-        if r_length >= length then
-            solved = true
-            selected_block = nil
-            selected_block_above = nil
-        end
-    end
-    --timer = lovr.timer.getTime() - time
 end

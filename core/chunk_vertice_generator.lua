@@ -4,18 +4,44 @@ lovr
 =
 lovr
 
-local chunk_size = chunksize
-local max_ids = 2
+local max_ids = 2 --this is a temporary placeholder for the 2D texture atlas
+
+local index_translation = {1,  2,  3,  1,  3,  4 }
+--[[ This is special documentation because it is quite hard to explain
+
+The reason that this function manually counts up in the "vertex_count" and
+
+"index_count" is because it is extremely fast to do this in the cpu directly
+
+the way that LuaJIT likes to handle cpu and memory instances. This was using
+
+index_count[#index_count + 1] before hand and this creates a table.getn()
+
+procedure per table index, no matter how big the table gets, slowing it down
+
+severely. Same with vertex_count. Utilizing the raw performance of the cpu
+
+to manually integer count this up (+1) allows for chunks to generate almost 
+
+instantly.
 
 
-local x_limit = 16
-local z_limit = 16*128
-local y_limit = 16
+The "adjuster_x" and "adjuster_z" are multipliers of the 2D chunk X and Z
 
-function generate_chunk_vertices(chunk_x,chunk_z)
+positions (x16) to correcly distribute this into memory easily.
 
+This data is then fed into "lovr.graphics.newMesh" along with
+
+"setVertexMap" to actually create the memory instance in openGL.
+]]--
+
+
+--this creates meshes for the gpu to draw
+function generate_gpu_chunk(chunk_x,chunk_z)
+
+    --this is pulling the memory directly out of the global
+    --1D chunk data map
     local c_index = hash_chunk_position(chunk_x,chunk_z)
-
     local chunk_data = chunk_map[c_index]
 
     -- The triangles which represent the
@@ -26,13 +52,13 @@ function generate_chunk_vertices(chunk_x,chunk_z)
     local chunk_indexes = {
     }
 
+    --these are the counts used for adjusting the vertex
+    --map and vertex count, it's extremely important
+    --that these are left at 0
     local index_count = 0
-
     local vertex_count = 0
 
     local shift = 1/max_ids
-    
-    local index_translation = {1,  2,  3,  1,  3,  4 }
 
     local x,y,z = 0,0,0
 
@@ -41,16 +67,26 @@ function generate_chunk_vertices(chunk_x,chunk_z)
     local adjuster_x = chunk_x*16
     local adjuster_z = chunk_z*16
 
+    --this is 1 through the max chunk size in a 1D memory map,
+    --which is 65,536. This is why each index is hashed to utilize
+    --the raw performance of the cpu with a better memory handling
+    --to provide extreme performance.
     for i = 1,16*16*128 do
 
+        --hash position and get data
         local index = hash_position(x,y,z)
-
         data = chunk_data[index]
 
         if data and data > 0 then
 
+            --this moves the pointer of the beginning and ending of
+            --the texture atlas, this is only 2D for now so only the
+            --X axis is being utilized
             local id_min = (data/max_ids)-shift
             local id_max = (data/max_ids)
+
+
+            --yes, this was extremely tedious to program
 
             local block_pick = global_block_check(adjuster_x+x,y,adjuster_z+z-1)
             if block_pick == 0 then
@@ -320,21 +356,17 @@ function generate_chunk_vertices(chunk_x,chunk_z)
             end
         end
     end
-    
-    --global_time_print = lovr.timer.getTime() - time
-
-
-    --local time = lovr.timer.getTime()
-
-    -- this holds the chunk stack data
+ 
+    -- this holds the gpu chunk mesh data
     local gpu_chunk
     if #chunk_vertices > 0 then
+        --set the data
         gpu_chunk = lovr.graphics.newMesh({{ 'lovrPosition', 'float', 3 },{ 'lovrTexCoord', 'float', 2 }}, chunk_vertices, 'triangles', "static")
         gpu_chunk:setVertexMap(chunk_indexes)
     else
         gpu_chunk = nil
     end
-    --global_time_print = lovr.timer.getTime() - time
 
+    --return the data to the function
     return(gpu_chunk)
 end
