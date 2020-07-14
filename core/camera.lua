@@ -174,7 +174,7 @@ function raycast(length)
 
     local solved = false
     while  solved == false do
-        r_length = r_length + 0.05
+        r_length = r_length + 0.0001
         x = math.floor(cx + (dx*r_length))
         y = math.floor(cy + (dy*r_length))
         z = math.floor(cz + (dz*r_length))

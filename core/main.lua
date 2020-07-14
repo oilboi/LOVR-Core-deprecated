@@ -16,7 +16,7 @@ gpu_chunk_pool = {}
 --this holds the chunk data for the game to work with
 chunk_map = {}
 
-local seed = math.random()
+local seed = lovr.math.random()
 
 local x_limit = 16
 local z_limit = 16*128
@@ -31,6 +31,8 @@ local function memory_position(i)
 	return x,y,z
 end
 
+--local p_count = 0
+--local position_hold = {}
 function gen_chunk_data(x,z)
     local c_index = hash_chunk_position(x,z)
     local cx,cz = x,z
@@ -38,30 +40,34 @@ function gen_chunk_data(x,z)
 
     local x,y,z = 0,0,0
 
+    noise = math.ceil(lovr.math.noise((x+(cx*16))/100, ((cz*16)+z)/100,seed)*100)
+
     for i = 1,16*16*128 do
+        
         local index = hash_position(x,y,z)
 
-        local noise = math.ceil(lovr.math.noise((cx*16)+x*math.pi,z*math.pi, (cz*16)+z/100,seed))
-        
-        if noise >= 0.5 then
-            chunk_map[c_index][index] = 1
-        --elseif y == 50 then
-        --    chunk_map[c_index][index] = math.random(0,1)
+        if y < noise then
+            chunk_map[c_index][index] = lovr.math.random(1,2)
         else
-            chunk_map[c_index][index] = math.random(1,2)
+            --if y == noise + 1 then
+            --    p_count = p_count + 1
+            --    position_hold[p_count] = {x=x+(cx*16),y=y,z=z+(cz*16)}
+            --end
+            chunk_map[c_index][index] = 0
         end
         
-        
-
         --up
         y = y + 1
         if y > 127 then
             y = 0
             --forwards
             x = x + 1
+            
+            noise = math.ceil(lovr.math.noise((x+(cx*16))/100, ((cz*16)+z)/100,seed)*100)
             if x > 15 then
                 x = 0
                 --right
+                noise = math.ceil(lovr.math.noise((x+(cx*16))/100, ((cz*16)+z)/100,seed)*100)
                 z = z + 1
             end
         end
@@ -131,7 +137,7 @@ local up = true
 local time_delay = 0
 local curr_chunk_index = {x=-test_view_distance,z=-test_view_distance}
 function lovr.update(dt)
-    dig()
+    --dig()
     camera_look(dt)
     if up then
         counter = counter + dt/5
@@ -161,19 +167,10 @@ function lovr.update(dt)
             end
         --end
     end
-    --for x = -10,10 do
-    --    set_block(x,127,0)
-    --end
 end
 
---local predef = chunk_size * number_of_chunks
 timer = 0
 function lovr.draw()
-    --this is transformed from the camera rotation class
-    --mat4(camera.transform):invert()
-    --lovr.graphics.transform(x, y, z, sx, sy, sz, angle, ax, ay, az)
-    -- local time = lovr.timer.getTime()
-
     --this is where the ui should be drawn
     lovr.graphics.push()
         lovr.graphics.print("FPS:"..lovr.timer.getFPS(), -0.1, 0.072, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
@@ -186,8 +183,6 @@ function lovr.draw()
     lovr.graphics.rotate(-camera.yaw, 0, 1, 0)
 
     lovr.graphics.transform(-x,-y,-z)
-
-    --lovr.graphics.rotate(1 * math.pi/2, 0, 1, 0)
 
     lovr.graphics.setProjection(lovr.math.mat4():perspective(0.01, 1000, 90/fov,s_width/s_height))
 
@@ -208,9 +203,11 @@ function lovr.draw()
 
     --local fps = lovr.timer.getFPS()
 
-    --time = lovr.timer.getTime()-time
-
     --lovr.graphics.print(tostring(temp_output), pos.x, pos.y, pos.z,1,camera.yaw,0,1,0)
+
+    --for _,data in ipairs(position_hold) do
+        --lovr.graphics.print(tostring(data.x.." "..data.y.." "..data.y), data.x, data.y, data.z,0.5,camera.yaw,0,1,0)
+    --end
 
     if selected_block then
         lovr.graphics.cube('line',  selected_block.x+0.5, selected_block.y+0.5, selected_block.z+0.5, 1)

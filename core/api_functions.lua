@@ -1,3 +1,4 @@
+-- this is used to get blocks
 function global_block_check(x,y,z)
     
     local chunk_x = math.floor(x/16)
@@ -15,7 +16,7 @@ function global_block_check(x,y,z)
     end
 end
 
-
+-- this is used to set blocks
 function set_block(x,y,z,block)
     local chunk_x = math.floor(x/16)
     local chunk_z = math.floor(z/16)
@@ -33,4 +34,3 @@ function set_block(x,y,z,block)
         chunk_update_vert(chunk_x,chunk_z)
     end
 end
-
