@@ -4,7 +4,7 @@ lovr
 =
 lovr
 
-local max_ids = 2 --this is a temporary placeholder for the 2D texture atlas
+local max_ids = 3 --this is a temporary placeholder for the 2D texture atlas
 
 local index_translation = {1,  2,  3,  1,  3,  4 }
 --[[ This is special documentation because it is quite hard to explain

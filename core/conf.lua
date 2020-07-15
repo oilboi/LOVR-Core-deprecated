@@ -22,7 +22,7 @@ function lovr.conf(t)
     t.modules.graphics = true
     t.modules.headset = false
     t.modules.math = true
-    t.modules.physics = false
+    t.modules.physics = true
     t.modules.thread = false
     t.modules.timer = true
 

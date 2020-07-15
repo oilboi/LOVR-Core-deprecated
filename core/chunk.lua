@@ -13,8 +13,12 @@ function gen_chunk_data(x,z)
     noise = math.ceil(lovr.math.noise((x+(cx*16))/100, ((cz*16)+z)/100,seed)*100)
     for i = 1,16*16*128 do
         local index = hash_position(x,y,z)
-        if y < noise then
-            chunk_map[c_index][index] = lovr.math.random(1,2)
+        if y == noise then
+            chunk_map[c_index][index] = 3--lovr.math.random(1,3)
+        elseif y >= noise - 3 and y <= noise - 1 then
+            chunk_map[c_index][index] = 1
+        elseif y < noise - 3 then
+            chunk_map[c_index][index] = 2
         else
             chunk_map[c_index][index] = 0
         end
@@ -49,7 +53,7 @@ function chunk_update_vert(x,z)
     local c_index = hash_chunk_position(x,z)
     if gpu_chunk_pool[c_index] then
         gpu_chunk_pool[c_index] = generate_gpu_chunk(x,z)
-        gpu_chunk_pool[c_index]:setMaterial(dirt)
+        gpu_chunk_pool[c_index]:setMaterial(atlas)
     end
 end
 
@@ -83,7 +87,7 @@ function gen_chunk(x,z)
         --to utilize, it is set to the texture atlas
         --which is extremely fast in comparison to
         --using random textures
-        gpu_chunk_pool[c_index]:setMaterial(dirt)
+        gpu_chunk_pool[c_index]:setMaterial(atlas)
     end
     --here is where the neighboring chunks are updates
     --this stops holes from developing in the map as the game

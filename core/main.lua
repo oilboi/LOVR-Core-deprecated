@@ -19,6 +19,9 @@ chunk_map = {}
 --this is the function which is called when the game loads
 --it sets all the game setting and rendering utilities
 function lovr.load()
+
+    world = lovr.physics.newWorld(0, -10, 0, true, nil)
+    
     --these are the settings which optimize
     --the gpu utilization
     lovr.mouse.setRelativeMode(true)
@@ -40,9 +43,9 @@ function lovr.load()
 
     --this is the texture atlas, this is created as a texture
     --then set to a material to utilize the default blend mode
-    dirttexture = lovr.graphics.newTexture("textures/dirt.png")
-    dirt = lovr.graphics.newMaterial()
-    dirt:setTexture(dirttexture)
+    atlastexture = lovr.graphics.newTexture("textures/atlas.png")
+    atlas = lovr.graphics.newMaterial()
+    atlas:setTexture(atlastexture)
 
     --the screen dimensions
     s_width, s_height = lovr.graphics.getDimensions()
@@ -63,7 +66,8 @@ local do_generation = true
 local test_view_distance = 5
 local curr_chunk_index = {x=-test_view_distance,z=-test_view_distance}
 function lovr.update(dt)
-    --dig()
+    lovr.event.pump()
+    dig()
     move(dt)
 
     --[[ --this is debug
