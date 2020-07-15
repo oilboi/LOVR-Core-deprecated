@@ -123,6 +123,9 @@ aabb_physics = function(self)
     else
         self.speed.z = 0
     end
+    camera.pos.x = player.pos.x
+    camera.pos.y = player.pos.y + player.eye_height
+    camera.pos.z = player.pos.z
 end
 
 entity_aabb_physics = function(self)

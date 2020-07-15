@@ -212,9 +212,7 @@ function lovr.update(dt)
 
     dig(dt)
 
-    aabb_physics(player)
-
-    move(dt)
+    aabb_physics(player)    
     
     do_item_physics(dt)
 

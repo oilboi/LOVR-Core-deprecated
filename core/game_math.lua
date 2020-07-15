@@ -46,13 +46,14 @@ end
 
 --hypotenuse of a right triangle
 function math.hypot(x, y)
-	local t
+    local t
+    
 	x = math.abs(x)
 	y = math.abs(y)
-	t = math.min(x, y)
+	v = math.min(x, y)
 	x = math.max(x, y)
-	t = t / x
-	return x * math.sqrt(1 + t * t)
+	v = v / x
+	return x * math.sqrt(1 + v * v)
 end
 
 --direction between two vectors
