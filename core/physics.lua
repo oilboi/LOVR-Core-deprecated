@@ -147,6 +147,10 @@ entity_aabb_physics = function(self)
         self.on_ground = true
     end
 
+    if self.on_ground == true then
+        return
+    end
+
     -- hit head ceilings
     if math.abs(self.speed.y) == self.speed.y
     and (tile_collisions(physics_get_block(self.pos.x-self.width,self.pos.y+self.height+self.speed.y,self.pos.z+self.width))
