@@ -217,7 +217,7 @@ function lovr.update(dt)
     
     do_item_physics(dt)
 
- 
+    --[[
     if up then
         fov_mod = fov_mod + dt*50
         if fov_mod >= 15 then
@@ -230,6 +230,7 @@ function lovr.update(dt)
         end
     end
     fov = fov_origin + fov_mod
+    ]]--
     
     if do_generation then
         gen_chunk(curr_chunk_index.x,curr_chunk_index.z)
