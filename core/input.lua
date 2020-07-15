@@ -20,7 +20,7 @@ function dig()
         raycast(4)
         if selected_block then
             if selected_block_above and get_block(selected_block_above.x,selected_block_above.y,selected_block_above.z) == 0 then
-                set_block(selected_block_above.x,selected_block_above.y,selected_block_above.z,lovr.math.random(1,2))
+                set_block(selected_block_above.x,selected_block_above.y,selected_block_above.z,4)--lovr.math.random(1,2))
             end
         end
     end
