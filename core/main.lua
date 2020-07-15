@@ -94,11 +94,14 @@ function add_item(x,y,z,id)
         hover_float = 0,
         up = true,
         rotation = 0,
+        timer = 0,
+        physical = true,
     }
 end
 
 local function do_item_physics(dt)
     for index,entity in ipairs(item_entities) do
+        entity.timer = entity.timer + dt
         if entity.up then
             entity.hover_float = entity.hover_float + dt/10
             if entity.hover_float >= 0.3 then
@@ -121,9 +124,39 @@ local function do_item_physics(dt)
 end
 
 local function draw_items()
-    for index,entity in ipairs(item_entities) do
+    for _,entity in ipairs(item_entities) do
         entity_meshes[entity.id]:draw(entity.pos.x, entity.pos.y+0.3+entity.hover_float, entity.pos.z, 0.3, entity.rotation, 0, 1, 0)
         --lovr.graphics.cube('line', entity.pos.x, entity.pos.y+0.3+entity.hover_float, entity.pos.z, .5, lovr.timer.getTime())
+    end
+end
+
+local function delete_item(id)
+    for i = id,item_count do
+        item_entities[i] = item_entities[i+1]
+    end
+    item_entities[item_count] = nil
+    item_count = item_count - 1
+end
+
+local function item_magnet()
+    local pos = {x=player.pos.x,y=player.pos.y,z=player.pos.z}
+    pos.y = pos.y + 0.5
+    for id,entity in ipairs(item_entities) do
+        if entity.timer >= 2 then
+            local d = distance(pos,entity.pos)
+            if d < 0.2 then
+                delete_item(id)
+            elseif d < 3 then
+                local v = vec_direction(entity.pos,pos)
+                v.x = v.x/3
+                v.y = v.y/3
+                v.z = v.z/3
+
+                entity.speed = v
+                entity.physical = false
+            end
+        end
+        --temp_output = d
     end
 end
 
@@ -169,10 +202,11 @@ local up = true
 local do_generation = true
 local curr_chunk_index = {x=-test_view_distance,z=-test_view_distance}
 function lovr.update(dt)
-    
+    tick_framerate(20)
+
     load_chunks_around_player()
 
-    tick_framerate(20)
+    item_magnet()
 
     lovr.event.pump()
 

@@ -30,3 +30,49 @@ function get_position_from_hash(hash)
     local z = (hash % 128) - 64
 	return x,y,z
 end
+
+--this gets the distance between two points
+function distance(a, b)
+	local dx = a.x - b.x
+	local dy = a.y - b.y
+	local dz = a.z - b.z
+	return math.sqrt(dx * dx + dy * dy + dz * dz)
+end
+
+--create a new vector
+function new_vec(x,y,z)
+    return({x=x,y=y,z=z})
+end
+
+--hypotenuse of a right triangle
+function math.hypot(x, y)
+	local t
+	x = math.abs(x)
+	y = math.abs(y)
+	t = math.min(x, y)
+	x = math.max(x, y)
+	t = t / x
+	return x * math.sqrt(1 + t * t)
+end
+
+--direction between two vectors
+function vec_direction(a,b)
+    local v = {}
+    v.x = b.x - a.x
+    v.y = b.y - a.y
+    v.z = b.z - a.z
+
+    local len = math.hypot(v.x, math.hypot(v.y, v.z))
+
+    if len == 0 then
+        v.x = 0
+        v.y = 0
+        v.z = 0
+    else
+        v.x = v.x / len
+        v.y = v.y / len
+        v.z = v.z / len
+    end
+
+    return(v)
+end

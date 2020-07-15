@@ -129,6 +129,13 @@ entity_aabb_physics = function(self)
     self.speed.z = self.speed.z * self.friction
     self.speed.y = self.speed.y - 0.003
 
+    if not self.physical then
+        self.pos.x = self.pos.x + self.speed.x
+        self.pos.y = self.pos.y + self.speed.y
+        self.pos.z = self.pos.z + self.speed.z
+        return
+    end
+
     -- determine if player has hit ground this frame
     self.on_ground = false
     if tile_collisions(physics_get_block(self.pos.x+self.width,self.pos.y+self.speed.y,self.pos.z+self.width))
