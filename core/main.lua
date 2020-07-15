@@ -1,5 +1,8 @@
 temp_output = nil -- this is a debug output 
 
+max_ids = 4
+entity_meshes = {}
+
 --load the libraries
 lovr.keyboard = require 'lovr-keyboard'
 lovr.mouse = require 'lovr-mouse'
@@ -20,6 +23,7 @@ chunk_map = {}
 
 --this holds the item entities for now
 item_entities = {}
+
 local item_count = 0
 
 --this is the function which is called when the game loads
@@ -67,21 +71,29 @@ function lovr.load()
     --the FOV settings
     fov = 72
     fov_origin = fov
+
+    --this is a bit awkard here but it's required to allow
+    --item entities to use the texture atlas
+    for i = 1,max_ids do
+        entity_meshes[i]:setMaterial(atlas)
+    end
 end
 
-function add_item(x,y,z)
+function add_item(x,y,z,id)
     item_count = item_count + 1
 
     item_entities[item_count] = {
         pos = {x=x,y=y,z=z},
         speed = {x=math.random(-1,1)*math.random()/10,y=math.random()/10,z=math.random(-1,1)*math.random()/10},
+        id = id,
         on_ground = false,
         friction = 0.85,
         height = 0.3,
         width = 0.3,
         move_speed = 0.01,
         hover_float = 0,
-        up = true
+        up = true,
+        rotation = 0,
     }
 end
 
@@ -99,13 +111,19 @@ local function do_item_physics(dt)
             end
         end
 
+        entity.rotation = entity.rotation + dt
+        if entity.rotation > math.pi then
+            entity.rotation = entity.rotation - (math.pi*2)
+        end
+
         entity_aabb_physics(entity)
     end
 end
 
 local function draw_items()
     for index,entity in ipairs(item_entities) do
-        lovr.graphics.cube('line', entity.pos.x, entity.pos.y+0.3+entity.hover_float, entity.pos.z, .5, lovr.timer.getTime())
+        entity_meshes[entity.id]:draw(entity.pos.x, entity.pos.y+0.3+entity.hover_float, entity.pos.z, 0.3, entity.rotation, 0, 1, 0)
+        --lovr.graphics.cube('line', entity.pos.x, entity.pos.y+0.3+entity.hover_float, entity.pos.z, .5, lovr.timer.getTime())
     end
 end
 
@@ -158,7 +176,7 @@ function lovr.update(dt)
 
     lovr.event.pump()
 
-    dig()
+    dig(dt)
 
     aabb_physics(player)
 

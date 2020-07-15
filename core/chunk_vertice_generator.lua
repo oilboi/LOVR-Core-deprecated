@@ -4,7 +4,7 @@ lovr
 =
 lovr
 
-local max_ids = 4 --this is a temporary placeholder for the 2D texture atlas
+local max_ids = max_ids --this is a temporary placeholder for the 2D texture atlas
 
 local index_translation = {1,  2,  3,  1,  3,  4 }
 --[[ This is special documentation because it is quite hard to explain
@@ -369,4 +369,277 @@ function generate_gpu_chunk(chunk_x,chunk_z)
 
     --return the data to the function
     return(gpu_chunk)
+end
+
+
+for id = 1,max_ids do
+    -- The triangles which represent the
+    -- chunk in gpu memory
+    local item_vertices = {
+    }
+    -- Indices to draw the faces of the cube out of triangles
+    local item_indexes = {
+    }
+
+    --these are the counts used for adjusting the vertex
+    --map and vertex count, it's extremely important
+    --that these are left at 0
+    local index_count = 0
+    local vertex_count = 0
+
+    local shift = 1/max_ids
+
+
+    --this moves the pointer of the beginning and ending of
+    --the texture atlas, this is only 2D for now so only the
+    --X axis is being utilized
+    local id_min = (id/max_ids)-shift
+    local id_max = (id/max_ids)
+
+    -- Face left
+    
+    --vertex map
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[1]+vertex_count
+    
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[2]+vertex_count
+
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[3]+vertex_count
+
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[4]+vertex_count
+
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[5]+vertex_count
+
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[6]+vertex_count
+
+    
+    --tris
+    vertex_count = vertex_count + 1
+
+    item_vertices[vertex_count] = { 0, 0, 0, id_min, 0} -- 0, 0
+
+    vertex_count = vertex_count + 1
+
+    item_vertices[vertex_count] = { 0, 1,0, id_min, 1} -- 0, 1
+
+    vertex_count = vertex_count + 1
+
+    item_vertices[vertex_count] = { 1, 1, 0, id_max, 1} -- 1, 1
+
+    vertex_count = vertex_count + 1
+
+    item_vertices[vertex_count] = { 1, 0, 0, id_max, 0} -- 1, 0
+
+
+    -- Face top
+    
+    --vertex map
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[1]+vertex_count
+    
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[2]+vertex_count
+
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[3]+vertex_count
+
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[4]+vertex_count
+
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[5]+vertex_count
+
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[6]+vertex_count
+    
+
+    --tris
+    vertex_count = vertex_count + 1
+
+    item_vertices[vertex_count] = { 1, 1, 0, id_min, 0} -- 0, 0
+
+    vertex_count = vertex_count + 1
+
+    item_vertices[vertex_count] = { 0, 1, 0, id_min, 1} -- 0, 1
+
+    vertex_count = vertex_count + 1
+
+    item_vertices[vertex_count] = { 0, 1, 1, id_max, 1} -- 1, 1
+
+    vertex_count = vertex_count + 1
+
+    item_vertices[vertex_count] = { 1, 1, 1, id_max, 0} -- 1, 0
+    
+
+    -- Face front
+    
+    --vertex map
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[1]+vertex_count
+    
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[2]+vertex_count
+
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[3]+vertex_count
+
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[4]+vertex_count
+
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[5]+vertex_count
+
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[6]+vertex_count
+
+
+    --tris
+    vertex_count = vertex_count + 1
+
+    item_vertices[vertex_count] = { 1, 0, 0, id_min, 0} -- 0, 0
+
+    vertex_count = vertex_count + 1
+
+    item_vertices[vertex_count] = { 1, 1, 0, id_min, 1} -- 0, 1
+
+    vertex_count = vertex_count + 1
+
+    item_vertices[vertex_count] = { 1, 1, 1, id_max, 1} -- 1, 1
+
+    vertex_count = vertex_count + 1
+    
+    item_vertices[vertex_count] = { 1, 0, 1, id_max, 0} -- 1, 0
+
+
+    -- Face back
+    
+    --vertex map
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[1]+vertex_count
+    
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[2]+vertex_count
+
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[3]+vertex_count
+
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[4]+vertex_count
+
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[5]+vertex_count
+
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[6]+vertex_count
+
+    --tris
+    vertex_count = vertex_count + 1
+
+    item_vertices[vertex_count] = { 0, 0, 0, id_max, 0} -- 1, 0
+
+    vertex_count = vertex_count + 1
+
+    item_vertices[vertex_count] = { 0, 0, 1, id_min, 0} -- 0, 0
+
+    vertex_count = vertex_count + 1
+
+    item_vertices[vertex_count] = { 0, 1, 1, id_min, 1} -- 0, 1
+
+    vertex_count = vertex_count + 1
+
+    item_vertices[vertex_count] = { 0, 1, 0, id_max, 1} -- 1, 1
+
+    -- Face right
+
+    --vertex map                
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[1]+vertex_count
+    
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[2]+vertex_count
+
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[3]+vertex_count
+
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[4]+vertex_count
+
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[5]+vertex_count
+
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[6]+vertex_count
+
+    --tris
+    vertex_count = vertex_count + 1
+
+    item_vertices[vertex_count] = { 1, 1, 1, id_min, 1} -- 0, 1
+
+    vertex_count = vertex_count + 1
+
+    item_vertices[vertex_count] = { 0, 1, 1, id_max, 1} -- 1, 1
+
+    vertex_count = vertex_count + 1
+
+    item_vertices[vertex_count] = { 0, 0, 1, id_max, 0} -- 1, 0
+
+    vertex_count = vertex_count + 1
+
+    item_vertices[vertex_count] = { 1, 0, 1, id_min, 0} -- 0, 0
+
+
+    -- Face bottom
+    
+    --vertex map                
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[1]+vertex_count
+    
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[2]+vertex_count
+
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[3]+vertex_count
+
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[4]+vertex_count
+
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[5]+vertex_count
+
+    index_count = index_count + 1
+    item_indexes[index_count] = index_translation[6]+vertex_count
+
+    --tris
+    vertex_count = vertex_count + 1
+
+    item_vertices[vertex_count] = { 0, 0, 0, id_max, 1} -- 1, 1
+
+    vertex_count = vertex_count + 1
+    
+    item_vertices[vertex_count] = { 1, 0, 0, id_max, 0} -- 1, 0
+
+    vertex_count = vertex_count + 1
+
+    item_vertices[vertex_count] = { 1, 0, 1, id_min, 0} -- 0, 0
+
+    vertex_count = vertex_count + 1
+
+    item_vertices[vertex_count] = { 0, 0, 1, id_min, 1} -- 0, 1
+ 
+    --this is a quick hack to fix the offset because I don't
+    --want to go through all the vertices right now
+    for i = 1,vertex_count do
+        for z = 1,3 do
+            item_vertices[i][z] = item_vertices[i][z] - 0.5
+        end
+    end
+
+    --set the data
+    entity_meshes[id] = lovr.graphics.newMesh({{ 'lovrPosition', 'float', 3 },{ 'lovrTexCoord', 'float', 2 }}, item_vertices, 'triangles', "static")
+    entity_meshes[id]:setVertexMap(item_indexes)
 end
