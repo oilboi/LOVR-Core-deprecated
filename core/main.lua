@@ -254,6 +254,7 @@ end
 function lovr.draw()
     --this is where the ui should be drawn
     lovr.graphics.push()
+        lovr.graphics.skybox("/Textures/Skybox.jpeg)
         lovr.graphics.print("FPS:"..lovr.timer.getFPS(), -0.1, 0.072, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
         lovr.graphics.print("Items:"..item_count, -0.1, 0.062, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
         lovr.graphics.print("+", 0, 0, -0.1, 0.01, 0, 0, 1, 0)
