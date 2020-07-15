@@ -11,6 +11,7 @@ function gen_chunk_data(x,z)
     --to the literal position inside of the chunk so that the noise generation follows
     --the noise generation in sync with the rest of the map
     noise = math.ceil(lovr.math.noise((x+(cx*16))/100, ((cz*16)+z)/100,seed)*100)
+
     for i = 1,16*16*128 do
         local index = hash_position(x,y,z)
         if y == noise then
@@ -95,4 +96,13 @@ function gen_chunk(x,z)
     for _,dir in ipairs(dirs) do
         chunk_update_vert(x+dir.x,z+dir.z)
     end
+end
+
+--this is used for deleting chunks
+function delete_chunk(x,z)
+    local c_index = hash_chunk_position(x,z)
+
+    gpu_chunk_pool[c_index] = nil
+    
+    chunk_map[c_index] = nil
 end

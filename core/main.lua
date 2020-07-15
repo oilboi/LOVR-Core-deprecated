@@ -51,7 +51,8 @@ function lovr.load()
         height = 1.9,
         width = 0.3,
         eye_height = 1.62,
-        move_speed = 0.01
+        move_speed = 0.01,
+        current_chunk = {x=0,z=0}
     }
 
     --this is the texture atlas, this is created as a texture
@@ -108,6 +109,46 @@ local function draw_items()
     end
 end
 
+
+local test_view_distance = 5
+
+local function load_chunks_around_player()
+    local old_chunk = player.current_chunk
+
+    local chunk_x = math.floor(player.pos.x/16)
+    local chunk_z = math.floor(player.pos.z/16)
+
+    if old_chunk.x ~= chunk_x then
+        local chunk_diff = chunk_x - old_chunk.x
+        local direction = test_view_distance * chunk_diff
+        temp_output = direction
+        --
+        for z = -test_view_distance+chunk_z,test_view_distance+chunk_z do
+            gen_chunk(chunk_x+direction,z)
+        end
+        for z = -test_view_distance+old_chunk.z,test_view_distance+old_chunk.z do
+            delete_chunk(old_chunk.x-direction,z)
+        end
+        player.current_chunk.x = chunk_x
+    end
+
+    if old_chunk.z ~= chunk_z then
+        local chunk_diff = chunk_z - old_chunk.z
+        local direction = test_view_distance * chunk_diff
+        temp_output = direction
+        --
+        for x = -test_view_distance+chunk_x,test_view_distance+chunk_x do
+            gen_chunk(x,chunk_z+direction)
+        end
+        for x = -test_view_distance+old_chunk.x,test_view_distance+old_chunk.x do
+            delete_chunk(x,old_chunk.z-direction)
+        end
+        player.current_chunk.z = chunk_z
+    end
+    --temp_output = tostring("currx:"..(player.current_chunk.x).."\n"..
+                    --"chunkx:"..chunk_x)
+
+end
 --this is the main loop of the game [MAIN LOOP]
 --this controls everything that happens "server side"
 --in the game engine, right now it is being used for
@@ -115,9 +156,11 @@ end
 local counter = 0
 local up = true
 local do_generation = true
-local test_view_distance = 5
 local curr_chunk_index = {x=-test_view_distance,z=-test_view_distance}
 function lovr.update(dt)
+    
+    load_chunks_around_player()
+
     tick_framerate(20)
 
     lovr.event.pump()
