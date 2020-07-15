@@ -4,26 +4,30 @@ local up = true
 --this is the function that allows the player to move
 --around the 3d environment based on the vector
 --of their camera X and Z
-function move(dt)
-    local velocity = {x=0,y=0,z=0}
 
-    if lovr.keyboard.isDown('w', 'up') then
-        velocity.z = 1
+function move(dt)
+    camera.pos.x = player.pos.x
+    camera.pos.y = player.pos.y + player.eye_height
+    camera.pos.z = player.pos.z
+    --local velocity = {x=0,y=0,z=0}
+
+    --if lovr.keyboard.isDown('w') then
+        --velocity.z = 1
         --[[
         fov = fov - dt*100
         if fov < fov_origin-20 then
             fov = fov_origin-20
         end
         ]]--
-    elseif lovr.keyboard.isDown('s', 'down') then
-        velocity.z = -1
+    --elseif lovr.keyboard.isDown('s') then
+    --    velocity.z = -1
         --[[
         fov = fov + dt*100
         if fov > fov_origin+20 then
             fov = fov_origin+20
         end
         ]]--
-    end
+    --end
 
     --[[
     if gen_complete then
@@ -55,19 +59,19 @@ function move(dt)
     end
     ]]--
 
-    if lovr.keyboard.isDown('a', 'left') then
-        velocity.x = -1        
-    elseif lovr.keyboard.isDown('d', 'right') then
-        velocity.x = 1
-    end
+    --if lovr.keyboard.isDown('a') then
+        --velocity.x = -1        
+    --elseif lovr.keyboard.isDown('d') then
+        --velocity.x = 1
+    --end
 
     
-    if lovr.keyboard.isDown('lshift') then
-        velocity.y = -1
-    elseif lovr.keyboard.isDown('space') then
-        velocity.y = 1
-    end    
-    
+    --if lovr.keyboard.isDown('lshift') then
+      --  velocity.y = -1
+    --elseif lovr.keyboard.isDown('space') then
+      --  velocity.y = 1
+    --end    
+    --[[
     if velocity.x ~= 0 or velocity.z ~= 0 then
         local yaw_translate = camera.yaw
 
@@ -98,10 +102,6 @@ function move(dt)
 
         velocity.x = -math.sin(yaw_translate)
         velocity.z = -math.cos(yaw_translate)
-        --velocity:normalize()
-        --velocity:mul(camera.movespeed * dt)
-
-        --local t = camera.transform:mul(velocity).xyz
 
         t = lovr.math.vec3(velocity.x,0,velocity.z)
         
@@ -121,6 +121,7 @@ function move(dt)
 
         camera.position:add(Q)
     end
+    ]]--
 end
 
 --this is a useful function for easily getting the 3D vector

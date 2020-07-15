@@ -1,4 +1,5 @@
 
+
 function lovr.conf(t)
 
     -- Set the project identity
@@ -31,7 +32,6 @@ function lovr.conf(t)
     t.window.height = 900
     t.window.fullscreen = false
     t.window.msaa = 0
-    t.window.vsync = 0
     t.window.title = 'Core'
     t.window.icon = nil
   end

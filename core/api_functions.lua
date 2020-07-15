@@ -106,7 +106,7 @@ function raycast(length)
     --local time = lovr.timer.getTime()
     local r_length = 0
     local x,y,z
-    local cx,cy,cz = camera.position:unpack()
+    local cx,cy,cz = camera.pos.x,camera.pos.y,camera.pos.z--camera.position:unpack()
     
     local dx,dy,dz = get_camera_dir()
 
