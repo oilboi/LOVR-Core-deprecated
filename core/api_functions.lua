@@ -24,7 +24,6 @@ function get_block(x,y,z)
 
     --if the chunk exists, index
     if chunk_map[hash] then
-
         --now the game indexes the exact position inside the
         --1D chunk sandbox and returns that data
         local index = hash_position(relative_x,y,relative_z)
@@ -56,6 +55,19 @@ function set_block(x,y,z,block)
         chunk_map[hash][index] = block
         --update the mesh
         chunk_update_vert(chunk_x,chunk_z)
+
+        --update X neighbor if on a chunk border
+        if relative_x == 15 then
+            chunk_update_vert(chunk_x+1,chunk_z)
+        elseif relative_x == 0 then
+            chunk_update_vert(chunk_x-1,chunk_z)
+        end
+        --update Z neighbor if on a chunk border
+        if relative_z == 15 then
+            chunk_update_vert(chunk_x,chunk_z+1)
+        elseif relative_z == 0 then
+            chunk_update_vert(chunk_x,chunk_z-1)
+        end
     end
 end
 
