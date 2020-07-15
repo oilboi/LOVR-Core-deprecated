@@ -36,6 +36,8 @@ function lovr.load()
     lovr.graphics.setCullingEnabled(true)
     lovr.graphics.setBlendMode(nil,nil)
     lovr.graphics.setDefaultFilter("nearest", 0)
+    
+    lovr.graphics.setBackgroundColor(0, 191, 255, 0)
 
     --lovr.graphics.setWireframe(true)
     
