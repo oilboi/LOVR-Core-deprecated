@@ -263,7 +263,7 @@ function lovr.draw()
     end
 
     --lovr.graphics.box(mode, x, y, z, width, height
-    lovr.graphics.box("line", player.pos.x, player.pos.y+player.height/2, player.pos.z, player.width*2, player.height)
+    --lovr.graphics.box("line", player.pos.x, player.pos.y+player.height/2, player.pos.z, player.width*2, player.height)
     --lovr.graphics.cube('line',  pos.x, pos.y, pos.z, .5, lovr.timer.getTime())
 
     lovr.graphics.pop()
