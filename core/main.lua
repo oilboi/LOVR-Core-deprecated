@@ -18,6 +18,10 @@ gpu_chunk_pool = {}
 --this holds the chunk data for the game to work with
 chunk_map = {}
 
+--this holds the item entities for now
+item_entities = {}
+local item_count = 0
+
 --this is the function which is called when the game loads
 --it sets all the game setting and rendering utilities
 function lovr.load()
@@ -42,7 +46,6 @@ function lovr.load()
     player = {
         pos = {x=0,y=80,z=0},
         speed = {x=0,y=0,z=0},
-        inertia = {x=0,z=0},
         on_ground = false,
         friction = 0.85,
         height = 1.9,
@@ -65,6 +68,46 @@ function lovr.load()
     fov_origin = fov
 end
 
+function add_item(x,y,z)
+    item_count = item_count + 1
+
+    item_entities[item_count] = {
+        pos = {x=x,y=y,z=z},
+        speed = {x=math.random(-1,1)*math.random()/10,y=math.random()/10,z=math.random(-1,1)*math.random()/10},
+        on_ground = false,
+        friction = 0.85,
+        height = 0.3,
+        width = 0.3,
+        move_speed = 0.01,
+        hover_float = 0,
+        up = true
+    }
+end
+
+local function do_item_physics(dt)
+    for index,entity in ipairs(item_entities) do
+        if entity.up then
+            entity.hover_float = entity.hover_float + dt/10
+            if entity.hover_float >= 0.3 then
+                entity.up = false
+            end
+        else
+            entity.hover_float = entity.hover_float - dt/10
+            if entity.hover_float <= 0 then
+                entity.up = true
+            end
+        end
+
+        entity_aabb_physics(entity)
+    end
+end
+
+local function draw_items()
+    for index,entity in ipairs(item_entities) do
+        lovr.graphics.cube('line', entity.pos.x, entity.pos.y+0.3+entity.hover_float, entity.pos.z, .5, lovr.timer.getTime())
+    end
+end
+
 --this is the main loop of the game [MAIN LOOP]
 --this controls everything that happens "server side"
 --in the game engine, right now it is being used for
@@ -81,9 +124,12 @@ function lovr.update(dt)
 
     dig()
 
-    aabb_physics(dt)
+    aabb_physics(player)
 
     move(dt)
+    
+    do_item_physics(dt)
+
 
     --[[ --this is debug
     if up then
@@ -113,12 +159,6 @@ function lovr.update(dt)
     end
 end
 
-
--- A helper function for drawing boxes
-function drawBox(box)
-    local x, y, z = box:getPosition()
-    lovr.graphics.cube('fill', x, y, z, .25, box:getOrientation())
-end
   
 
 --this is the rendering loop
@@ -128,6 +168,7 @@ function lovr.draw()
     --this is where the ui should be drawn
     lovr.graphics.push()
         lovr.graphics.print("FPS:"..lovr.timer.getFPS(), -0.1, 0.072, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
+        lovr.graphics.print("Items:"..item_count, -0.1, 0.062, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
         lovr.graphics.print("+", 0, 0, -0.1, 0.01, 0, 0, 1, 0)
     lovr.graphics.pop()
 
@@ -153,6 +194,8 @@ function lovr.draw()
     dz = dz * 4
     local pos = {x=x+dx,y=y+dy,z=z+dz}
 
+
+    draw_items()
     --local fps = lovr.timer.getFPS()
 
     lovr.graphics.print(tostring(temp_output), pos.x, pos.y, pos.z,1,camera.yaw,0,1,0)

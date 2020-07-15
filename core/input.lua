@@ -14,6 +14,8 @@ function dig()
         if selected_block then
             if get_block(selected_block.x,selected_block.y,selected_block.z) ~= 0 then
                 set_block(selected_block.x,selected_block.y,selected_block.z,0)
+
+                add_item(selected_block.x+0.5,selected_block.y+0.5,selected_block.z+0.5)
             end
         end
     elseif lovr.mouse.isDown(2) then

@@ -21,28 +21,28 @@ end
 
 function math.angle(x1,y1, x2,y2) return math.atan2(y2-y1, x2-x1) end
 
-aabb_physics = function(dt)
+aabb_physics = function(self)
     -- apply gravity and friction
-    player.speed.x = player.speed.x * player.friction
-    player.speed.z = player.speed.z * player.friction
-    player.speed.y = player.speed.y - 0.003
+    self.speed.x = self.speed.x * self.friction
+    self.speed.z = self.speed.z * self.friction
+    self.speed.y = self.speed.y - 0.003
 
     -- determine if player has hit ground this frame
-    player.on_ground = false
-    if tile_collisions(physics_get_block(player.pos.x+player.width,player.pos.y+player.speed.y,player.pos.z+player.width))
-    or tile_collisions(physics_get_block(player.pos.x+player.width,player.pos.y+player.speed.y,player.pos.z-player.width))
-    or tile_collisions(physics_get_block(player.pos.x-player.width,player.pos.y+player.speed.y,player.pos.z+player.width))
-    or tile_collisions(physics_get_block(player.pos.x-player.width,player.pos.y+player.speed.y,player.pos.z-player.width)) then
+    self.on_ground = false
+    if tile_collisions(physics_get_block(self.pos.x+self.width,self.pos.y+self.speed.y,self.pos.z+self.width))
+    or tile_collisions(physics_get_block(self.pos.x+self.width,self.pos.y+self.speed.y,self.pos.z-self.width))
+    or tile_collisions(physics_get_block(self.pos.x-self.width,self.pos.y+self.speed.y,self.pos.z+self.width))
+    or tile_collisions(physics_get_block(self.pos.x-self.width,self.pos.y+self.speed.y,self.pos.z-self.width)) then
         local i = 0
-        while not tile_collisions(physics_get_block(player.pos.x+player.width,player.pos.y+i,player.pos.z+player.width))
-        and not tile_collisions(physics_get_block(player.pos.x+player.width,player.pos.y+i,player.pos.z-player.width))
-        and not tile_collisions(physics_get_block(player.pos.x-player.width,player.pos.y+i,player.pos.z+player.width))
-        and not tile_collisions(physics_get_block(player.pos.x-player.width,player.pos.y+i,player.pos.z-player.width)) do
+        while not tile_collisions(physics_get_block(self.pos.x+self.width,self.pos.y+i,self.pos.z+self.width))
+        and not tile_collisions(physics_get_block(self.pos.x+self.width,self.pos.y+i,self.pos.z-self.width))
+        and not tile_collisions(physics_get_block(self.pos.x-self.width,self.pos.y+i,self.pos.z+self.width))
+        and not tile_collisions(physics_get_block(self.pos.x-self.width,self.pos.y+i,self.pos.z-self.width)) do
             i = i-0.01
         end
-        player.pos.y = player.pos.y + i+0.01
-        player.speed.y = 0
-        player.on_ground = true
+        self.pos.y = self.pos.y + i+0.01
+        self.speed.y = 0
+        self.on_ground = true
     end
 
     local mx,my = 0,0
@@ -75,50 +75,118 @@ aabb_physics = function(dt)
     end
 
     -- jump if on ground
-    if lovr.keyboard.isDown("space") and player.on_ground then
-        player.speed.y = player.speed.y + 0.1
+    if lovr.keyboard.isDown("space") and self.on_ground then
+        self.speed.y = self.speed.y + 0.1
     end
 
     -- hit head ceilings
-    if math.abs(player.speed.y) == player.speed.y
-    and (tile_collisions(physics_get_block(player.pos.x-player.width,player.pos.y+player.height+player.speed.y,player.pos.z+player.width))
-    or   tile_collisions(physics_get_block(player.pos.x-player.width,player.pos.y+player.height+player.speed.y,player.pos.z-player.width))
-    or   tile_collisions(physics_get_block(player.pos.x+player.width,player.pos.y+player.height+player.speed.y,player.pos.z+player.width))
-    or   tile_collisions(physics_get_block(player.pos.x+player.width,player.pos.y+player.height+player.speed.y,player.pos.z-player.width))) then
-        player.speed.y = -0.5 * player.speed.y
+    if math.abs(self.speed.y) == self.speed.y
+    and (tile_collisions(physics_get_block(self.pos.x-self.width,self.pos.y+self.height+self.speed.y,self.pos.z+self.width))
+    or   tile_collisions(physics_get_block(self.pos.x-self.width,self.pos.y+self.height+self.speed.y,self.pos.z-self.width))
+    or   tile_collisions(physics_get_block(self.pos.x+self.width,self.pos.y+self.height+self.speed.y,self.pos.z+self.width))
+    or   tile_collisions(physics_get_block(self.pos.x+self.width,self.pos.y+self.height+self.speed.y,self.pos.z-self.width))) then
+        self.speed.y = -0.5 * self.speed.y
     end
 
     -- convert WASD keys pressed into an angle, move xSpeed and zSpeed according to cos and sin
     
     if moving then
         local angle = math.angle(0,0, mx,my)
-        player.direction = (camera.yaw + angle)*-1 +math.pi/2
-        player.speed.x = player.speed.x + math.cos(-camera.yaw + angle) * player.move_speed
-        player.speed.z = player.speed.z + math.sin(-camera.yaw + angle) * player.move_speed
+        self.direction = (camera.yaw + angle)*-1 +math.pi/2
+        self.speed.x = self.speed.x + math.cos(-camera.yaw + angle) * self.move_speed
+        self.speed.z = self.speed.z + math.sin(-camera.yaw + angle) * self.move_speed
     end
 
     -- y values are good, cement them
-    player.pos.y = player.pos.y + player.speed.y
+    self.pos.y = self.pos.y + self.speed.y
 
     -- check for collisions with walls along the x direction
-    if not tile_collisions(physics_get_block(player.pos.x+player.speed.x +GetSign(player.speed.x)*player.width,player.pos.y,player.pos.z -player.width))
-    and not tile_collisions(physics_get_block(player.pos.x+player.speed.x +GetSign(player.speed.x)*player.width,player.pos.y+1,player.pos.z -player.width))
-    and not tile_collisions(physics_get_block(player.pos.x+player.speed.x +GetSign(player.speed.x)*player.width,player.pos.y,player.pos.z +player.width))
-    and not tile_collisions(physics_get_block(player.pos.x+player.speed.x +GetSign(player.speed.x)*player.width,player.pos.y+1,player.pos.z +player.width)) then
+    if not tile_collisions(physics_get_block(self.pos.x+self.speed.x +GetSign(self.speed.x)*self.width,self.pos.y,self.pos.z -self.width))
+    and not tile_collisions(physics_get_block(self.pos.x+self.speed.x +GetSign(self.speed.x)*self.width,self.pos.y+1,self.pos.z -self.width))
+    and not tile_collisions(physics_get_block(self.pos.x+self.speed.x +GetSign(self.speed.x)*self.width,self.pos.y,self.pos.z +self.width))
+    and not tile_collisions(physics_get_block(self.pos.x+self.speed.x +GetSign(self.speed.x)*self.width,self.pos.y+1,self.pos.z +self.width)) then
         -- x values are good, cement them
-        player.pos.x = player.pos.x + player.speed.x
+        self.pos.x = self.pos.x + self.speed.x
     else
-        player.speed.x = 0
+        self.speed.x = 0
     end
 
     -- check for collisions with walls along the z direction
-    if not tile_collisions(physics_get_block(player.pos.x -player.width,player.pos.y,player.pos.z+player.speed.z +GetSign(player.speed.z)*player.width))
-    and not tile_collisions(physics_get_block(player.pos.x -player.width,player.pos.y+1,player.pos.z+player.speed.z +GetSign(player.speed.z)*player.width))
-    and not tile_collisions(physics_get_block(player.pos.x +player.width,player.pos.y,player.pos.z+player.speed.z +GetSign(player.speed.z)*player.width))
-    and not tile_collisions(physics_get_block(player.pos.x +player.width,player.pos.y+1,player.pos.z+player.speed.z +GetSign(player.speed.z)*player.width)) then
+    if not tile_collisions(physics_get_block(self.pos.x -self.width,self.pos.y,self.pos.z+self.speed.z +GetSign(self.speed.z)*self.width))
+    and not tile_collisions(physics_get_block(self.pos.x -self.width,self.pos.y+1,self.pos.z+self.speed.z +GetSign(self.speed.z)*self.width))
+    and not tile_collisions(physics_get_block(self.pos.x +self.width,self.pos.y,self.pos.z+self.speed.z +GetSign(self.speed.z)*self.width))
+    and not tile_collisions(physics_get_block(self.pos.x +self.width,self.pos.y+1,self.pos.z+self.speed.z +GetSign(self.speed.z)*self.width)) then
         -- z values are good, cement them
-        player.pos.z = player.pos.z + player.speed.z
+        self.pos.z = self.pos.z + self.speed.z
     else
-        player.speed.z = 0
+        self.speed.z = 0
+    end
+end
+
+entity_aabb_physics = function(self)
+    -- apply gravity and friction
+    self.speed.x = self.speed.x * self.friction
+    self.speed.z = self.speed.z * self.friction
+    self.speed.y = self.speed.y - 0.003
+
+    -- determine if player has hit ground this frame
+    self.on_ground = false
+    if tile_collisions(physics_get_block(self.pos.x+self.width,self.pos.y+self.speed.y,self.pos.z+self.width))
+    or tile_collisions(physics_get_block(self.pos.x+self.width,self.pos.y+self.speed.y,self.pos.z-self.width))
+    or tile_collisions(physics_get_block(self.pos.x-self.width,self.pos.y+self.speed.y,self.pos.z+self.width))
+    or tile_collisions(physics_get_block(self.pos.x-self.width,self.pos.y+self.speed.y,self.pos.z-self.width)) then
+        local i = 0
+        while not tile_collisions(physics_get_block(self.pos.x+self.width,self.pos.y+i,self.pos.z+self.width))
+        and not tile_collisions(physics_get_block(self.pos.x+self.width,self.pos.y+i,self.pos.z-self.width))
+        and not tile_collisions(physics_get_block(self.pos.x-self.width,self.pos.y+i,self.pos.z+self.width))
+        and not tile_collisions(physics_get_block(self.pos.x-self.width,self.pos.y+i,self.pos.z-self.width)) do
+            i = i-0.01
+        end
+        self.pos.y = self.pos.y + i+0.01
+        self.speed.y = 0
+        self.on_ground = true
+    end
+
+    -- hit head ceilings
+    if math.abs(self.speed.y) == self.speed.y
+    and (tile_collisions(physics_get_block(self.pos.x-self.width,self.pos.y+self.height+self.speed.y,self.pos.z+self.width))
+    or   tile_collisions(physics_get_block(self.pos.x-self.width,self.pos.y+self.height+self.speed.y,self.pos.z-self.width))
+    or   tile_collisions(physics_get_block(self.pos.x+self.width,self.pos.y+self.height+self.speed.y,self.pos.z+self.width))
+    or   tile_collisions(physics_get_block(self.pos.x+self.width,self.pos.y+self.height+self.speed.y,self.pos.z-self.width))) then
+        self.speed.y = -0.5 * self.speed.y
+    end
+
+    -- convert WASD keys pressed into an angle, move xSpeed and zSpeed according to cos and sin
+    
+    if moving then
+        local angle = math.angle(0,0, mx,my)
+        self.direction = (camera.yaw + angle)*-1 +math.pi/2
+        self.speed.x = self.speed.x + math.cos(-camera.yaw + angle) * self.move_speed
+        self.speed.z = self.speed.z + math.sin(-camera.yaw + angle) * self.move_speed
+    end
+
+    -- y values are good, cement them
+    self.pos.y = self.pos.y + self.speed.y
+
+    -- check for collisions with walls along the x direction
+    if not tile_collisions(physics_get_block(self.pos.x+self.speed.x +GetSign(self.speed.x)*self.width,self.pos.y,self.pos.z -self.width))
+    and not tile_collisions(physics_get_block(self.pos.x+self.speed.x +GetSign(self.speed.x)*self.width,self.pos.y+1,self.pos.z -self.width))
+    and not tile_collisions(physics_get_block(self.pos.x+self.speed.x +GetSign(self.speed.x)*self.width,self.pos.y,self.pos.z +self.width))
+    and not tile_collisions(physics_get_block(self.pos.x+self.speed.x +GetSign(self.speed.x)*self.width,self.pos.y+1,self.pos.z +self.width)) then
+        -- x values are good, cement them
+        self.pos.x = self.pos.x + self.speed.x
+    else
+        self.speed.x = 0
+    end
+
+    -- check for collisions with walls along the z direction
+    if not tile_collisions(physics_get_block(self.pos.x -self.width,self.pos.y,self.pos.z+self.speed.z +GetSign(self.speed.z)*self.width))
+    and not tile_collisions(physics_get_block(self.pos.x -self.width,self.pos.y+1,self.pos.z+self.speed.z +GetSign(self.speed.z)*self.width))
+    and not tile_collisions(physics_get_block(self.pos.x +self.width,self.pos.y,self.pos.z+self.speed.z +GetSign(self.speed.z)*self.width))
+    and not tile_collisions(physics_get_block(self.pos.x +self.width,self.pos.y+1,self.pos.z+self.speed.z +GetSign(self.speed.z)*self.width)) then
+        -- z values are good, cement them
+        self.pos.z = self.pos.z + self.speed.z
+    else
+        self.speed.z = 0
     end
 end
