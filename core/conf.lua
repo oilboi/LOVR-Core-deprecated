@@ -1,4 +1,5 @@
 
+
 function lovr.conf(t)
 
     -- Set the project identity
@@ -22,7 +23,7 @@ function lovr.conf(t)
     t.modules.graphics = true
     t.modules.headset = false
     t.modules.math = true
-    t.modules.physics = false
+    t.modules.physics = true
     t.modules.thread = false
     t.modules.timer = true
 
@@ -31,7 +32,6 @@ function lovr.conf(t)
     t.window.height = 900
     t.window.fullscreen = true
     t.window.msaa = 0
-    t.window.vsync = 0
     t.window.title = 'Core'
     t.window.icon = nil
   end
