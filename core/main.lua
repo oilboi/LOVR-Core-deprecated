@@ -112,17 +112,15 @@ end
 
 local test_view_distance = 5
 
+--this dynamically loads the world around the player
 local function load_chunks_around_player()
     local old_chunk = player.current_chunk
-
     local chunk_x = math.floor(player.pos.x/16)
     local chunk_z = math.floor(player.pos.z/16)
 
     if old_chunk.x ~= chunk_x then
         local chunk_diff = chunk_x - old_chunk.x
         local direction = test_view_distance * chunk_diff
-        temp_output = direction
-        --
         for z = -test_view_distance+chunk_z,test_view_distance+chunk_z do
             gen_chunk(chunk_x+direction,z)
         end
@@ -135,8 +133,6 @@ local function load_chunks_around_player()
     if old_chunk.z ~= chunk_z then
         local chunk_diff = chunk_z - old_chunk.z
         local direction = test_view_distance * chunk_diff
-        temp_output = direction
-        --
         for x = -test_view_distance+chunk_x,test_view_distance+chunk_x do
             gen_chunk(x,chunk_z+direction)
         end
@@ -145,9 +141,6 @@ local function load_chunks_around_player()
         end
         player.current_chunk.z = chunk_z
     end
-    --temp_output = tostring("currx:"..(player.current_chunk.x).."\n"..
-                    --"chunkx:"..chunk_x)
-
 end
 --this is the main loop of the game [MAIN LOOP]
 --this controls everything that happens "server side"
