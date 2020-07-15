@@ -198,6 +198,7 @@ end
 --in the game engine, right now it is being used for
 --debug testing
 local counter = 0
+local fov_mod = 0
 local up = true
 local do_generation = true
 local curr_chunk_index = {x=-test_view_distance,z=-test_view_distance}
@@ -216,20 +217,19 @@ function lovr.update(dt)
     
     do_item_physics(dt)
 
-
-    --[[ --this is debug
+ 
     if up then
-        counter = counter + dt/5
+        fov_mod = fov_mod + dt*50
+        if fov_mod >= 15 then
+            up = not up
+        end
     else
-        counter = counter - dt/5
+        fov_mod = fov_mod - dt*50
+        if fov_mod <= -15 then
+            up = not up
+        end
     end
-    if counter >= 0.4 then
-        up = false
-    elseif counter <= 0 then
-        up = true
-    end
-    ]]--
-    
+    fov = fov_origin + fov_mod
     
     if do_generation then
         gen_chunk(curr_chunk_index.x,curr_chunk_index.z)
