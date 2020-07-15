@@ -286,7 +286,7 @@ function lovr.draw()
     draw_items()
     --local fps = lovr.timer.getFPS()
 
-    lovr.graphics.print(tostring(temp_output), pos.x, pos.y, pos.z,1,camera.yaw,0,1,0)
+    --lovr.graphics.print(tostring(temp_output), pos.x, pos.y, pos.z,1,camera.yaw,0,1,0)
 
     --for _,data in ipairs(position_hold) do
         --lovr.graphics.print(tostring(data.x.." "..data.y.." "..data.y), data.x, data.y, data.z,0.5,camera.yaw,0,1,0)

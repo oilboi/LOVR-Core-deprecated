@@ -1,3 +1,5 @@
+--this library is from https://github.com/groverburger/lovecraft thank you so much groverburger! :D
+
 -- tile enumerations stored as a function called by tile index (base 0 to accomodate air)
 function tile_collisions(n)
     if n == 0 then
