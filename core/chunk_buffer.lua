@@ -1,0 +1,74 @@
+--[[
+local chunk_buffer_timer = 0
+local chunk_buffer_amount = 0
+local chunk_buffer = {}
+function create_chunk(x,z)
+    chunk_buffer_amount = chunk_buffer_amount + 1
+    chunk_buffer[chunk_buffer_amount] = {x=x,z=z}
+end
+local function delete_chunk_buffer()
+    for i = 1,chunk_buffer_amount do
+        chunk_buffer[i] = chunk_buffer[i+1]
+    end
+    chunk_buffer[chunk_buffer_amount] = nil
+    chunk_buffer_amount = chunk_buffer_amount - 1
+end
+
+local function do_chunk_buffer(dt)
+
+    if chunk_buffer_amount > 0 and chunk_buffer_timer == 0 then
+
+        local x = chunk_buffer[1].x
+        local z = chunk_buffer[1].z
+        gen_chunk(x,z)
+        
+        chunk_buffer_timer = 0.1
+
+        delete_chunk_buffer()
+
+    elseif chunk_buffer_timer > 0 then
+        chunk_buffer_timer = chunk_buffer_timer - dt
+        if chunk_buffer_timer <= 0 then
+            chunk_buffer_timer = 0
+        end
+    end
+end
+]]--
+
+
+--this dynamically loads the world around the player
+function load_chunks_around_player()
+    local old_chunk = player.current_chunk
+    local chunk_x = math.floor(player.pos.x/16)
+    local chunk_z = math.floor(player.pos.z/16)
+
+    if old_chunk.x ~= chunk_x then
+        --local time = lovr.timer.getTime()
+        local chunk_diff = chunk_x - old_chunk.x
+        local direction = test_view_distance * chunk_diff
+        for z = -test_view_distance+chunk_z,test_view_distance+chunk_z do
+            --create_chunk(chunk_x+direction,z)
+            gen_chunk(chunk_x+direction,z)
+        end
+        for z = -test_view_distance+old_chunk.z,test_view_distance+old_chunk.z do
+            delete_chunk(old_chunk.x-direction,z)
+        end
+        player.current_chunk.x = chunk_x
+        --temp_output = lovr.timer.getTime() - time
+    end
+
+    if old_chunk.z ~= chunk_z then
+        --local time = lovr.timer.getTime()
+        local chunk_diff = chunk_z - old_chunk.z
+        local direction = test_view_distance * chunk_diff
+        for x = -test_view_distance+chunk_x,test_view_distance+chunk_x do
+            --create_chunk(x,chunk_z+direction)
+            gen_chunk(x,chunk_z+direction)
+        end
+        for x = -test_view_distance+old_chunk.x,test_view_distance+old_chunk.x do
+            delete_chunk(x,old_chunk.z-direction)
+        end
+        player.current_chunk.z = chunk_z
+        --temp_output = lovr.timer.getTime() - time
+    end
+end
