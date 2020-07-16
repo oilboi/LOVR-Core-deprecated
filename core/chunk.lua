@@ -1,3 +1,8 @@
+local
+math,lovr
+=
+math,lovr
+
 local seed = lovr.math.random()
 --this is the chunk generator, or map gen
 --this is used by the entire game to create
@@ -11,8 +16,9 @@ function gen_chunk_data(x,z)
     --to the literal position inside of the chunk so that the noise generation follows
     --the noise generation in sync with the rest of the map
     local noise = math.ceil(lovr.math.noise((x+(cx*16))/100, ((cz*16)+z)/100,seed)*100)
+    local index
     for i = 1,16*16*128 do
-        local index = hash_position(x,y,z)
+        index = hash_position(x,y,z)
         
         chunk_map[c_index][index] = {}
 
@@ -104,8 +110,6 @@ end
 --this is used for deleting chunks
 function delete_chunk(x,z)
     local c_index = hash_chunk_position(x,z)
-
     gpu_chunk_pool[c_index] = nil
-    
     chunk_map[c_index] = nil
 end

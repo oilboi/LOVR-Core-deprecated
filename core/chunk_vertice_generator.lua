@@ -67,7 +67,15 @@ function generate_gpu_chunk(chunk_x,chunk_z)
     local adjuster_x = chunk_x*16
     local adjuster_z = chunk_z*16
 
+    local r,g,b,a
 
+    local index
+    local data
+    local light
+    local id_min
+    local id_max
+    local block_pick
+    local get_block = get_block
     --this is 1 through the max chunk size in a 1D memory map,
     --which is 65,536. This is why each index is hashed to utilize
     --the raw performance of the cpu with a better memory handling
@@ -75,24 +83,25 @@ function generate_gpu_chunk(chunk_x,chunk_z)
     for i = 1,16*16*128 do
 
         --hash position and get data
-        local index = hash_position(x,y,z)
-        local data = chunk_data[index].block
-        local light = chunk_data[index].light/15
+        index = hash_position(x,y,z)
+        data = chunk_data[index].block
+        light = chunk_data[index].light/15
+        
         if data and data > 0 then
 
-            local r,g,b,a = light,light,light,1
+            r,g,b,a = light,light,light,1
 
             --this moves the pointer of the beginning and ending of
             --the texture atlas, this is only 2D for now so only the
             --X axis is being utilized
-            local id_min = (data/max_ids)-shift
-            local id_max = (data/max_ids)
+            id_min = (data/max_ids)-shift
+            id_max = (data/max_ids)
 
 
             --yes, this was extremely tedious to program
 
 
-            local block_pick = get_block(adjuster_x+x,y,adjuster_z+z-1)
+            block_pick = get_block(adjuster_x+x,y,adjuster_z+z-1)
             if block_pick == 0 then
                 -- Face front
                 
@@ -134,7 +143,7 @@ function generate_gpu_chunk(chunk_x,chunk_z)
                 chunk_vertices[vertex_count] = { x+1+adjuster_x, y+0, z+0+adjuster_z, id_max, 0, 0, 0,-1, r,g,b,a} -- 1,0,0 -- 1, 0
             end
 
-            local block_pick = get_block(adjuster_x+x,y+1,adjuster_z+z)
+            block_pick = get_block(adjuster_x+x,y+1,adjuster_z+z)
             if y == 127 or block_pick == 0 then
                 -- Face top
                 
@@ -177,7 +186,7 @@ function generate_gpu_chunk(chunk_x,chunk_z)
                 
             end
 
-            local block_pick = get_block(adjuster_x+x+1,y,adjuster_z+z)
+            block_pick = get_block(adjuster_x+x+1,y,adjuster_z+z)
             if block_pick == 0 then
                 -- Face right
                 
@@ -220,7 +229,7 @@ function generate_gpu_chunk(chunk_x,chunk_z)
 
             end
 
-            local block_pick = get_block(adjuster_x+x-1,y,adjuster_z+z)
+            block_pick = get_block(adjuster_x+x-1,y,adjuster_z+z)
             if block_pick == 0 then
                 -- Face left
                 
@@ -261,7 +270,7 @@ function generate_gpu_chunk(chunk_x,chunk_z)
                 chunk_vertices[vertex_count] = { x+0+adjuster_x, y+1, z+0+adjuster_z, id_max, 1,-1, 0, 0, r,g,b,a} -- 0,1,0 -- 1, 1
             end
 
-            local block_pick = get_block(adjuster_x+x,y,adjuster_z+z+1)
+            block_pick = get_block(adjuster_x+x,y,adjuster_z+z+1)
             if block_pick == 0 then
                 -- Face back
 
@@ -304,7 +313,7 @@ function generate_gpu_chunk(chunk_x,chunk_z)
             end
             
 
-            local block_pick = get_block(adjuster_x+x,y-1,adjuster_z+z)
+            block_pick = get_block(adjuster_x+x,y-1,adjuster_z+z)
             if y > 0 and block_pick == 0 then
                 -- Face bottom
                 

@@ -15,6 +15,7 @@ require 'game_math'
 require 'api_functions'
 require 'tick'
 require 'chunk_buffer'
+
 --this holds the data for the gpu to render
 gpu_chunk_pool = {}
 
@@ -26,7 +27,7 @@ item_entities = {}
 
 local item_count = 0
 
-test_view_distance = 3
+test_view_distance = 2
 
 --this is the function which is called when the game loads
 --it sets all the game setting and rendering utilities
@@ -88,6 +89,7 @@ function lovr.load()
         entity_meshes[i]:setMaterial(atlas)
     end
 end
+
 
 function add_item(x,y,z,id)
     item_count = item_count + 1
@@ -185,11 +187,11 @@ function lovr.update(dt)
 
     item_magnet()
 
-    lovr.event.pump()
+    --lovr.event.pump()
 
     dig(dt)
 
-    aabb_physics(player)    
+    aabb_physics(player)
     
     do_item_physics(dt)
 
@@ -217,6 +219,7 @@ end
 --this is what actually draws everything in the game
 --engine to render and where
 function lovr.draw()
+    --local time = lovr.timer.getTime()
     --this is where the ui should be drawn
     lovr.graphics.push()
         lovr.graphics.print("FPS:"..lovr.timer.getFPS(), -0.1, 0.072, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
@@ -253,6 +256,7 @@ function lovr.draw()
     draw_items()
     --local fps = lovr.timer.getFPS()
 
+    --temp_output = math.floor((lovr.timer.getTime() - time)*10000)/10000
     --lovr.graphics.print(tostring(temp_output), pos.x, pos.y, pos.z,1,camera.yaw,0,1,0)
 
     --for _,data in ipairs(position_hold) do
@@ -262,7 +266,6 @@ function lovr.draw()
     if selected_block then
         lovr.graphics.cube('line',  selected_block.x+0.5, selected_block.y+0.5, selected_block.z+0.5, 1)
     end
-
     --lovr.graphics.box(mode, x, y, z, width, height
     --lovr.graphics.box("line", player.pos.x, player.pos.y+player.height/2, player.pos.z, player.width*2, player.height)
     --lovr.graphics.cube('line',  pos.x, pos.y, pos.z, .5, lovr.timer.getTime())
