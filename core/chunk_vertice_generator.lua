@@ -44,6 +44,9 @@ function generate_gpu_chunk(chunk_x,chunk_z)
     local c_index = hash_chunk_position(chunk_x,chunk_z)
     local chunk_data = chunk_map[c_index]
 
+    if not chunk_data then
+        return
+    end
     -- The triangles which represent the
     -- chunk in gpu memory
     local chunk_vertices = {

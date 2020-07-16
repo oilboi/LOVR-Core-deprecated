@@ -15,6 +15,7 @@ require 'game_math'
 require 'api_functions'
 require 'tick'
 require 'chunk_buffer'
+require 'game_threads'
 
 --this holds the data for the gpu to render
 gpu_chunk_pool = {}
@@ -29,21 +30,13 @@ local item_count = 0
 
 test_view_distance = 2
 
-
-local thread_code = [[
-local lovr = { thread = require 'lovr.thread' }
-local channel = lovr.thread.getChannel("test")
-]]
-
 --this is the function which is called when the game loads
 --it sets all the game setting and rendering utilities
 function lovr.load()
 
-    channel = lovr.thread.getChannel("test")
-
-
+    channel = lovr.thread.getChannel("vertex")
+    channel2 = lovr.thread.getChannel("vertex_receive")
     thread = lovr.thread.newThread(thread_code)
-
     thread:start()
 
     --these are the settings which optimize
@@ -194,7 +187,9 @@ local counter = 0
 local fov_mod = 0
 local up = true
 function lovr.update(dt)
-    tick_framerate(20)
+    --channel:push("test")
+
+    --tick_framerate(20)
 
     load_chunks_around_player()
 
@@ -207,6 +202,12 @@ function lovr.update(dt)
     aabb_physics(player)
     
     do_item_physics(dt)
+
+    local message = channel2:pop()
+
+    if message then
+        chunk_set_data(message)
+    end
 
     --[[
     if up then
