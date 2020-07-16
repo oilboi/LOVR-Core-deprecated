@@ -26,6 +26,38 @@ item_entities = {}
 
 local item_count = 0
 
+local test_view_distance = 5
+
+local chunk_buffer_timer = 0
+local chunk_buffer_amount = 0
+local chunk_buffer = {}
+function create_chunk(x,z)
+    chunk_buffer_amount = chunk_buffer_amount + 1
+    chunk_buffer[chunk_buffer_amount] = {x=x,z=z}
+end
+local function delete_chunk_buffer()
+    for i = 1,chunk_buffer_amount do
+        chunk_buffer[i] = chunk_buffer[i+1]
+    end
+    chunk_buffer[chunk_buffer_amount] = nil
+    chunk_buffer_amount = chunk_buffer_amount - 1
+end
+local function do_chunk_buffer(dt)
+    if chunk_buffer_amount > 0 and chunk_buffer_timer == 0 then
+        local x = chunk_buffer[1].x
+        local z = chunk_buffer[1].z
+
+        gen_chunk(x,z)
+        chunk_buffer_timer = 0.2
+        delete_chunk_buffer()
+    elseif chunk_buffer_timer > 0 then
+        chunk_buffer_timer = chunk_buffer_timer - dt
+        if chunk_buffer_timer <= 0 then
+            chunk_buffer_timer = 0
+        end
+    end
+end
+
 --this is the function which is called when the game loads
 --it sets all the game setting and rendering utilities
 function lovr.load()
@@ -74,6 +106,12 @@ function lovr.load()
     fov = 72
     fov_origin = fov
 
+    for x = -test_view_distance,test_view_distance do
+    for z = -test_view_distance,test_view_distance do
+        --create_chunk(x,z)
+        gen_chunk(x,z)
+    end
+    end
     --this is a bit awkard here but it's required to allow
     --item entities to use the texture atlas
     for i = 1,max_ids do
@@ -162,9 +200,6 @@ local function item_magnet()
     end
 end
 
-
-local test_view_distance = 5
-
 --this dynamically loads the world around the player
 local function load_chunks_around_player()
     local old_chunk = player.current_chunk
@@ -175,7 +210,7 @@ local function load_chunks_around_player()
         local chunk_diff = chunk_x - old_chunk.x
         local direction = test_view_distance * chunk_diff
         for z = -test_view_distance+chunk_z,test_view_distance+chunk_z do
-            gen_chunk(chunk_x+direction,z)
+            create_chunk(chunk_x+direction,z)
         end
         for z = -test_view_distance+old_chunk.z,test_view_distance+old_chunk.z do
             delete_chunk(old_chunk.x-direction,z)
@@ -187,7 +222,7 @@ local function load_chunks_around_player()
         local chunk_diff = chunk_z - old_chunk.z
         local direction = test_view_distance * chunk_diff
         for x = -test_view_distance+chunk_x,test_view_distance+chunk_x do
-            gen_chunk(x,chunk_z+direction)
+            create_chunk(x,chunk_z+direction)
         end
         for x = -test_view_distance+old_chunk.x,test_view_distance+old_chunk.x do
             delete_chunk(x,old_chunk.z-direction)
@@ -202,8 +237,6 @@ end
 local counter = 0
 local fov_mod = 0
 local up = true
-local do_generation = true
-local curr_chunk_index = {x=-test_view_distance,z=-test_view_distance}
 function lovr.update(dt)
     tick_framerate(20)
 
@@ -234,18 +267,7 @@ function lovr.update(dt)
     fov = fov_origin + fov_mod
     ]]--
     
-    if do_generation then
-        gen_chunk(curr_chunk_index.x,curr_chunk_index.z)
-
-        curr_chunk_index.x = curr_chunk_index.x + 1
-        if curr_chunk_index.x > test_view_distance then
-            curr_chunk_index.x = -test_view_distance
-            curr_chunk_index.z = curr_chunk_index.z + 1
-            if curr_chunk_index.z > test_view_distance then
-                do_generation = nil
-            end
-        end
-    end
+    do_chunk_buffer(dt)
 end
 
   
