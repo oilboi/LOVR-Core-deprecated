@@ -3,6 +3,7 @@ local
 lovr
 =
 lovr
+local json = require 'cjson'
 
 local max_ids = core.max_ids --this is a temporary placeholder for the 2D texture atlas
 
@@ -37,356 +38,84 @@ This data is then fed into "lovr.graphics.newMesh" along with
 
 
 --this creates meshes for the gpu to draw
-function core.generate_gpu_chunk(chunk_x,chunk_z)
+function core.generate_gpu_chunk(chunk_x,chunk_z)    
+    local x = (chunk_x * 16)-- + 1
+    local y = 0
+    local z = (chunk_z * 16)-- + 1
 
-    --this is pulling the memory directly out of the global
-    --1D chunk data map
-    local c_index = core.hash_chunk_position(chunk_x,chunk_z)
-    local chunk_data = core.chunk_map[c_index]
+    local x_origin = x
 
-    if not chunk_data then
-        return
-    end
-    -- The triangles which represent the
-    -- chunk in gpu memory
-    local chunk_vertices = {
-    }
-    -- Indices to draw the faces of the cube out of triangles
-    local chunk_indexes = {
-    }
+    local rx = 0
+    local ry = 0
+    local rz = 0
 
-    --these are the counts used for adjusting the vertex
-    --map and vertex count, it's extremely important
-    --that these are left at 0
-    local index_count = 0
-    local vertex_count = 0
+    local temp_chunk_data = {chunk_x=chunk_x,chunk_z=chunk_z,chunk_data ={}}
 
-    local shift = 1/max_ids
-
-    local x,y,z = 0,0,0
-
-    --this needs to be included to incorperate the literal
-    --position in memory and in game
-    local adjuster_x = chunk_x*16
-    local adjuster_z = chunk_z*16
-
-    local r,g,b,a
-
-    local index
-    local data
-    local light
-    local id_min
-    local id_max
-    local block_pick
-    local get_block = core.get_block
-    --this is 1 through the max chunk size in a 1D memory map,
-    --which is 65,536. This is why each index is hashed to utilize
-    --the raw performance of the cpu with a better memory handling
-    --to provide extreme performance.
+    local gotten_block
+    local count = 0
     for i = 1,16*16*128 do
-
-        --hash position and get data
-        index = core.hash_position(x,y,z)
-        data = chunk_data[index].block
-        light = chunk_data[index].light/15
-        
-        if data and data > 0 then
-
-            r,g,b,a = light,light,light,1
-
-            --this moves the pointer of the beginning and ending of
-            --the texture atlas, this is only 2D for now so only the
-            --X axis is being utilized
-            id_min = (data/max_ids)-shift
-            id_max = (data/max_ids)
-
-
-            --yes, this was extremely tedious to program
-
-
-            block_pick = get_block(adjuster_x+x,y,adjuster_z+z-1)
-            if block_pick == 0 then
-                -- Face front
-                
-                --vertex map
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[1]+vertex_count
-                
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[2]+vertex_count
-
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[3]+vertex_count
-
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[4]+vertex_count
-
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[5]+vertex_count
-
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[6]+vertex_count
-
-                
-                --tris
-                vertex_count = vertex_count + 1
-
-                chunk_vertices[vertex_count] = { x+0+adjuster_x, y+0, z+0+adjuster_z, id_min, 0, 0, 0,-1, r,g,b,a} -- 0,0,0 -- 0, 0
-
-                vertex_count = vertex_count + 1
-
-                chunk_vertices[vertex_count] = { x+0+adjuster_x, y+1, z+0+adjuster_z, id_min, 1, 0, 0,-1, r,g,b,a} -- 0,1,0 -- 0, 1
-
-                vertex_count = vertex_count + 1
-
-                chunk_vertices[vertex_count] = { x+1+adjuster_x, y+1, z+0+adjuster_z, id_max, 1, 0, 0,-1, r,g,b,a} -- 1,1,0 -- 1, 1
-
-                vertex_count = vertex_count + 1
-
-                chunk_vertices[vertex_count] = { x+1+adjuster_x, y+0, z+0+adjuster_z, id_max, 0, 0, 0,-1, r,g,b,a} -- 1,0,0 -- 1, 0
-            end
-
-            block_pick = get_block(adjuster_x+x,y+1,adjuster_z+z)
-            if y == 127 or block_pick == 0 then
-                -- Face top
-                
-                --vertex map
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[1]+vertex_count
-                
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[2]+vertex_count
-
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[3]+vertex_count
-
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[4]+vertex_count
-
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[5]+vertex_count
-
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[6]+vertex_count
-                
-
-                --tris
-                vertex_count = vertex_count + 1
-
-                chunk_vertices[vertex_count] = { x+1+adjuster_x, y+1, z+0+adjuster_z, id_min, 0, 0, 1, 0, r,g,b,a} -- 1,1,0 -- 0, 0
-
-                vertex_count = vertex_count + 1
-
-                chunk_vertices[vertex_count] = { x+0+adjuster_x, y+1, z+0+adjuster_z, id_min, 1, 0, 1, 0, r,g,b,a} -- 0,1,0 -- 0, 1
-
-                vertex_count = vertex_count + 1
-
-                chunk_vertices[vertex_count] = { x+0+adjuster_x, y+1, z+1+adjuster_z, id_max, 1, 0, 1, 0, r,g,b,a} -- 0,1,1 -- 1, 1
-
-                vertex_count = vertex_count + 1
-
-                chunk_vertices[vertex_count] = { x+1+adjuster_x, y+1, z+1+adjuster_z, id_max, 0, 0, 1, 0, r,g,b,a} -- 1,1,1 -- 1, 0
-                
-            end
-
-            block_pick = get_block(adjuster_x+x+1,y,adjuster_z+z)
-            if block_pick == 0 then
-                -- Face right
-                
-                --vertex map
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[1]+vertex_count
-                
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[2]+vertex_count
-
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[3]+vertex_count
-
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[4]+vertex_count
-
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[5]+vertex_count
-
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[6]+vertex_count
-
-
-                --tris
-                vertex_count = vertex_count + 1
-
-                chunk_vertices[vertex_count] = { x+1+adjuster_x, y+0, z+0+adjuster_z, id_min, 0, 1, 0, 0, r,g,b,a} -- 1,0,0 -- 0, 0
-
-                vertex_count = vertex_count + 1
-
-                chunk_vertices[vertex_count] = { x+1+adjuster_x, y+1, z+0+adjuster_z, id_min, 1, 1, 0, 0, r,g,b,a} -- 1,1,0 -- 0, 1
-
-                vertex_count = vertex_count + 1
-
-                chunk_vertices[vertex_count] = { x+1+adjuster_x, y+1, z+1+adjuster_z, id_max, 1, 1, 0, 0, r,g,b,a} -- 1,1,1 -- 1, 1
-
-                vertex_count = vertex_count + 1
-                
-                chunk_vertices[vertex_count] = { x+1+adjuster_x, y+0, z+1+adjuster_z, id_max, 0, 1, 0, 0, r,g,b,a} -- 1,0,1 -- 1, 0
-
-            end
-
-            block_pick = get_block(adjuster_x+x-1,y,adjuster_z+z)
-            if block_pick == 0 then
-                -- Face left
-                
-                --vertex map
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[1]+vertex_count
-                
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[2]+vertex_count
-
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[3]+vertex_count
-
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[4]+vertex_count
-
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[5]+vertex_count
-
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[6]+vertex_count
-
-                --tris
-                vertex_count = vertex_count + 1
-
-                chunk_vertices[vertex_count] = { x+0+adjuster_x, y+0, z+0+adjuster_z, id_max, 0,-1, 0, 0, r,g,b,a} -- 0,0,0 -- 1, 0
-
-                vertex_count = vertex_count + 1
-
-                chunk_vertices[vertex_count] = { x+0+adjuster_x, y+0, z+1+adjuster_z, id_min, 0,-1, 0, 0, r,g,b,a} -- 0,0,1 -- 0, 0
-
-                vertex_count = vertex_count + 1
-
-                chunk_vertices[vertex_count] = { x+0+adjuster_x, y+1, z+1+adjuster_z, id_min, 1,-1, 0, 0, r,g,b,a} -- 0,1,1 -- 0, 1
-
-                vertex_count = vertex_count + 1
-
-                chunk_vertices[vertex_count] = { x+0+adjuster_x, y+1, z+0+adjuster_z, id_max, 1,-1, 0, 0, r,g,b,a} -- 0,1,0 -- 1, 1
-            end
-
-            block_pick = get_block(adjuster_x+x,y,adjuster_z+z+1)
-            if block_pick == 0 then
-                -- Face back
-
-                --vertex map                
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[1]+vertex_count
-                
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[2]+vertex_count
-
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[3]+vertex_count
-
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[4]+vertex_count
-
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[5]+vertex_count
-
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[6]+vertex_count
-
-                --tris
-                vertex_count = vertex_count + 1
-
-                chunk_vertices[vertex_count] = { x+1+adjuster_x, y+1, z+1+adjuster_z, id_min, 1, 0, 0, 1, r,g,b,a} -- 1,1,1 -- 0, 1
-
-                vertex_count = vertex_count + 1
-
-                chunk_vertices[vertex_count] = { x+0+adjuster_x, y+1, z+1+adjuster_z, id_max, 1, 0, 0, 1, r,g,b,a} -- 0,1,1 -- 1, 1
-
-                vertex_count = vertex_count + 1
-
-                chunk_vertices[vertex_count] = { x+0+adjuster_x, y+0, z+1+adjuster_z, id_max, 0, 0, 0, 1, r,g,b,a} -- 0,0,1 -- 1, 0
-
-                vertex_count = vertex_count + 1
-
-                chunk_vertices[vertex_count] = { x+1+adjuster_x, y+0, z+1+adjuster_z, id_min, 0, 0, 0, 1, r,g,b,a} -- 1,0,1 -- 0, 0
-
-            end
-            
-
-            block_pick = get_block(adjuster_x+x,y-1,adjuster_z+z)
-            if y > 0 and block_pick == 0 then
-                -- Face bottom
-                
-                --vertex map                
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[1]+vertex_count
-                
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[2]+vertex_count
-
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[3]+vertex_count
-
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[4]+vertex_count
-
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[5]+vertex_count
-
-                index_count = index_count + 1
-                chunk_indexes[index_count] = index_translation[6]+vertex_count
-
-                --tris
-                vertex_count = vertex_count + 1
-
-                chunk_vertices[vertex_count] = { x+0+adjuster_x, y+0, z+0+adjuster_z, id_max, 1, 0,-1, 0, r,g,b,a} -- 0,0,0 -- 1, 1
-
-                vertex_count = vertex_count + 1
-                
-                chunk_vertices[vertex_count] = { x+1+adjuster_x, y+0, z+0+adjuster_z, id_max, 0, 0,-1, 0, r,g,b,a} -- 1,0,0 -- 1, 0
-
-                vertex_count = vertex_count + 1
-
-                chunk_vertices[vertex_count] = { x+1+adjuster_x, y+0, z+1+adjuster_z, id_min, 0, 0,-1, 0, r,g,b,a} -- 1,0,1 -- 0, 0
-
-                vertex_count = vertex_count + 1
-
-                chunk_vertices[vertex_count] = { x+0+adjuster_x, y+0, z+1+adjuster_z, id_min, 1, 0,-1, 0, r,g,b,a} -- 0,0,1 -- 0, 1
-            
-            end
-            
-        end
+        count = count + 1
+        gotten_block = core.get_block(x,y,z)        
+        --if not gotten_block then
+            --print("broken")
+        --end
+        --print(rx,ry,rz)
+        temp_chunk_data.chunk_data[count] = {index = core.hash_position(rx,ry,rz), block=gotten_block}
 
         --up
-        y = y + 1
+        y  = y  + 1
+        ry = ry + 1
         if y > 127 then
-            y = 0
+            y  = 0
+            ry = 0
             --forwards
-            x = x + 1
-            if x > 15 then
-                x = 0
+            x  = x  + 1
+            rx = rx + 1
+            if rx > 15 then
+                x  = x_origin
+                rx = 0
                 --right
-                z = z + 1
+                z  = z  + 1
+                rz = rz + 1
             end
         end
     end
- 
-    -- this holds the gpu chunk mesh data
-    local gpu_chunk
-    if #chunk_vertices > 0 then
-        --set the data
-        gpu_chunk = lovr.graphics.newMesh({{ 'lovrPosition', 'float', 3 },{ 'lovrTexCoord', 'float', 2 },{ 'lovrNormal', 'float', 3 },{'lovrVertexColor', 'float', 4}}, chunk_vertices, 'triangles', "static")
-        gpu_chunk:setVertexMap(chunk_indexes)
-    else
-        gpu_chunk = nil
-    end
-
-    --return the data to the function
-    return(gpu_chunk)
+    channel3:push(json.encode(temp_chunk_data))
 end
+
+
+
+function core.render_gpu_chunk(data)
+    local decoded = json.decode(data)
+    --print(decoded.chunk_x,decoded.chunk_z)
+    --print(decoded.chunk_vertices)
+    local hash = core.hash_chunk_position(decoded.chunk_x,decoded.chunk_z)
+
+    --set the data
+    core.gpu_chunk_pool[hash] = lovr.graphics.newMesh({{ 'lovrPosition', 'float', 3 },{ 'lovrTexCoord', 'float', 2 },{ 'lovrNormal', 'float', 3 },{'lovrVertexColor', 'float', 4}}, decoded.chunk_vertices, 'triangles', "static")
+    core.gpu_chunk_pool[hash]:setVertexMap(decoded.chunk_indexes)
+    core.gpu_chunk_pool[hash]:setMaterial(core.atlas)
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 math.randomseed( os.time() )
 

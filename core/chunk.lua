@@ -19,16 +19,15 @@ end
 function core.chunk_set_data(data)
     local decoded = json.decode(data)
 
+    
     local hash = core.hash_chunk_position(decoded.x,decoded.z)
 
     core.chunk_map[hash] = {}
-
+    
     for _,i in ipairs(decoded.data) do
         core.chunk_map[hash][i.index] = {block=i.block,light=i.light}
     end
-
-    core.gpu_chunk_pool[hash] = core.generate_gpu_chunk(decoded.x,decoded.z)
-    core.gpu_chunk_pool[hash]:setMaterial(core.atlas)
+    core.generate_gpu_chunk(decoded.x,decoded.z)
 end
 
 --this is called whenever the map is modified
@@ -36,10 +35,10 @@ end
 --so the map is not glitchy when a player does a bunch of updates
 function core.chunk_update_vert(x,z)
     local c_index = core.hash_chunk_position(x,z)
-    if core.gpu_chunk_pool[c_index] then
-        core.gpu_chunk_pool[c_index] = core.generate_gpu_chunk(x,z) -- .mesh
-        core.gpu_chunk_pool[c_index]:setMaterial(core.atlas) -- .mesh
-    end
+    --if core.gpu_chunk_pool[c_index] then
+        --core.gpu_chunk_pool[c_index] = core.generate_gpu_chunk(x,z) -- .mesh
+        --core.gpu_chunk_pool[c_index]:setMaterial(core.atlas) -- .mesh
+    --end
 end
 
 --this is used for the local chunk

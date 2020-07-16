@@ -30,15 +30,25 @@ require 'game_threads'
 --it sets all the game setting and rendering utilities
 function lovr.load()
 
-    channel = lovr.thread.getChannel("vertex")
-    channel2 = lovr.thread.getChannel("vertex_receive")
-    thread = lovr.thread.newThread(thread_code)
+    --this is for chunk generation
+    channel = lovr.thread.getChannel("chunk")
+    channel2 = lovr.thread.getChannel("chunk_receive")
+    thread = lovr.thread.newThread(chunk_generator_code)
     thread:start()
+
+    --this is for chunk vertex (gpu chunks)
+    channel3 = lovr.thread.getChannel("chunk_mesh")
+    channel4 = lovr.thread.getChannel("chunk_mesh_receive")
+    thread2 = lovr.thread.newThread(vertex_generator_code)
+    thread2:start()
+
+
+
 
     --these are the settings which optimize
     --the gpu utilization
     lovr.mouse.setRelativeMode(true)
-    lovr.graphics.setCullingEnabled(true)
+    --lovr.graphics.setCullingEnabled(true)
     lovr.graphics.setBlendMode(nil,nil)
     lovr.graphics.setDefaultFilter("nearest", 0)
     
@@ -55,7 +65,7 @@ function lovr.load()
         movespeed = 50
     }
     core.player = {
-        pos = {x=0,y=80,z=0},
+        pos = {x=0,y=100,z=0},
         speed = {x=0,y=0,z=0},
         on_ground = false,
         friction = 0.85,
@@ -85,6 +95,7 @@ function lovr.load()
         core.gen_chunk(x,z)
     end
     end
+    
     --this is a bit awkard here but it's required to allow
     --item entities to use the texture atlas
     for i = 1,core.max_ids do
@@ -174,7 +185,6 @@ local function item_magnet()
     end
 end
 
-
 --this is the main loop of the game [MAIN LOOP]
 --this controls everything that happens "server side"
 --in the game engine, right now it is being used for
@@ -183,12 +193,16 @@ local counter = 0
 local fov_mod = 0
 local up = true
 function lovr.update(dt)
-
+    --for x = -1,1 do
+    --for z = -1,1 do
+    --core.gen_chunk(-2,-2)
+    --end
+    --end    
     --channel:push("test")
 
     --tick_framerate(20)
 
-    core.load_chunks_around_player()
+    --core.load_chunks_around_player()
 
     item_magnet()
 
@@ -200,10 +214,17 @@ function lovr.update(dt)
     
     do_item_physics(dt)
 
-    local message = channel2:pop()
+    local message = channel2:pop(false)
 
     if message then
         core.chunk_set_data(message)
+    end
+
+
+    local message2 = channel4:pop(false)
+
+    if message2 then
+        core.render_gpu_chunk(message2)
     end
 
     --[[
@@ -244,6 +265,7 @@ function lovr.draw()
     lovr.graphics.rotate(-core.camera.pitch, 1, 0, 0)
     lovr.graphics.rotate(-core.camera.yaw, 0, 1, 0)
     lovr.graphics.transform(-x,-y,-z)
+
     --lovr.graphics.setProjection(lovr.math.mat4():perspective(0.01, 1000, 90/core.fov,core.s_width/core.s_height))
 	
 
@@ -269,7 +291,7 @@ function lovr.draw()
     --local fps = lovr.timer.getFPS()
 
     --temp_output = math.floor((lovr.timer.getTime() - time)*10000)/10000
-    --lovr.graphics.print(tostring(temp_output), pos.x, pos.y, pos.z,1,camera.yaw,0,1,0)
+    lovr.graphics.print(tostring(core.temp_output), pos.x, pos.y, pos.z,1,core.camera.yaw,0,1,0)
 
     --for _,data in ipairs(position_hold) do
         --lovr.graphics.print(tostring(data.x.." "..data.y.." "..data.y), data.x, data.y, data.z,0.5,camera.yaw,0,1,0)
