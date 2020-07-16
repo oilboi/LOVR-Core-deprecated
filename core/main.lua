@@ -1,7 +1,15 @@
-temp_output = nil -- this is a debug output 
+--the api table
+core = {
+	temp_output = nil, -- this is a debug output 
+	max_ids = 4,
+	entity_meshes = {},
+	gpu_chunk_pool = {}, --this holds the data for the gpu to render
+	chunk_map = {}, --this holds the chunk data for the game to work with
+	item_entities = {}, --this holds the item entities for now
+	test_view_distance = 2
+}
 
-max_ids = 4
-entity_meshes = {}
+local item_count = 0
 
 --load the libraries
 lovr.keyboard = require 'lovr-keyboard'
@@ -17,18 +25,6 @@ require 'tick'
 require 'chunk_buffer'
 require 'game_threads'
 
---this holds the data for the gpu to render
-gpu_chunk_pool = {}
-
---this holds the chunk data for the game to work with
-chunk_map = {}
-
---this holds the item entities for now
-item_entities = {}
-
-local item_count = 0
-
-test_view_distance = 2
 
 --this is the function which is called when the game loads
 --it sets all the game setting and rendering utilities
@@ -52,13 +48,13 @@ function lovr.load()
     
     --this is the camera vector settings
     --used for the player to look around
-    camera = {
+    core.camera = {
         pos = {x=0,y=0,z=0},--lovr.math.vec3(0,100,-10),
         pitch = 0,
         yaw = math.pi,
         movespeed = 50
     }
-    player = {
+    core.player = {
         pos = {x=0,y=80,z=0},
         speed = {x=0,y=0,z=0},
         on_ground = false,
@@ -72,35 +68,35 @@ function lovr.load()
 
     --this is the texture atlas, this is created as a texture
     --then set to a material to utilize the default blend mode
-    atlastexture = lovr.graphics.newTexture("textures/atlas.png")
-    atlas = lovr.graphics.newMaterial()
-    atlas:setTexture(atlastexture)
+    core.atlastexture = lovr.graphics.newTexture("textures/atlas.png")
+    core.atlas = lovr.graphics.newMaterial()
+    core.atlas:setTexture(core.atlastexture)
 
     --the screen dimensions
-    s_width, s_height = lovr.graphics.getDimensions()
+    core.s_width, core.s_height = lovr.graphics.getDimensions()
 
     --the FOV settings
-    fov = 72
-    fov_origin = fov
+    core.fov = 72
+    core.fov_origin = fov
 
-    for x = -test_view_distance,test_view_distance do
-    for z = -test_view_distance,test_view_distance do
+    for x = -core.test_view_distance,core.test_view_distance do
+    for z = -core.test_view_distance,core.test_view_distance do
         --create_chunk(x,z)
-        gen_chunk(x,z)
+        core.gen_chunk(x,z)
     end
     end
     --this is a bit awkard here but it's required to allow
     --item entities to use the texture atlas
-    for i = 1,max_ids do
-        entity_meshes[i]:setMaterial(atlas)
+    for i = 1,core.max_ids do
+        core.entity_meshes[i]:setMaterial(core.atlas)
     end
 end
 
 
-function add_item(x,y,z,id)
+function core.add_item(x,y,z,id)
     item_count = item_count + 1
 
-    item_entities[item_count] = {
+    core.item_entities[item_count] = {
         pos = {x=x,y=y,z=z},
         speed = {x=math.random(-1,1)*math.random()/10,y=math.random()/10,z=math.random(-1,1)*math.random()/10},
         id = id,
@@ -118,7 +114,7 @@ function add_item(x,y,z,id)
 end
 
 local function do_item_physics(dt)
-    for index,entity in ipairs(item_entities) do
+    for index,entity in ipairs(core.item_entities) do
         entity.timer = entity.timer + dt
         if entity.up then
             entity.hover_float = entity.hover_float + dt/10
@@ -137,35 +133,35 @@ local function do_item_physics(dt)
             entity.rotation = entity.rotation - (math.pi*2)
         end
 
-        entity_aabb_physics(entity)
+        core.entity_aabb_physics(entity)
     end
 end
 
 local function draw_items()
-    for _,entity in ipairs(item_entities) do
-        entity_meshes[entity.id]:draw(entity.pos.x, entity.pos.y+0.3+entity.hover_float, entity.pos.z, 0.3, entity.rotation, 0, 1, 0)
+    for _,entity in ipairs(core.item_entities) do
+        core.entity_meshes[entity.id]:draw(entity.pos.x, entity.pos.y+0.3+entity.hover_float, entity.pos.z, 0.3, entity.rotation, 0, 1, 0)
         --lovr.graphics.cube('line', entity.pos.x, entity.pos.y+0.3+entity.hover_float, entity.pos.z, .5, lovr.timer.getTime())
     end
 end
 
 local function delete_item(id)
     for i = id,item_count do
-        item_entities[i] = item_entities[i+1]
+        core.item_entities[i] = core.item_entities[i+1]
     end
-    item_entities[item_count] = nil
+    core.item_entities[item_count] = nil
     item_count = item_count - 1
 end
 
 local function item_magnet()
-    local pos = {x=player.pos.x,y=player.pos.y,z=player.pos.z}
+    local pos = {x=core.player.pos.x,y=core.player.pos.y,z=core.player.pos.z}
     pos.y = pos.y + 0.5
-    for id,entity in ipairs(item_entities) do
+    for id,entity in ipairs(core.item_entities) do
         if entity.timer >= 2 then
-            local d = distance(pos,entity.pos)
+            local d = core.distance(pos,entity.pos)
             if d < 0.2 then
                 delete_item(id)
             elseif d < 3 then
-                local v = vec_direction(entity.pos,pos)
+                local v = core.vec_direction(entity.pos,pos)
                 v.x = v.x/3
                 v.y = v.y/3
                 v.z = v.z/3
@@ -187,26 +183,27 @@ local counter = 0
 local fov_mod = 0
 local up = true
 function lovr.update(dt)
+
     --channel:push("test")
 
     --tick_framerate(20)
 
-    load_chunks_around_player()
+    core.load_chunks_around_player()
 
     item_magnet()
 
     --lovr.event.pump()
 
-    dig(dt)
+    core.dig(dt)
 
-    aabb_physics(player)
+    core.aabb_physics(core.player)
     
     do_item_physics(dt)
 
     local message = channel2:pop()
 
     if message then
-        chunk_set_data(message)
+        core.chunk_set_data(message)
     end
 
     --[[
@@ -242,14 +239,15 @@ function lovr.draw()
     lovr.graphics.pop()
 
     --get the camera orientation
-    local x,y,z = camera.pos.x,camera.pos.y,camera.pos.z--camera.position:unpack()
+    local x,y,z = core.camera.pos.x,core.camera.pos.y,core.camera.pos.z--camera.position:unpack()
 
-    lovr.graphics.rotate(-camera.pitch, 1, 0, 0)
-    lovr.graphics.rotate(-camera.yaw, 0, 1, 0)
+    lovr.graphics.rotate(-core.camera.pitch, 1, 0, 0)
+    lovr.graphics.rotate(-core.camera.yaw, 0, 1, 0)
     lovr.graphics.transform(-x,-y,-z)
-    lovr.graphics.setProjection(lovr.math.mat4():perspective(0.01, 1000, 90/fov,s_width/s_height))
+    --lovr.graphics.setProjection(lovr.math.mat4():perspective(0.01, 1000, 90/core.fov,core.s_width/core.s_height))
+	
 
-    for _,mesh in pairs(gpu_chunk_pool) do --data
+    for _,mesh in pairs(core.gpu_chunk_pool) do --data
         lovr.graphics.push()
         --if data.y < 0 then
             --data.y = data.y + 0.5
@@ -260,7 +258,7 @@ function lovr.draw()
 
     lovr.graphics.push()
     
-    local dx,dy,dz = get_camera_dir()
+    local dx,dy,dz = core.get_camera_dir()
     dx = dx * 4
     dy = dy * 4
     dz = dz * 4
@@ -277,8 +275,8 @@ function lovr.draw()
         --lovr.graphics.print(tostring(data.x.." "..data.y.." "..data.y), data.x, data.y, data.z,0.5,camera.yaw,0,1,0)
     --end
 
-    if selected_block then
-        lovr.graphics.cube('line',  selected_block.x+0.5, selected_block.y+0.5, selected_block.z+0.5, 1)
+    if core.selected_block then
+        lovr.graphics.cube('line',  core.selected_block.x+0.5, core.selected_block.y+0.5, core.selected_block.z+0.5, 1)
     end
     --lovr.graphics.box(mode, x, y, z, width, height
     --lovr.graphics.box("line", player.pos.x, player.pos.y+player.height/2, player.pos.z, player.width*2, player.height)

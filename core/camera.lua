@@ -5,10 +5,10 @@ local up = true
 --around the 3d environment based on the vector
 --of their camera X and Z
 
-function move(dt)
-    camera.pos.x = player.pos.x
-    camera.pos.y = player.pos.y + player.eye_height
-    camera.pos.z = player.pos.z
+function core.move(dt)
+    core.camera.pos.x = core.player.pos.x
+    core.camera.pos.y = core.player.pos.y + core.player.eye_height
+    core.camera.pos.z = core.player.pos.z
     --local velocity = {x=0,y=0,z=0}
 
     --if lovr.keyboard.isDown('w') then
@@ -126,8 +126,8 @@ end
 
 --this is a useful function for easily getting the 3D vector
 --of the camera (in radians)
-function get_camera_dir()
-    return math.cos(camera.pitch) * math.cos(-camera.yaw-math.pi/2),
-           math.sin(camera.pitch),
-           math.cos(camera.pitch) * math.sin(-camera.yaw-math.pi/2)
+function core.get_camera_dir()
+    return math.cos(core.camera.pitch) * math.cos(-core.camera.yaw-math.pi/2),
+           math.sin(core.camera.pitch),
+           math.cos(core.camera.pitch) * math.sin(-core.camera.yaw-math.pi/2)
 end

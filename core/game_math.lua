@@ -1,12 +1,12 @@
 --this is the calculator for hashing positions in the 1D memory
 --of the chunk map
-function hash_chunk_position(x,z)
+function core.hash_chunk_position(x,z)
 	return (x + 1073741823) * 512
 		+  (z + 1073741823)
 end
 
 --this inverses the above function
-function get_chunk_from_hash(hash)
+function core.get_chunk_from_hash(hash)
     local x = (hash % 2147483646) - 1073741823
     hash = math.floor(hash / 2147483646) 
     local z = (hash % 2147483646) - 1073741823
@@ -15,14 +15,14 @@ end
 
 --this is the calculator for hashing positions in the 1D memory
 --of the chunk sanbox
-function hash_position(x,y,z)
+function core.hash_position(x,y,z)
 	return (z + 64) * 128 * 128
 		 + (y + 64) * 128
 		 + (x + 64)
 end
 
 --this inverses the function above
-function get_position_from_hash(hash)
+function core.get_position_from_hash(hash)
     local x = (hash % 128) - 64
     hash  = math.floor(hash / 128)    
     local y = (hash % 128) - 64
@@ -32,7 +32,7 @@ function get_position_from_hash(hash)
 end
 
 --this gets the distance between two points
-function distance(a, b)
+function core.distance(a, b)
 	local dx = a.x - b.x
 	local dy = a.y - b.y
 	local dz = a.z - b.z
@@ -40,7 +40,7 @@ function distance(a, b)
 end
 
 --create a new vector
-function new_vec(x,y,z)
+function core.new_vec(x,y,z)
     return({x=x,y=y,z=z})
 end
 
@@ -57,7 +57,7 @@ function math.hypot(x, y)
 end
 
 --direction between two vectors
-function vec_direction(a,b)
+function core.vec_direction(a,b)
     local v = {}
     v.x = b.x - a.x
     v.y = b.y - a.y

@@ -8,36 +8,37 @@ local seed = lovr.math.random()
 --this is the chunk generator, or map gen
 --this is used by the entire game to create
 --data of the map for the player to explore and such
-function gen_chunk_data(x,z)
+
+function core.gen_chunk_data(x,z)
     --chunk_map[c_index] = nil
     channel:push(json.encode({x=x,z=z}))
 end
 
 --this receives the data from the thread and then pushes it 
 --into the main memory of the game
-function chunk_set_data(data)
+function core.chunk_set_data(data)
     local decoded = json.decode(data)
 
-    local hash = hash_chunk_position(decoded.x,decoded.z)
+    local hash = core.hash_chunk_position(decoded.x,decoded.z)
 
-    chunk_map[hash] = {}
+    core.chunk_map[hash] = {}
 
     for _,i in ipairs(decoded.data) do
-        chunk_map[hash][i.index] = {block=i.block,light=i.light}
+        core.chunk_map[hash][i.index] = {block=i.block,light=i.light}
     end
 
-    gpu_chunk_pool[hash] = generate_gpu_chunk(decoded.x,decoded.z)
-    gpu_chunk_pool[hash]:setMaterial(atlas)
+    core.gpu_chunk_pool[hash] = core.generate_gpu_chunk(decoded.x,decoded.z)
+    core.gpu_chunk_pool[hash]:setMaterial(core.atlas)
 end
 
 --this is called whenever the map is modified
 --this must be moved into a buffer to be called at the end of every step
 --so the map is not glitchy when a player does a bunch of updates
-function chunk_update_vert(x,z)
-    local c_index = hash_chunk_position(x,z)
-    if gpu_chunk_pool[c_index] then
-        gpu_chunk_pool[c_index] = generate_gpu_chunk(x,z) -- .mesh
-        gpu_chunk_pool[c_index]:setMaterial(atlas) -- .mesh
+function core.chunk_update_vert(x,z)
+    local c_index = core.hash_chunk_position(x,z)
+    if core.gpu_chunk_pool[c_index] then
+        core.gpu_chunk_pool[c_index] = core.generate_gpu_chunk(x,z) -- .mesh
+        core.gpu_chunk_pool[c_index]:setMaterial(core.atlas) -- .mesh
     end
 end
 
@@ -59,10 +60,10 @@ local dirs = {
 --the 1D memory map, that's why the chunk position is
 --hashed, doing 2D memory sub-indexing greatly slows
 --down the game
-function gen_chunk(x,z)
-    local c_index = hash_chunk_position(x,z)
+function core.gen_chunk(x,z)
+    local c_index = core.hash_chunk_position(x,z)
     --calls a chunk generation in the x and z sandbox
-    gen_chunk_data(x,z)
+    core.gen_chunk_data(x,z)
     --this creates gpu data (meshes) for the player to actually see
     --the map
     --[[
@@ -72,20 +73,20 @@ function gen_chunk(x,z)
         --to utilize, it is set to the texture atlas
         --which is extremely fast in comparison to
         --using random textures
-        gpu_chunk_pool[c_index]:setMaterial(atlas) --.mesh
+        core.gpu_chunk_pool[c_index]:setMaterial(core.atlas) --.mesh
     end
     --here is where the neighboring chunks are updates
     --this stops holes from developing in the map as the game
     --generates chunks
     for _,dir in ipairs(dirs) do
-        chunk_update_vert(x+dir.x,z+dir.z)
+        core.chunk_update_vert(x+dir.x,z+dir.z)
     end
     ]]--
 end
 
 --this is used for deleting chunks
-function delete_chunk(x,z)
-    local c_index = hash_chunk_position(x,z)
-    gpu_chunk_pool[c_index] = nil
-    chunk_map[c_index] = nil
+function core.delete_chunk(x,z)
+    local c_index = core.hash_chunk_position(x,z)
+    core.gpu_chunk_pool[c_index] = nil
+    core.chunk_map[c_index] = nil
 end
