@@ -29,10 +29,23 @@ local item_count = 0
 
 test_view_distance = 2
 
+
+local thread_code = [[
+local lovr = { thread = require 'lovr.thread' }
+local channel = lovr.thread.getChannel("test")
+]]
+
 --this is the function which is called when the game loads
 --it sets all the game setting and rendering utilities
 function lovr.load()
+
     channel = lovr.thread.getChannel("test")
+
+
+    thread = lovr.thread.newThread(thread_code)
+
+    thread:start()
+
     --these are the settings which optimize
     --the gpu utilization
     lovr.mouse.setRelativeMode(true)
