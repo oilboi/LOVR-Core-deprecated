@@ -4,7 +4,7 @@ lovr
 =
 lovr
 
-local max_ids = max_ids --this is a temporary placeholder for the 2D texture atlas
+local max_ids = core.max_ids --this is a temporary placeholder for the 2D texture atlas
 
 local index_translation = {1,  2,  3,  1,  3,  4 }
 --[[ This is special documentation because it is quite hard to explain
@@ -37,12 +37,12 @@ This data is then fed into "lovr.graphics.newMesh" along with
 
 
 --this creates meshes for the gpu to draw
-function generate_gpu_chunk(chunk_x,chunk_z)
+function core.generate_gpu_chunk(chunk_x,chunk_z)
 
     --this is pulling the memory directly out of the global
     --1D chunk data map
-    local c_index = hash_chunk_position(chunk_x,chunk_z)
-    local chunk_data = chunk_map[c_index]
+    local c_index = core.hash_chunk_position(chunk_x,chunk_z)
+    local chunk_data = core.chunk_map[c_index]
 
     -- The triangles which represent the
     -- chunk in gpu memory
@@ -75,7 +75,7 @@ function generate_gpu_chunk(chunk_x,chunk_z)
     local id_min
     local id_max
     local block_pick
-    local get_block = get_block
+    local get_block = core.get_block
     --this is 1 through the max chunk size in a 1D memory map,
     --which is 65,536. This is why each index is hashed to utilize
     --the raw performance of the cpu with a better memory handling
@@ -83,7 +83,7 @@ function generate_gpu_chunk(chunk_x,chunk_z)
     for i = 1,16*16*128 do
 
         --hash position and get data
-        index = hash_position(x,y,z)
+        index = core.hash_position(x,y,z)
         data = chunk_data[index].block
         light = chunk_data[index].light/15
         
@@ -665,6 +665,6 @@ for id = 1,max_ids do
     end
 
     --set the data
-    entity_meshes[id] = lovr.graphics.newMesh({{ 'lovrPosition', 'float', 3 },{ 'lovrTexCoord', 'float', 2 },{ 'lovrNormal', 'float', 3 },{'lovrVertexColor', 'float', 4}}, item_vertices, 'triangles', "static")
-    entity_meshes[id]:setVertexMap(item_indexes)
+    core.entity_meshes[id] = lovr.graphics.newMesh({{ 'lovrPosition', 'float', 3 },{ 'lovrTexCoord', 'float', 2 },{ 'lovrNormal', 'float', 3 },{'lovrVertexColor', 'float', 4}}, item_vertices, 'triangles', "static")
+    core.entity_meshes[id]:setVertexMap(item_indexes)
 end

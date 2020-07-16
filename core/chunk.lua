@@ -7,10 +7,10 @@ local seed = lovr.math.random()
 --this is the chunk generator, or map gen
 --this is used by the entire game to create
 --data of the map for the player to explore and such
-function gen_chunk_data(x,z)
-    local c_index = hash_chunk_position(x,z)
+function core.gen_chunk_data(x,z)
+    local c_index = core.hash_chunk_position(x,z)
     local cx,cz = x,z
-    chunk_map[c_index] = {}
+    core.chunk_map[c_index] = {}
     local x,y,z = 0,0,0
     --this is subtracting the position that the chunk roots in and then adding positional data
     --to the literal position inside of the chunk so that the noise generation follows
@@ -18,19 +18,19 @@ function gen_chunk_data(x,z)
     local noise = math.ceil(lovr.math.noise((x+(cx*16))/100, ((cz*16)+z)/100,seed)*100)
     local index
     for i = 1,16*16*128 do
-        index = hash_position(x,y,z)
+        index = core.hash_position(x,y,z)
         
-        chunk_map[c_index][index] = {}
+        core.chunk_map[c_index][index] = {}
 
         if y == noise then
-            chunk_map[c_index][index] = {block=3,light=15}--lovr.math.random(1,3)
+            core.chunk_map[c_index][index] = {block=3,light=15}--lovr.math.random(1,3)
 
         elseif y >= noise - 3 and y <= noise - 1 then
-            chunk_map[c_index][index] = {block=1,light=0}
+            core.chunk_map[c_index][index] = {block=1,light=0}
         elseif y < noise - 3 then
-            chunk_map[c_index][index] = {block=2,light=0}
+            core.chunk_map[c_index][index] = {block=2,light=0}
         else
-            chunk_map[c_index][index] = {block=0,light=0}
+            core.chunk_map[c_index][index] = {block=0,light=0}
         end
         --this is using literal counting to extract the full
         --performance from luajit since the table[#table] and
@@ -59,11 +59,11 @@ end
 --this is called whenever the map is modified
 --this must be moved into a buffer to be called at the end of every step
 --so the map is not glitchy when a player does a bunch of updates
-function chunk_update_vert(x,z)
-    local c_index = hash_chunk_position(x,z)
-    if gpu_chunk_pool[c_index] then
-        gpu_chunk_pool[c_index] = generate_gpu_chunk(x,z) -- .mesh
-        gpu_chunk_pool[c_index]:setMaterial(atlas) -- .mesh
+function core.chunk_update_vert(x,z)
+    local c_index = core.hash_chunk_position(x,z)
+    if core.gpu_chunk_pool[c_index] then
+        core.gpu_chunk_pool[c_index] = core.generate_gpu_chunk(x,z) -- .mesh
+        core.gpu_chunk_pool[c_index]:setMaterial(core.atlas) -- .mesh
     end
 end
 
@@ -85,31 +85,31 @@ local dirs = {
 --the 1D memory map, that's why the chunk position is
 --hashed, doing 2D memory sub-indexing greatly slows
 --down the game
-function gen_chunk(x,z)
-    local c_index = hash_chunk_position(x,z)
+function core.gen_chunk(x,z)
+    local c_index = core.hash_chunk_position(x,z)
     --calls a chunk generation in the x and z sandbox
-    gen_chunk_data(x,z)
+    core.gen_chunk_data(x,z)
     --this creates gpu data (meshes) for the player to actually see
     --the map
-    gpu_chunk_pool[c_index] = generate_gpu_chunk(x,z)--{mesh=generate_gpu_chunk(x,z),y=-128}--generate_gpu_chunk(x,z)--
-    if gpu_chunk_pool[c_index] then
+    core.gpu_chunk_pool[c_index] = core.generate_gpu_chunk(x,z)--{mesh=generate_gpu_chunk(x,z),y=-128}--generate_gpu_chunk(x,z)--
+    if core.gpu_chunk_pool[c_index] then
         --this sets the mesh material for the vertex map
         --to utilize, it is set to the texture atlas
         --which is extremely fast in comparison to
         --using random textures
-        gpu_chunk_pool[c_index]:setMaterial(atlas) --.mesh
+        core.gpu_chunk_pool[c_index]:setMaterial(core.atlas) --.mesh
     end
     --here is where the neighboring chunks are updates
     --this stops holes from developing in the map as the game
     --generates chunks
     for _,dir in ipairs(dirs) do
-        chunk_update_vert(x+dir.x,z+dir.z)
+        core.chunk_update_vert(x+dir.x,z+dir.z)
     end
 end
 
 --this is used for deleting chunks
-function delete_chunk(x,z)
-    local c_index = hash_chunk_position(x,z)
-    gpu_chunk_pool[c_index] = nil
-    chunk_map[c_index] = nil
+function core.delete_chunk(x,z)
+    local c_index = core.hash_chunk_position(x,z)
+    core.gpu_chunk_pool[c_index] = nil
+    core.chunk_map[c_index] = nil
 end

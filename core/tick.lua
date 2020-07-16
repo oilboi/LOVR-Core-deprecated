@@ -12,7 +12,7 @@ local tick = {
   local timer = lovr.timer
   local graphics = lovr.graphics
   
-function tick_framerate(framerate)
+function core.tick_framerate(framerate)
 
     local lastframe = 0
     timer.step()
