@@ -48,7 +48,7 @@ local function do_chunk_buffer(dt)
         local z = chunk_buffer[1].z
 
         gen_chunk(x,z)
-        chunk_buffer_timer = 0.2
+        chunk_buffer_timer = 0.1
         delete_chunk_buffer()
     elseif chunk_buffer_timer > 0 then
         chunk_buffer_timer = chunk_buffer_timer - dt
