@@ -67,6 +67,7 @@ function generate_gpu_chunk(chunk_x,chunk_z)
     local adjuster_x = chunk_x*16
     local adjuster_z = chunk_z*16
 
+
     --this is 1 through the max chunk size in a 1D memory map,
     --which is 65,536. This is why each index is hashed to utilize
     --the raw performance of the cpu with a better memory handling
@@ -75,12 +76,11 @@ function generate_gpu_chunk(chunk_x,chunk_z)
 
         --hash position and get data
         local index = hash_position(x,y,z)
-        data = chunk_data[index]
-
-        local light = math.random()
-        local r,g,b,a = light,light,light,1
-
+        local data = chunk_data[index].block
+        local light = chunk_data[index].light/15
         if data and data > 0 then
+
+            local r,g,b,a = light,light,light,1
 
             --this moves the pointer of the beginning and ending of
             --the texture atlas, this is only 2D for now so only the

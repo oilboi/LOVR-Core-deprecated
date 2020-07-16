@@ -1,5 +1,4 @@
 
-
 function lovr.conf(t)
 
     -- Set the project identity
@@ -30,7 +29,7 @@ function lovr.conf(t)
     -- Configure the desktop window
     t.window.width = 1900
     t.window.height = 900
-    t.window.fullscreen = true
+    t.window.fullscreen = false
     t.window.msaa = 0
     t.window.title = 'Core'
     t.window.icon = nil

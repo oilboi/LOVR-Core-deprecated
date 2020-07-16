@@ -27,7 +27,11 @@ function get_block(x,y,z)
         --now the game indexes the exact position inside the
         --1D chunk sandbox and returns that data
         local index = hash_position(relative_x,y,relative_z)
-        return(chunk_map[hash][index])
+        if chunk_map[hash][index] then
+            return(chunk_map[hash][index].block)
+        else
+            return(0)
+        end
     end
 end
 
@@ -52,7 +56,7 @@ function set_block(x,y,z,block)
     if chunk_map[hash] then
         --set the data
         local index = hash_position(relative_x,y,relative_z)
-        chunk_map[hash][index] = block
+        chunk_map[hash][index].block = block
         --update the mesh
         chunk_update_vert(chunk_x,chunk_z)
 

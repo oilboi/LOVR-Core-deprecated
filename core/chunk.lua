@@ -10,18 +10,21 @@ function gen_chunk_data(x,z)
     --this is subtracting the position that the chunk roots in and then adding positional data
     --to the literal position inside of the chunk so that the noise generation follows
     --the noise generation in sync with the rest of the map
-    noise = math.ceil(lovr.math.noise((x+(cx*16))/100, ((cz*16)+z)/100,seed)*100)
-
+    local noise = math.ceil(lovr.math.noise((x+(cx*16))/100, ((cz*16)+z)/100,seed)*100)
     for i = 1,16*16*128 do
         local index = hash_position(x,y,z)
+        
+        chunk_map[c_index][index] = {}
+
         if y == noise then
-            chunk_map[c_index][index] = 3--lovr.math.random(1,3)
+            chunk_map[c_index][index] = {block=3,light=15}--lovr.math.random(1,3)
+
         elseif y >= noise - 3 and y <= noise - 1 then
-            chunk_map[c_index][index] = 1
+            chunk_map[c_index][index] = {block=1,light=0}
         elseif y < noise - 3 then
-            chunk_map[c_index][index] = 2
+            chunk_map[c_index][index] = {block=2,light=0}
         else
-            chunk_map[c_index][index] = 0
+            chunk_map[c_index][index] = {block=0,light=0}
         end
         --this is using literal counting to extract the full
         --performance from luajit since the table[#table] and
