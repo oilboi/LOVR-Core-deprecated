@@ -56,8 +56,8 @@ end
 function chunk_update_vert(x,z)
     local c_index = hash_chunk_position(x,z)
     if gpu_chunk_pool[c_index] then
-        gpu_chunk_pool[c_index] = generate_gpu_chunk(x,z)
-        gpu_chunk_pool[c_index]:setMaterial(atlas)
+        gpu_chunk_pool[c_index].mesh = generate_gpu_chunk(x,z)
+        gpu_chunk_pool[c_index].mesh:setMaterial(atlas)
     end
 end
 
@@ -85,13 +85,13 @@ function gen_chunk(x,z)
     gen_chunk_data(x,z)
     --this creates gpu data (meshes) for the player to actually see
     --the map
-    gpu_chunk_pool[c_index] = generate_gpu_chunk(x,z)
+    gpu_chunk_pool[c_index] = {mesh=generate_gpu_chunk(x,z),y=-128}
     if gpu_chunk_pool[c_index] then
         --this sets the mesh material for the vertex map
         --to utilize, it is set to the texture atlas
         --which is extremely fast in comparison to
         --using random textures
-        gpu_chunk_pool[c_index]:setMaterial(atlas)
+        gpu_chunk_pool[c_index].mesh:setMaterial(atlas)
     end
     --here is where the neighboring chunks are updates
     --this stops holes from developing in the map as the game

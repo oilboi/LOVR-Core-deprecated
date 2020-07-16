@@ -269,9 +269,12 @@ function lovr.draw()
     lovr.graphics.transform(-x,-y,-z)
     lovr.graphics.setProjection(lovr.math.mat4():perspective(0.01, 1000, 90/fov,s_width/s_height))
 
-    for _,mesh in pairs(gpu_chunk_pool) do
+    for _,data in pairs(gpu_chunk_pool) do
         lovr.graphics.push()
-        mesh:draw()
+        if data.y < 0 then
+            data.y = data.y + 1
+        end
+        data.mesh:draw(0,data.y,0)
         lovr.graphics.pop()
     end
 
