@@ -23,21 +23,16 @@ require 'game_math'
 require 'api_functions'
 require 'tick'
 require 'chunk_buffer'
+require 'game_threads'
 
-local thread_code = [[
-local lovr = { thread = require 'lovr.thread' }
-local channel = lovr.thread.getChannel("test")
-]]
 
 --this is the function which is called when the game loads
 --it sets all the game setting and rendering utilities
 function lovr.load()
 
-    channel = lovr.thread.getChannel("test")
-
-
+    channel = lovr.thread.getChannel("vertex")
+    channel2 = lovr.thread.getChannel("vertex_receive")
     thread = lovr.thread.newThread(thread_code)
-
     thread:start()
 
     --these are the settings which optimize
@@ -188,7 +183,10 @@ local counter = 0
 local fov_mod = 0
 local up = true
 function lovr.update(dt)
-    core.tick_framerate(20)
+
+    --channel:push("test")
+
+    --tick_framerate(20)
 
     core.load_chunks_around_player()
 
@@ -201,6 +199,12 @@ function lovr.update(dt)
     core.aabb_physics(core.player)
     
     do_item_physics(dt)
+
+    local message = channel2:pop()
+
+    if message then
+        core.chunk_set_data(message)
+    end
 
     --[[
     if up then
@@ -240,7 +244,8 @@ function lovr.draw()
     lovr.graphics.rotate(-core.camera.pitch, 1, 0, 0)
     lovr.graphics.rotate(-core.camera.yaw, 0, 1, 0)
     lovr.graphics.transform(-x,-y,-z)
-    lovr.graphics.setProjection(lovr.math.mat4():perspective(0.01, 1000, 90/core.fov,core.s_width/core.s_height))
+    --lovr.graphics.setProjection(lovr.math.mat4():perspective(0.01, 1000, 90/core.fov,core.s_width/core.s_height))
+	
 
     for _,mesh in pairs(core.gpu_chunk_pool) do --data
         lovr.graphics.push()

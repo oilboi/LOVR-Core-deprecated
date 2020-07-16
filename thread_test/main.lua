@@ -1,6 +1,4 @@
 function lovr.load()
-    x = 0
-
     thread_code = [[
         local lovr = { thread = require 'lovr.thread' }
         local channel = lovr.thread.getChannel("test")
