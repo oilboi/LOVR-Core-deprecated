@@ -1,11 +1,15 @@
---[[
+
 local chunk_buffer_timer = 0
 local chunk_buffer_amount = 0
 local chunk_buffer = {}
+
+
 function create_chunk(x,z)
     chunk_buffer_amount = chunk_buffer_amount + 1
     chunk_buffer[chunk_buffer_amount] = {x=x,z=z}
 end
+
+
 local function delete_chunk_buffer()
     for i = 1,chunk_buffer_amount do
         chunk_buffer[i] = chunk_buffer[i+1]
@@ -14,13 +18,15 @@ local function delete_chunk_buffer()
     chunk_buffer_amount = chunk_buffer_amount - 1
 end
 
-local function do_chunk_buffer(dt)
+
+function do_chunk_buffer(dt)
 
     if chunk_buffer_amount > 0 and chunk_buffer_timer == 0 then
 
         local x = chunk_buffer[1].x
         local z = chunk_buffer[1].z
-        gen_chunk(x,z)
+
+        core.gen_chunk_data(x,z)
         
         chunk_buffer_timer = 0.1
 
@@ -33,7 +39,6 @@ local function do_chunk_buffer(dt)
         end
     end
 end
-]]--
 
 
 function core.load_chunks_around_player()
@@ -46,8 +51,8 @@ function core.load_chunks_around_player()
         local chunk_diff = chunk_x - old_chunk.x
         local direction = core.test_view_distance * chunk_diff
         for z = -core.test_view_distance+chunk_z,core.test_view_distance+chunk_z do
-            --create_chunk(chunk_x+direction,z)
-            core.gen_chunk(chunk_x+direction,z)
+            create_chunk(chunk_x+direction,z)
+            --core.gen_chunk(chunk_x+direction,z)
         end
         for z = -core.test_view_distance+old_chunk.z,core.test_view_distance+old_chunk.z do
             core.delete_chunk(old_chunk.x-direction,z)
@@ -61,8 +66,8 @@ function core.load_chunks_around_player()
         local chunk_diff = chunk_z - old_chunk.z
         local direction = core.test_view_distance * chunk_diff
         for x = -core.test_view_distance+chunk_x,core.test_view_distance+chunk_x do
-            --create_chunk(x,chunk_z+direction)
-            core.gen_chunk(x,chunk_z+direction)
+            create_chunk(x,chunk_z+direction)
+            --core.gen_chunk(x,chunk_z+direction)
         end
         for x = -core.test_view_distance+old_chunk.x,core.test_view_distance+old_chunk.x do
             core.delete_chunk(x,old_chunk.z-direction)

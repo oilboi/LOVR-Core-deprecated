@@ -79,8 +79,8 @@ function lovr.load()
 
     for x = -core.test_view_distance,core.test_view_distance do
     for z = -core.test_view_distance,core.test_view_distance do
-        --create_chunk(x,z)
-        core.gen_chunk(x,z)
+        create_chunk(x,z)
+        --core.gen_chunk(x,z)
     end
     end
     
@@ -119,7 +119,7 @@ function lovr.update(dt)
         core.render_gpu_chunk(message2)
     end
 
-    --do_chunk_buffer(dt)
+    do_chunk_buffer(dt)
 end
 
 
