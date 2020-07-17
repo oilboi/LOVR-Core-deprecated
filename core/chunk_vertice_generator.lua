@@ -9,7 +9,7 @@ function core.generate_gpu_chunk(chunk_x,chunk_z)
     local x = (chunk_x * 16)-- - 1
     local y = 0
     local z = (chunk_z * 16)-- - 1
-    
+
     local x_origin = x
     --the real position in the chunk
     local rx = 0
@@ -62,7 +62,6 @@ function core.generate_gpu_chunk(chunk_x,chunk_z)
     channel3:push(encode, false)
 
     --core.temp_output = lovr.timer.getTime() - time
-    
 end
 
 
@@ -80,53 +79,22 @@ function core.render_gpu_chunk(data)
     --core.temp_output = lovr.timer.getTime() - time
 end
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-math.randomseed( os.time() )
-
+--item mesh
 for id = 1,max_ids do
-    -- The triangles which represent the
-    -- chunk in gpu memory
     local item_vertices = {
     }
-    -- Indices to draw the faces of the cube out of triangles
+
     local item_indexes = {
     }
 
-    --these are the counts used for adjusting the vertex
-    --map and vertex count, it's extremely important
-    --that these are left at 0
+    --LEAVE THESE AT 0
     local index_count = 0
     local vertex_count = 0
 
     local shift = 1/max_ids
 
-
-    --this moves the pointer of the beginning and ending of
-    --the texture atlas, this is only 2D for now so only the
-    --X axis is being utilized
     local id_min = (id/max_ids)-shift
     local id_max = (id/max_ids)
-
-    
 
     local light = math.random()
     local r,g,b,a = light,light,light,1
@@ -152,7 +120,6 @@ for id = 1,max_ids do
     index_count = index_count + 1
     item_indexes[index_count] = index_translation[6]+vertex_count
 
-    
     --tris
     vertex_count = vertex_count + 1
 
@@ -169,8 +136,6 @@ for id = 1,max_ids do
     vertex_count = vertex_count + 1
 
     item_vertices[vertex_count] = { 1, 0, 0, id_max, 0, 0, 0,-1, r,g,b,a} -- 1, 0
-
-
 
     -- Face top
     
@@ -193,7 +158,6 @@ for id = 1,max_ids do
     index_count = index_count + 1
     item_indexes[index_count] = index_translation[6]+vertex_count
     
-
     --tris
     vertex_count = vertex_count + 1
 
@@ -210,8 +174,6 @@ for id = 1,max_ids do
     vertex_count = vertex_count + 1
 
     item_vertices[vertex_count] = { 1, 1, 1, id_max, 0, 0, 1, 0, r,g,b,a} -- 1, 0
-
-
 
     -- Face right
     
@@ -234,7 +196,6 @@ for id = 1,max_ids do
     index_count = index_count + 1
     item_indexes[index_count] = index_translation[6]+vertex_count
 
-
     --tris
     vertex_count = vertex_count + 1
 
@@ -251,7 +212,6 @@ for id = 1,max_ids do
     vertex_count = vertex_count + 1
     
     item_vertices[vertex_count] = { 1, 0, 1, id_max, 0, 1, 0, 0, r,g,b,a} -- 1, 0
-
 
     -- Face left
     
@@ -291,8 +251,6 @@ for id = 1,max_ids do
 
     item_vertices[vertex_count] = { 0, 1, 0, id_max, 1,-1, 0, 0, r,g,b,a} -- 1, 1
 
-    
-
     -- Face back
 
     --vertex map                
@@ -330,8 +288,6 @@ for id = 1,max_ids do
     vertex_count = vertex_count + 1
 
     item_vertices[vertex_count] = { 1, 0, 1, id_min, 0, 0, 0, 1, r,g,b,a} -- 0, 0
-
-
 
     -- Face bottom
     
@@ -371,15 +327,12 @@ for id = 1,max_ids do
 
     item_vertices[vertex_count] = { 0, 0, 1, id_min, 1, 0,-1, 0, r,g,b,a} -- 0, 1
  
-    --this is a quick hack to fix the offset because I don't
-    --want to go through all the vertices right now
     for i = 1,vertex_count do
         for z = 1,3 do
             item_vertices[i][z] = item_vertices[i][z] - 0.5
         end
     end
 
-    --set the data
     core.entity_meshes[id] = lovr.graphics.newMesh({{ 'lovrPosition', 'float', 3 },{ 'lovrTexCoord', 'float', 2 },{ 'lovrNormal', 'float', 3 },{'lovrVertexColor', 'float', 4}}, item_vertices, 'triangles', "static")
     core.entity_meshes[id]:setVertexMap(item_indexes)
 end

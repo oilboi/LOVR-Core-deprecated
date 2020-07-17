@@ -15,13 +15,16 @@ function core.physics_get_block(x,y,z)
     return core.get_block(math.floor(x),math.floor(y),math.floor(z))
 end
 
+
 local function GetSign(n)
     if n > 0 then return 1 end
     if n < 0 then return -1 end
     return 0
 end
 
+
 function math.angle(x1,y1, x2,y2) return math.atan2(y2-y1, x2-x1) end
+
 
 core.aabb_physics = function(self)
     -- apply gravity and friction
@@ -127,6 +130,7 @@ core.aabb_physics = function(self)
     core.camera.pos.y = core.player.pos.y + core.player.eye_height
     core.camera.pos.z = core.player.pos.z
 end
+
 
 core.entity_aabb_physics = function(self)
     -- apply gravity and friction

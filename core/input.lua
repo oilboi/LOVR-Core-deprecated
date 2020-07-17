@@ -1,12 +1,10 @@
---this is an easy way to exit the game
 function lovr.keypressed(key)
     if key == "escape" then
         lovr.event.quit()
     end
 end
 
---this is a simple function that allows players to
---modify the terrain
+
 local cool_down = 0
 function core.dig(dt)
     if cool_down <= 0 then
@@ -37,8 +35,7 @@ function core.dig(dt)
     end
 end
 
---this moves the pitch and yaw of the camera
---based on the delta of the 2D mouse input
+
 function lovr.mousemoved(x, y, dx, dy)
 
     core.camera.pitch = core.camera.pitch - dy * .001

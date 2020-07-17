@@ -36,7 +36,6 @@ end
 ]]--
 
 
---this dynamically loads the world around the player
 function core.load_chunks_around_player()
     local old_chunk = core.player.current_chunk
     local chunk_x = math.floor(core.player.pos.x/16)

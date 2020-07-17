@@ -1,31 +1,13 @@
---this is used to get blocks
---what this is specifically doing is getting the literal
---position that a player/modder/developer wants from
---the global map and is converting it into the exact
---position in the exact chunk sandbox for the game
---to understand what and where it is in the 1D memory
---mapping, then indexing the data inside of the 1D
---sandbox and returning the data to be used in other
---functions
 function core.get_block(x,y,z)
-    --get the literal chunk sandbox
     local chunk_x = math.floor(x/16)
     local chunk_z = math.floor(z/16)
 
-    --convert the x and z into the
-    --exact position relative to the
-    --2D position of the sandbox
     local relative_x = x-(chunk_x*16)
     local relative_z = z-(chunk_z*16)
 
-    --hash the position so that the 
-    --1D chunk map can be indexed properly
     local hash = core.hash_chunk_position(chunk_x,chunk_z)
 
-    --if the chunk exists, index
     if core.chunk_map[hash] then
-        --now the game indexes the exact position inside the
-        --1D chunk sandbox and returns that data
         local index = core.hash_position(relative_x,y,relative_z)
         if core.chunk_map[hash][index] then
             return(core.chunk_map[hash][index].block)
@@ -35,14 +17,7 @@ function core.get_block(x,y,z)
     end
 end
 
---this is used to set blocks
---it is using the exact same properties explained in
---"get_block" but instead of returning
---the indexed data it is overwriting it
---then it tells the game engine to update the chunk
---mesh to the newly modified data, this needs to
---be put into a buffer so that at the end of all
---chunk modifications they are all updated
+
 function core.set_block(x,y,z,block)
     --interpret 
     local chunk_x = math.floor(x/16)
@@ -75,8 +50,7 @@ function core.set_block(x,y,z,block)
     end
 end
 
---this converts direction to a
---simple x,y,z direction
+
 function core.vector_to_dir(x,y,z)
 	if math.abs(y) > math.abs(x) and math.abs(y) > math.abs(z) then
 		-- above
@@ -104,6 +78,14 @@ function core.vector_to_dir(x,y,z)
 		end
 	end
 end
+
+
+function core.get_camera_dir()
+    return math.cos(core.camera.pitch) * math.cos(-core.camera.yaw-math.pi/2),
+           math.sin(core.camera.pitch),
+           math.cos(core.camera.pitch) * math.sin(-core.camera.yaw-math.pi/2)
+end
+
 
 --this garbage needs to be rewritten
 function core.raycast(length)

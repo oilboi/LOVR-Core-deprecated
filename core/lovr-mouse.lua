@@ -1,6 +1,7 @@
 local ffi = require 'ffi'
 local C = ffi.os == 'Windows' and ffi.load('glfw3') or ffi.C
 
+
 ffi.cdef [[
   enum {
     GLFW_CURSOR = 0x00033001,
@@ -54,17 +55,20 @@ function mouse.getScale()
   return lovr.graphics.getWidth() / x[0]
 end
 
+
 function mouse.getX()
   local x = ffi.new('double[1]')
   C.glfwGetCursorPos(window, x, nil)
   return x[0] * mouse.getScale()
 end
 
+
 function mouse.getY()
   local y = ffi.new('double[1]')
   C.glfwGetCursorPos(window, nil, y)
   return y[0] * mouse.getScale()
 end
+
 
 function mouse.getPosition()
   local x, y = ffi.new('double[1]'), ffi.new('double[1]')
@@ -73,11 +77,13 @@ function mouse.getPosition()
   return x[0] * scale, y[0] * scale
 end
 
+
 function mouse.setX(x)
   local y = mouse.getY()
   local scale = mouse.getScale()
   C.glfwSetCursorPos(window, x / scale, y / scale)
 end
+
 
 function mouse.setY(y)
   local x = mouse.getX()
@@ -85,23 +91,28 @@ function mouse.setY(y)
   C.glfwSetCursorPos(window, x / scale, y / scale)
 end
 
+
 function mouse.setPosition(x, y)
   local scale = mouse.getScale()
   C.glfwSetCursorPos(window, x / scale, y / scale)
 end
+
 
 function mouse.isDown(button, ...)
   if not button then return false end
   return C.glfwGetMouseButton(window, button - 1) > 0 or mouse.isDown(...)
 end
 
+
 function mouse.getRelativeMode()
   return C.glfwGetInputMode(window, C.GLFW_CURSOR) == C.GLFW_CURSOR_DISABLED
 end
 
+
 function mouse.setRelativeMode(enable)
   C.glfwSetInputMode(window, C.GLFW_CURSOR, enable and C.GLFW_CURSOR_DISABLED or C.GLFW_CURSOR_NORMAL)
 end
+
 
 function mouse.newCursor(source, hotx, hoty)
   if type(source) == 'string' or tostring(source) == 'Blob' then
@@ -112,6 +123,7 @@ function mouse.newCursor(source, hotx, hoty)
   local image = ffi.new('GLFWimage', source:getWidth(), source:getHeight(), source:getPointer())
   return C.glfwCreateCursor(image, hotx or 0, hoty or 0)
 end
+
 
 function mouse.getSystemCursor(kind)
   local kinds = {
@@ -126,9 +138,11 @@ function mouse.getSystemCursor(kind)
   return C.glfwCreateStandardCursor(kinds[kind])
 end
 
+
 function mouse.setCursor(cursor)
   C.glfwSetCursor(window, cursor)
 end
+
 
 C.glfwSetMouseButtonCallback(window, function(target, button, action, mods)
   if target == window then
@@ -136,6 +150,7 @@ C.glfwSetMouseButtonCallback(window, function(target, button, action, mods)
     lovr.event.push(action > 0 and 'mousepressed' or 'mousereleased', x, y, button + 1, false)
   end
 end)
+
 
 local px, py = mouse.getPosition()
 C.glfwSetCursorPosCallback(window, function(target, x, y)
@@ -148,11 +163,13 @@ C.glfwSetCursorPosCallback(window, function(target, x, y)
   end
 end)
 
+
 C.glfwSetScrollCallback(window, function(target, x, y)
   if target == window then
     local scale = mouse.getScale()
     lovr.event.push('wheelmoved', x * scale, y * scale)
   end
 end)
+
 
 return mouse

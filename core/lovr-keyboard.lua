@@ -1,6 +1,7 @@
 local ffi = require 'ffi'
 local C = ffi.os == 'Windows' and ffi.load('glfw3') or ffi.C
 
+
 ffi.cdef [[
   typedef struct GLFWwindow GLFWwindow;
   typedef void(*GLFWkeyfun)(GLFWwindow*, int, int, int, int);
@@ -129,11 +130,14 @@ local keymap = {
   ['menu'] = 348
 }
 
+
 for k, v in pairs(keymap) do
   keymap[v] = k
 end
 
+
 local keyboard = {}
+
 
 function keyboard.isDown(key, ...)
   if not key then return false end
@@ -142,10 +146,12 @@ function keyboard.isDown(key, ...)
   return C.glfwGetKey(window, keycode) == 1 or keyboard.isDown(...)
 end
 
+
 C.glfwSetKeyCallback(window, function(window, key, scancode, action, mods)
   if action ~= 2 and keymap[key] then
     lovr.event.push(action > 0 and 'keypressed' or 'keyreleased', keymap[key])
   end
 end)
+
 
 return keyboard

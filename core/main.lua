@@ -141,7 +141,6 @@ end
 local function draw_items()
     for _,entity in ipairs(core.item_entities) do
         core.entity_meshes[entity.id]:draw(entity.pos.x, entity.pos.y+0.3+entity.hover_float, entity.pos.z, 0.3, entity.rotation, 0, 1, 0)
-        --lovr.graphics.cube('line', entity.pos.x, entity.pos.y+0.3+entity.hover_float, entity.pos.z, .5, lovr.timer.getTime())
     end
 end
 
@@ -187,14 +186,13 @@ function lovr.update(dt)
     --end
     --end    
     --channel:push("test")
-
+    lovr.event.pump()
     core.tick_framerate(20)
 
     core.load_chunks_around_player()
 
     item_magnet()
 
-    --lovr.event.pump()
 
     core.dig(dt)
 
@@ -233,21 +231,18 @@ function lovr.update(dt)
     --do_chunk_buffer(dt)
 end
 
-  
 
---this is the rendering loop
---this is what actually draws everything in the game
---engine to render and where
 function lovr.draw()
-    --local time = lovr.timer.getTime()
-    --this is where the ui should be drawn
+    --ui
     lovr.graphics.push()
         lovr.graphics.print("FPS:"..lovr.timer.getFPS(), -0.1, 0.072, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
         lovr.graphics.print("Items:"..item_count, -0.1, 0.062, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
+        lovr.graphics.print("Debug:"..tostring(core.temp_output), -0.1, 0.052, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
+        
         lovr.graphics.print("+", 0, 0, -0.1, 0.01, 0, 0, 1, 0)
     lovr.graphics.pop()
 
-    --get the camera orientation
+    --camera orientation
     local x,y,z = core.camera.pos.x,core.camera.pos.y,core.camera.pos.z--camera.position:unpack()
 
     lovr.graphics.rotate(-core.camera.pitch, 1, 0, 0)
@@ -256,7 +251,6 @@ function lovr.draw()
 
     lovr.graphics.setProjection(lovr.math.mat4():perspective(0.01, 1000, 90/core.fov,core.s_width/core.s_height))
 	
-
     for _,mesh in pairs(core.gpu_chunk_pool) do --data
         lovr.graphics.push()
         --if data.y < 0 then
@@ -274,12 +268,7 @@ function lovr.draw()
     dz = dz * 4
     local pos = {x=x+dx,y=y+dy,z=z+dz}
 
-
     draw_items()
-    --local fps = lovr.timer.getFPS()
-
-    --temp_output = math.floor((lovr.timer.getTime() - time)*10000)/10000
-    lovr.graphics.print(tostring(core.temp_output), pos.x, pos.y, pos.z,1,core.camera.yaw,0,1,0)
 
     --for _,data in ipairs(position_hold) do
         --lovr.graphics.print(tostring(data.x.." "..data.y.." "..data.y), data.x, data.y, data.z,0.5,camera.yaw,0,1,0)
