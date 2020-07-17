@@ -68,7 +68,7 @@ while true do
                 end
             end
         end
-        channel2:push(json.encode(chunk))
+        channel2:push(json.encode(chunk),false)
     end
 
 end
@@ -445,7 +445,7 @@ while true do
                 end
             end
         end
-        channel4:push(json.encode({chunk_x=chunk_x,chunk_z=chunk_z,chunk_indexes=chunk_indexes,chunk_vertices=chunk_vertices}))
+        channel4:push(json.encode({chunk_x=chunk_x,chunk_z=chunk_z,chunk_indexes=chunk_indexes,chunk_vertices=chunk_vertices}),false)
     end
 end
 ]]

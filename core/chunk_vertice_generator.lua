@@ -38,7 +38,8 @@ This data is then fed into "lovr.graphics.newMesh" along with
 
 
 --this creates meshes for the gpu to draw
-function core.generate_gpu_chunk(chunk_x,chunk_z)    
+function core.generate_gpu_chunk(chunk_x,chunk_z)
+    
     local x = (chunk_x * 16)-- + 1
     local y = 0
     local z = (chunk_z * 16)-- + 1
@@ -53,9 +54,17 @@ function core.generate_gpu_chunk(chunk_x,chunk_z)
 
     local gotten_block
     local count = 0
+    
+
+    local hash = core.hash_chunk_position(chunk_x,chunk_z)
+
+    local temp_map = core.chunk_map[hash]
+
     for i = 1,16*16*128 do
         count = count + 1
-        gotten_block = core.get_block(x,y,z)        
+        local index = core.hash_position(rx,ry,rz)
+
+        gotten_block = temp_map[index].block--core.get_block(x,y,z)        
         --if not gotten_block then
             --print("broken")
         --end
@@ -80,12 +89,22 @@ function core.generate_gpu_chunk(chunk_x,chunk_z)
             end
         end
     end
-    channel3:push(json.encode(temp_chunk_data))
+
+    --going to have to stream this to the other chunk
+    local time = lovr.timer.getTime()
+    
+    local encode = json.encode(temp_chunk_data)
+
+    channel3:push(encode, false)
+
+    core.temp_output = lovr.timer.getTime() - time
+    
 end
 
 
 
 function core.render_gpu_chunk(data)
+    --local time = lovr.timer.getTime()
     local decoded = json.decode(data)
     --print(decoded.chunk_x,decoded.chunk_z)
     --print(decoded.chunk_vertices)
@@ -95,6 +114,7 @@ function core.render_gpu_chunk(data)
     core.gpu_chunk_pool[hash] = lovr.graphics.newMesh({{ 'lovrPosition', 'float', 3 },{ 'lovrTexCoord', 'float', 2 },{ 'lovrNormal', 'float', 3 },{'lovrVertexColor', 'float', 4}}, decoded.chunk_vertices, 'triangles', "static")
     core.gpu_chunk_pool[hash]:setVertexMap(decoded.chunk_indexes)
     core.gpu_chunk_pool[hash]:setMaterial(core.atlas)
+    --core.temp_output = lovr.timer.getTime() - time
 end
 
 

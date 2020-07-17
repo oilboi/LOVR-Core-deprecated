@@ -14,6 +14,7 @@ local item_count = 0
 --load the libraries
 lovr.keyboard = require 'lovr-keyboard'
 lovr.mouse = require 'lovr-mouse'
+require 'serialize'
 require 'chunk'
 require 'chunk_vertice_generator'
 require 'physics'
@@ -202,7 +203,7 @@ function lovr.update(dt)
 
     --tick_framerate(20)
 
-    --core.load_chunks_around_player()
+    core.load_chunks_around_player()
 
     item_magnet()
 

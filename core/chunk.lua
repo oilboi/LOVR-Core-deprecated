@@ -11,15 +11,18 @@ local seed = lovr.math.random()
 
 function core.gen_chunk_data(x,z)
     --chunk_map[c_index] = nil
-    channel:push(json.encode({x=x,z=z}))
+    channel:push(json.encode({x=x,z=z}),false)
 end
 
 --this receives the data from the thread and then pushes it 
 --into the main memory of the game
 function core.chunk_set_data(data)
-    local decoded = json.decode(data)
+    --local time = lovr.timer.getTime()
+    --core.temp_output = lovr.timer.getTime() - time
 
     
+    local decoded = json.decode(data)
+
     local hash = core.hash_chunk_position(decoded.x,decoded.z)
 
     core.chunk_map[hash] = {}
@@ -35,10 +38,10 @@ end
 --so the map is not glitchy when a player does a bunch of updates
 function core.chunk_update_vert(x,z)
     local c_index = core.hash_chunk_position(x,z)
-    --if core.gpu_chunk_pool[c_index] then
-        --core.gpu_chunk_pool[c_index] = core.generate_gpu_chunk(x,z) -- .mesh
+    if core.gpu_chunk_pool[c_index] then
+        core.generate_gpu_chunk(x,z) -- .mesh
         --core.gpu_chunk_pool[c_index]:setMaterial(core.atlas) -- .mesh
-    --end
+    end
 end
 
 --this is used for the local chunk
