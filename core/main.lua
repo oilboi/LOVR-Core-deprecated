@@ -180,19 +180,13 @@ local counter = 0
 local fov_mod = 0
 local up = true
 function lovr.update(dt)
-    --for x = -1,1 do
-    --for z = -1,1 do
-    --core.gen_chunk(-2,-2)
-    --end
-    --end    
-    --channel:push("test")
     lovr.event.pump()
+
     core.tick_framerate(20)
 
     core.load_chunks_around_player()
 
     item_magnet()
-
 
     core.dig(dt)
 
@@ -212,21 +206,6 @@ function lovr.update(dt)
         core.render_gpu_chunk(message2)
     end
 
-    --[[
-    if up then
-        fov_mod = fov_mod + dt*50
-        if fov_mod >= 15 then
-            up = not up
-        end
-    else
-        fov_mod = fov_mod - dt*50
-        if fov_mod <= -15 then
-            up = not up
-        end
-    end
-    fov = fov_origin + fov_mod
-    ]]--
-    
     --do_chunk_buffer(dt)
 end
 
