@@ -1,0 +1,1 @@
+lovr.exe %ffi_test

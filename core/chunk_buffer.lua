@@ -28,7 +28,7 @@ function do_chunk_buffer(dt)
 
         core.gen_chunk_data(x,z)
         
-        chunk_buffer_timer = 1
+        chunk_buffer_timer = 0.05
 
         delete_chunk_buffer()
 

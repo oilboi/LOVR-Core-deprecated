@@ -10,11 +10,11 @@ end
 function core.chunk_set_data(data)
     --local time = lovr.timer.getTime()
     --core.temp_output = lovr.timer.getTime() - time
-    local time = lovr.timer.getTime()
+    --local time = lovr.timer.getTime()
     
     local decoded = json.decode(data)
 
-    core.temp_output = lovr.timer.getTime() - time
+    --core.temp_output = lovr.timer.getTime() - time
     
     local hash = core.hash_chunk_position(decoded.x,decoded.z)
     
@@ -23,6 +23,7 @@ function core.chunk_set_data(data)
     for _,i in ipairs(decoded.data) do
         core.chunk_map[hash][i.index] = {block=i.block,light=i.light}
     end
+
     core.generate_gpu_chunk(decoded.x,decoded.z)
 end
 

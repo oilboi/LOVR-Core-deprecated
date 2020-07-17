@@ -6,6 +6,7 @@ local index_translation = {1,  2,  3,  1,  3,  4 }
 
 
 function core.generate_gpu_chunk(chunk_x,chunk_z)
+    --going to have to stream this to the other chunk
     local x = (chunk_x * 16)-- - 1
     local y = 0
     local z = (chunk_z * 16)-- - 1
@@ -53,15 +54,13 @@ function core.generate_gpu_chunk(chunk_x,chunk_z)
             end
         end
     end
-
-    --going to have to stream this to the other chunk
-    --local time = lovr.timer.getTime()
+    local time = lovr.timer.getTime()
     
     local encode = json.encode(temp_chunk_data)
 
     channel3:push(encode, false)
 
-    --core.temp_output = lovr.timer.getTime() - time
+    core.temp_output = lovr.timer.getTime() - time
 end
 
 
