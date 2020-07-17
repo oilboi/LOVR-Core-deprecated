@@ -1,4 +1,4 @@
-
+--[[
 function lovr.conf(t)
 
     -- Set the project identity
@@ -34,3 +34,4 @@ function lovr.conf(t)
     t.window.title = 'Core'
     t.window.icon = nil
   end
+]]--

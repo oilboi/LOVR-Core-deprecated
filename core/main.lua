@@ -18,12 +18,12 @@ require 'chunk'
 require 'chunk_vertice_generator'
 require 'physics'
 require 'input'
-require 'camera'
 require 'game_math'
 require 'api_functions'
 require 'tick'
 require 'chunk_buffer'
 require 'game_threads'
+
 
 function lovr.load()
 
@@ -205,7 +205,6 @@ function lovr.update(dt)
     if message then
         core.chunk_set_data(message)
     end
-
 
     local message2 = channel4:pop(false)
 
