@@ -92,9 +92,6 @@ function lovr.load()
 end
 
 
-local counter = 0
-local fov_mod = 0
-local up = true
 function lovr.update(dt)
     lovr.event.pump()
 
