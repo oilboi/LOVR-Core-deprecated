@@ -1,61 +1,25 @@
 -- lua locals
-local
-lovr
-=
-lovr
+local lovr = lovr
 local json = require 'cjson'
-
-local max_ids = core.max_ids --this is a temporary placeholder for the 2D texture atlas
-
+local max_ids = core.max_ids
 local index_translation = {1,  2,  3,  1,  3,  4 }
---[[ This is special documentation because it is quite hard to explain
-
-The reason that this function manually counts up in the "vertex_count" and
-
-"index_count" is because it is extremely fast to do this in the cpu directly
-
-the way that LuaJIT likes to handle cpu and memory instances. This was using
-
-index_count[#index_count + 1] before hand and this creates a table.getn()
-
-procedure per table index, no matter how big the table gets, slowing it down
-
-severely. Same with vertex_count. Utilizing the raw performance of the cpu
-
-to manually integer count this up (+1) allows for chunks to generate almost 
-
-instantly.
 
 
-The "adjuster_x" and "adjuster_z" are multipliers of the 2D chunk X and Z
-
-positions (x16) to correcly distribute this into memory easily.
-
-This data is then fed into "lovr.graphics.newMesh" along with
-
-"setVertexMap" to actually create the memory instance in openGL.
-]]--
-
-
---this creates meshes for the gpu to draw
 function core.generate_gpu_chunk(chunk_x,chunk_z)
-    
-    local x = (chunk_x * 16)-- + 1
+    local x = (chunk_x * 16)-- - 1
     local y = 0
-    local z = (chunk_z * 16)-- + 1
-
+    local z = (chunk_z * 16)-- - 1
+    
     local x_origin = x
-
+    --the real position in the chunk
     local rx = 0
     local ry = 0
     local rz = 0
 
     local temp_chunk_data = {chunk_x=chunk_x,chunk_z=chunk_z,chunk_data ={}}
-
     local gotten_block
     local count = 0
     
-
     local hash = core.hash_chunk_position(chunk_x,chunk_z)
 
     local temp_map = core.chunk_map[hash]
@@ -91,16 +55,15 @@ function core.generate_gpu_chunk(chunk_x,chunk_z)
     end
 
     --going to have to stream this to the other chunk
-    local time = lovr.timer.getTime()
+    --local time = lovr.timer.getTime()
     
     local encode = json.encode(temp_chunk_data)
 
     channel3:push(encode, false)
 
-    core.temp_output = lovr.timer.getTime() - time
+    --core.temp_output = lovr.timer.getTime() - time
     
 end
-
 
 
 function core.render_gpu_chunk(data)

@@ -6,10 +6,9 @@ core = {
 	gpu_chunk_pool = {}, --this holds the data for the gpu to render
 	chunk_map = {}, --this holds the chunk data for the game to work with
 	item_entities = {}, --this holds the item entities for now
-	test_view_distance = 2
+	test_view_distance = 5
 }
 
-local item_count = 0
 
 --load the libraries
 lovr.keyboard = require 'lovr-keyboard'
@@ -26,9 +25,6 @@ require 'tick'
 require 'chunk_buffer'
 require 'game_threads'
 
-
---this is the function which is called when the game loads
---it sets all the game setting and rendering utilities
 function lovr.load()
 
     --this is for chunk generation
@@ -43,13 +39,8 @@ function lovr.load()
     thread2 = lovr.thread.newThread(vertex_generator_code)
     thread2:start()
 
-
-
-
-    --these are the settings which optimize
-    --the gpu utilization
     lovr.mouse.setRelativeMode(true)
-    --lovr.graphics.setCullingEnabled(true)
+    lovr.graphics.setCullingEnabled(true)
     lovr.graphics.setBlendMode(nil,nil)
     lovr.graphics.setDefaultFilter("nearest", 0)
     
@@ -57,14 +48,13 @@ function lovr.load()
 
     --lovr.graphics.setWireframe(true)
     
-    --this is the camera vector settings
-    --used for the player to look around
     core.camera = {
         pos = {x=0,y=0,z=0},--lovr.math.vec3(0,100,-10),
         pitch = 0,
         yaw = math.pi,
         movespeed = 50
     }
+
     core.player = {
         pos = {x=0,y=100,z=0},
         speed = {x=0,y=0,z=0},
@@ -77,16 +67,12 @@ function lovr.load()
         current_chunk = {x=0,z=0}
     }
 
-    --this is the texture atlas, this is created as a texture
-    --then set to a material to utilize the default blend mode
     core.atlastexture = lovr.graphics.newTexture("textures/atlas.png")
     core.atlas = lovr.graphics.newMaterial()
     core.atlas:setTexture(core.atlastexture)
 
-    --the screen dimensions
     core.s_width, core.s_height = lovr.graphics.getDimensions()
 
-    --the FOV settings
     core.fov = 72
     core.fov_origin = fov
 
@@ -105,6 +91,7 @@ function lovr.load()
 end
 
 
+local item_count = 0
 function core.add_item(x,y,z,id)
     item_count = item_count + 1
 
@@ -124,6 +111,7 @@ function core.add_item(x,y,z,id)
         physical = true,
     }
 end
+
 
 local function do_item_physics(dt)
     for index,entity in ipairs(core.item_entities) do
@@ -149,12 +137,14 @@ local function do_item_physics(dt)
     end
 end
 
+
 local function draw_items()
     for _,entity in ipairs(core.item_entities) do
         core.entity_meshes[entity.id]:draw(entity.pos.x, entity.pos.y+0.3+entity.hover_float, entity.pos.z, 0.3, entity.rotation, 0, 1, 0)
         --lovr.graphics.cube('line', entity.pos.x, entity.pos.y+0.3+entity.hover_float, entity.pos.z, .5, lovr.timer.getTime())
     end
 end
+
 
 local function delete_item(id)
     for i = id,item_count do
@@ -163,6 +153,7 @@ local function delete_item(id)
     core.item_entities[item_count] = nil
     item_count = item_count - 1
 end
+
 
 local function item_magnet()
     local pos = {x=core.player.pos.x,y=core.player.pos.y,z=core.player.pos.z}
@@ -182,14 +173,10 @@ local function item_magnet()
                 entity.physical = false
             end
         end
-        --temp_output = d
     end
 end
 
---this is the main loop of the game [MAIN LOOP]
---this controls everything that happens "server side"
---in the game engine, right now it is being used for
---debug testing
+
 local counter = 0
 local fov_mod = 0
 local up = true
@@ -201,7 +188,7 @@ function lovr.update(dt)
     --end    
     --channel:push("test")
 
-    --tick_framerate(20)
+    core.tick_framerate(20)
 
     core.load_chunks_around_player()
 
@@ -267,7 +254,7 @@ function lovr.draw()
     lovr.graphics.rotate(-core.camera.yaw, 0, 1, 0)
     lovr.graphics.transform(-x,-y,-z)
 
-    --lovr.graphics.setProjection(lovr.math.mat4():perspective(0.01, 1000, 90/core.fov,core.s_width/core.s_height))
+    lovr.graphics.setProjection(lovr.math.mat4():perspective(0.01, 1000, 90/core.fov,core.s_width/core.s_height))
 	
 
     for _,mesh in pairs(core.gpu_chunk_pool) do --data

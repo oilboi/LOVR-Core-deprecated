@@ -75,10 +75,6 @@ end
 ]]
 
 
-
-
--------- begin vertex generation
-
 vertex_generator_code = [[
 local lovr = { thread = require 'lovr.thread', math = require 'lovr.math' }
 local json = require 'cjson'
