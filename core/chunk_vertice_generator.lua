@@ -1,13 +1,12 @@
 -- lua locals
 local lovr = lovr
-local json = require 'cjson'
+local ffi = require('ffi')
 local max_ids = core.max_ids
 local index_translation = {1,  2,  3,  1,  3,  4 }
 
 
 function core.generate_gpu_chunk(chunk_x,chunk_z)
-
-    print(chunk_x,chunk_z)
+    --local time = lovr.timer.getTime()
     --going to have to stream this to the other chunk
     local x = (chunk_x * 16)-- - 1
     local y = 0
@@ -19,7 +18,6 @@ function core.generate_gpu_chunk(chunk_x,chunk_z)
     local ry = 0
     local rz = 0
 
-    local temp_chunk_data = {chunk_x=chunk_x,chunk_z=chunk_z,chunk_data ={}}
     local gotten_block
     local count = 0
     
@@ -27,16 +25,21 @@ function core.generate_gpu_chunk(chunk_x,chunk_z)
 
     local temp_map = core.chunk_map[hash]
 
-    for i = 1,16*16*128 do
-        count = count + 1
-        local index = core.hash_position(rx,ry,rz)
+    --(chunk size * double byte usage * data) + usage for chunk_x and chunk_z
+    local blob = lovr.data.newBlob((16*16*128*9*3)+3)
 
-        gotten_block = temp_map[index].block--core.get_block(x,y,z)        
-        --if not gotten_block then
-            --print("broken")
-        --end
-        --print(rx,ry,rz)
-        temp_chunk_data.chunk_data[count] = {index = core.hash_position(rx,ry,rz), block=gotten_block}
+    local array = ffi.cast("double*", blob:getPointer())
+
+    for i = 1,16*16*128 do
+
+        count = count + 1
+        array[count] = core.hash_position(rx,ry,rz)
+
+        count = count + 1
+        array[count] = core.get_block(x,y,z)
+
+        count = count + 1
+        array[count] = 15
 
         --up
         y  = y  + 1
@@ -56,26 +59,77 @@ function core.generate_gpu_chunk(chunk_x,chunk_z)
             end
         end
     end
-    local time = lovr.timer.getTime()
+
+    array[0] = count
+
+    count = count + 1
+    array[count] = chunk_x
+    count = count + 1
+    array[count] = chunk_z
     
-    local encode = json.encode(temp_chunk_data)
+    --core.temp_output = lovr.timer.getTime() - time
+    
+    channel3:push(blob, false)
 
-    channel3:push(encode, false)
-
-    core.temp_output = lovr.timer.getTime() - time
 end
 
 
 function core.render_gpu_chunk(data)
     --local time = lovr.timer.getTime()
-    local decoded = json.decode(data)
-    --print(decoded.chunk_x,decoded.chunk_z)
-    --print(decoded.chunk_vertices)
-    local hash = core.hash_chunk_position(decoded.chunk_x,decoded.chunk_z)
+
+    local array = ffi.cast("double*", data:getPointer())
+
+
+    local vertex_count = array[0]
+    local table_goal = vertex_count/12
+
+    local real_count = 0
+
+    local table_count = 0
+
+    local chunk_vertices = {}
+
+    while table_count < table_goal do
+        table_count = table_count + 1
+        chunk_vertices[table_count] = {}
+        local temp_table = chunk_vertices[table_count]
+        for i = 1,12 do
+            real_count = real_count + 1
+            temp_table[i] = array[real_count]
+        end
+    end
+    
+    real_count = real_count + 1
+    local index_count = array[real_count]
+
+    local chunk_indexes = {}
+
+    count = 0
+
+    while count < index_count do
+        count = count + 1
+        real_count = real_count + 1
+        chunk_indexes[count] = array[real_count]
+    end
+
+    real_count = real_count + 1
+    local chunk_x = array[real_count]
+    real_count = real_count + 1
+    local chunk_z = array[real_count]
+
+
+    print("----------",chunk_x,chunk_z)
+    print("other_v:"..vertex_count)
+
+    print("v_tables: "..vertex_count/12)
+
+    print("other_i:"..index_count)
+
+    local hash = core.hash_chunk_position(chunk_x,chunk_z)
 
     --set the data
-    core.gpu_chunk_pool[hash] = lovr.graphics.newMesh({{ 'lovrPosition', 'float', 3 },{ 'lovrTexCoord', 'float', 2 },{ 'lovrNormal', 'float', 3 },{'lovrVertexColor', 'float', 4}}, decoded.chunk_vertices, 'triangles', "static")
-    core.gpu_chunk_pool[hash]:setVertexMap(decoded.chunk_indexes)
+    core.gpu_chunk_pool[hash] = lovr.graphics.newMesh({{ 'lovrPosition', 'float', 3 },{ 'lovrTexCoord', 'float', 2 },{ 'lovrNormal', 'float', 3 },{'lovrVertexColor', 'float', 4}}, chunk_vertices, 'triangles', "static")
+    core.gpu_chunk_pool[hash]:setVertexMap(chunk_indexes)
     core.gpu_chunk_pool[hash]:setMaterial(core.atlas)
     --core.temp_output = lovr.timer.getTime() - time
 end

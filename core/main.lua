@@ -97,7 +97,7 @@ function lovr.update(dt)
 
     --core.tick_framerate(20)
 
-    --core.load_chunks_around_player()
+    core.load_chunks_around_player()
 
     item_magnet()
 
@@ -120,9 +120,6 @@ function lovr.update(dt)
         core.render_gpu_chunk(message2)
     end
 
-    
-
-    
     do_chunk_buffer(dt)
 end
 
@@ -130,6 +127,7 @@ end
 function lovr.draw()
     --ui
     lovr.graphics.push()
+        lovr.graphics.print("FPS:"..lovr.timer.getFPS(), -0.1, 0.062, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
         lovr.graphics.print("FPS:"..lovr.timer.getFPS(), -0.1, 0.062, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
         lovr.graphics.print("Items:"..item_count, -0.1, 0.052, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
         lovr.graphics.print("Debug:"..tostring(core.temp_output), -0.1, 0.042, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")

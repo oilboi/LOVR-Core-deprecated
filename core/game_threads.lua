@@ -1,115 +1,6 @@
-chunk_generator_code = [[
-local lovr = { thread = require 'lovr.thread', math = require 'lovr.math', data = require 'lovr.data' }
-local ffi = require('ffi')
-local channel = lovr.thread.getChannel("chunk")
-local channel2 = lovr.thread.getChannel("chunk_receive")
-local seed = lovr.math.random()
-
---this is the calculator for hashing positions in the 1D memory
---of the chunk sanbox
-function hash_position(x,y,z)
-	return (z + 64) * 128 * 128
-		 + (y + 64) * 128
-		 + (x + 64)
-end
-
-local message
-
-while true do    
-    message = channel:pop(false)
-    
-    if message then
-        local array = ffi.cast("double*", message:getPointer())   
-        local cx,cz = array[1],array[2]
-
-        --overwrite
-        --(chunk size * double byte usage * data) + usage for chunk_x and chunk_z
-        local blob = lovr.data.newBlob((16*16*128*9*3)+3)
-
-        local array = ffi.cast("double*", blob:getPointer())
-
-        local chunk = {x=cx,z=cz,data = {}}
-
-        local x,y,z = 0,0,0
-        --get real position for noise
-        local noise = math.ceil(lovr.math.noise((x+(cx*16))/100, ((cz*16)+z)/100,seed)*100)
-        local index
-        local count = 0
-        for i = 1,16*16*128 do
-            
-            index = hash_position(x,y,z)
-            
-            count = count + 1
-            array[count] = index
-
-            if y == noise then
-                count = count + 1
-                array[count] = 3 --block
-
-                count = count + 1
-                array[count] = 15 --light
-
-            elseif y >= noise - 3 and y <= noise - 1 then
-                count = count + 1
-                array[count] = 1 --block
-                
-                count = count + 1
-                array[count] = 15 --light
-
-            elseif y < noise - 3 then
-                count = count + 1
-                array[count] = 2 --block
-                
-                count = count + 1
-                array[count] = 15 --light
-            else
-                count = count + 1
-                array[count] = 0 --block
-                
-                count = count + 1
-                array[count] = 15 --light
-            end
-            --up
-            y = y + 1
-            if y > 127 then
-                y = 0
-                --forwards
-                x = x + 1
-                --this must be recalculated when the position shifts 
-                noise = math.ceil(lovr.math.noise((x+(cx*16))/100, ((cz*16)+z)/100,seed)*100)
-                if x > 15 then
-                    x = 0
-                    --right
-                    --this must be recalculated when the position shifts
-                    noise = math.ceil(lovr.math.noise((x+(cx*16))/100, ((cz*16)+z)/100,seed)*100)
-                    z = z + 1
-                end
-            end
-        end
-        
-        --reserve this for next step
-        array[0] = count
-
-        count = count + 1
-        array[count] = cx
-
-        count = count + 1
-        array[count] = cz
-
-        channel2:push(blob,false)
-    end
-end
-]]
-
-
-function lovr.threaderror(thread, message)
-    print(thread,message)
-end
-
-
 vertex_generator_code = [[
-local lovr = { thread = require 'lovr.thread', math = require 'lovr.math' }
-local json = require 'cjson'
+local lovr = { thread = require 'lovr.thread', math = require 'lovr.math', timer = require 'lovr.timer', data = require 'lovr.data'}
+local ffi = require('ffi')
 local channel3 = lovr.thread.getChannel("chunk_mesh")
 local channel4 = lovr.thread.getChannel("chunk_mesh_receive")
 local seed = lovr.math.random()
@@ -130,13 +21,41 @@ while true do
     message = channel3:pop(false)
 
     if message then
-        local decoded = json.decode(message)
-        local chunk_x,chunk_z = decoded.chunk_x,decoded.chunk_z
+        
+        --local time = lovr.timer.getTime()
 
-        local chunk_data = {}
-        for _,i in ipairs(decoded.chunk_data) do
-            chunk_data[i.index] = {block = i.block}--, light = i.light}
+        local array = ffi.cast("double*", message:getPointer()) 
+        
+        --
+        local i_count = array[0]
+
+        local count = 0
+
+        --local hash = core.hash_chunk_position(array[i_count+1],array[i_count+2])
+
+        chunk_data = {}
+        local array_index
+        local block_index
+        while count < i_count do
+            count = count + 1
+
+            array_index = array[count]
+
+            chunk_data[array_index] = {}
+
+            block_index = chunk_data[array_index]
+
+            count = count + 1
+            block_index.block = array[count]
+
+            count = count + 1
+            block_index.light = array[count]
         end
+        --
+
+        local chunk_x,chunk_z = array[i_count+1],array[i_count+2]
+
+        --print(lovr.timer.getTime() - time)
 
         local function get_block(x,y,z)
             --hash the position so that the 
@@ -201,9 +120,7 @@ while true do
                 id_min = (data/max_ids)-shift
                 id_max = (data/max_ids)
 
-
                 --yes, this was extremely tedious to program
-
 
                 block_pick = get_block(x,y,z-1)
                 if block_pick == 0 then
@@ -473,7 +390,157 @@ while true do
                 end
             end
         end
-        channel4:push(json.encode({chunk_x=chunk_x,chunk_z=chunk_z,chunk_indexes=chunk_indexes,chunk_vertices=chunk_vertices}),false)
+
+        print("vertex: "..vertex_count*12)
+        print("vertex_tables:"..vertex_count)
+        print("index: "..index_count)
+        --overwrite
+        --(reserved+(vertex_count*table values)+reserved+index_count)*bytes needed per double
+        local vertex_blob = lovr.data.newBlob((1+(vertex_count*12)+1+index_count)*9)
+
+        local vertex_array = ffi.cast("double*", vertex_blob:getPointer())
+
+        vertex_array[0] = vertex_count*12
+
+        local count = 0
+        local real_count = 0
+
+        while count < vertex_count do
+            count = count + 1
+            for i = 1,12 do
+                real_count = real_count + 1
+                vertex_array[real_count] = chunk_vertices[count][i]
+            end
+        end
+
+        real_count = real_count + 1
+        vertex_array[real_count] = index_count
+
+        local count = 0
+        while count < index_count do
+            count = count + 1
+            real_count = real_count + 1
+            vertex_array[real_count] = chunk_indexes[count]
+        end
+
+        print(chunk_x,chunk_z)
+        real_count = real_count + 1
+        vertex_array[real_count] = chunk_x
+
+        real_count = real_count + 1
+        vertex_array[real_count] = chunk_z
+        channel4:push(vertex_blob,false)
     end
 end
 ]]
+
+
+chunk_generator_code = [[
+local lovr = { thread = require 'lovr.thread', math = require 'lovr.math', data = require 'lovr.data' }
+local ffi = require('ffi')
+local channel = lovr.thread.getChannel("chunk")
+local channel2 = lovr.thread.getChannel("chunk_receive")
+local seed = lovr.math.random()
+
+--this is the calculator for hashing positions in the 1D memory
+--of the chunk sanbox
+function hash_position(x,y,z)
+	return (z + 64) * 128 * 128
+		 + (y + 64) * 128
+		 + (x + 64)
+end
+
+local message
+
+while true do    
+    message = channel:pop(false)
+    
+    if message then
+        local array = ffi.cast("double*", message:getPointer())   
+        local cx,cz = array[1],array[2]
+
+        --overwrite
+        --(chunk size * double byte usage * data) + usage for chunk_x and chunk_z
+        local blob = lovr.data.newBlob((16*16*128*9*3)+3)
+
+        local array = ffi.cast("double*", blob:getPointer())
+
+        local chunk = {x=cx,z=cz,data = {}}
+
+        local x,y,z = 0,0,0
+        --get real position for noise
+        local noise = math.ceil(lovr.math.noise((x+(cx*16))/100, ((cz*16)+z)/100,seed)*100)
+        local index
+        local count = 0
+        for i = 1,16*16*128 do
+            
+            index = hash_position(x,y,z)
+            
+            count = count + 1
+            array[count] = index
+
+            if y == noise then
+                count = count + 1
+                array[count] = 3 --block
+
+                count = count + 1
+                array[count] = 15 --light
+
+            elseif y >= noise - 3 and y <= noise - 1 then
+                count = count + 1
+                array[count] = 1 --block
+                
+                count = count + 1
+                array[count] = 15 --light
+
+            elseif y < noise - 3 then
+                count = count + 1
+                array[count] = 2 --block
+                
+                count = count + 1
+                array[count] = 15 --light
+            else
+                count = count + 1
+                array[count] = 0 --block
+                
+                count = count + 1
+                array[count] = 15 --light
+            end
+            --up
+            y = y + 1
+            if y > 127 then
+                y = 0
+                --forwards
+                x = x + 1
+                --this must be recalculated when the position shifts 
+                noise = math.ceil(lovr.math.noise((x+(cx*16))/100, ((cz*16)+z)/100,seed)*100)
+                if x > 15 then
+                    x = 0
+                    --right
+                    --this must be recalculated when the position shifts
+                    noise = math.ceil(lovr.math.noise((x+(cx*16))/100, ((cz*16)+z)/100,seed)*100)
+                    z = z + 1
+                end
+            end
+        end
+        
+        --reserve this for next step
+        array[0] = count
+
+        count = count + 1
+        array[count] = cx
+
+        count = count + 1
+        array[count] = cz
+
+        channel2:push(blob,false)
+    end
+end
+]]
+
+
+function lovr.threaderror(thread, message)
+    print(thread,message)
+end
+
+
