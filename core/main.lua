@@ -6,7 +6,7 @@ core = {
 	gpu_chunk_pool = {}, --this holds the data for the gpu to render
 	chunk_map = {}, --this holds the chunk data for the game to work with
 	item_entities = {}, --this holds the item entities for now
-	test_view_distance = 2
+	test_view_distance = 7
 }
 
 
