@@ -2,13 +2,12 @@
 core = {
 	temp_output = nil, -- this is a debug output 
 	max_ids = 4,
-	entity_meshes = {},
+    entity_meshes = {},
+    chunk_map = {}, --this holds the chunk data for the game to work with
 	gpu_chunk_pool = {}, --this holds the data for the gpu to render
-	chunk_map = {}, --this holds the chunk data for the game to work with
 	item_entities = {}, --this holds the item entities for now
-	test_view_distance = 5
+    test_view_distance = 4
 }
-
 
 --load the libraries
 lovr.keyboard = require 'lovr-keyboard'
@@ -39,6 +38,10 @@ function lovr.load()
     channel4 = lovr.thread.getChannel("chunk_mesh_receive")
     thread2 = lovr.thread.newThread(vertex_generator_code)
     thread2:start()
+
+    channel5 = lovr.thread.getChannel("chunk_green_flag")
+
+    channel5:push("true",false)
 
     lovr.mouse.setRelativeMode(true)
     lovr.graphics.setCullingEnabled(true)
@@ -143,7 +146,7 @@ function lovr.draw()
     lovr.graphics.rotate(-core.camera.yaw, 0, 1, 0)
     lovr.graphics.transform(-x,-y,-z)
 
-    --lovr.graphics.setProjection(lovr.math.mat4():perspective(0.01, 1000, 90/core.fov,core.s_width/core.s_height))
+    lovr.graphics.setProjection(lovr.math.mat4():perspective(0.01, 1000, 90/core.fov,core.s_width/core.s_height))
 	
     for _,mesh in pairs(core.gpu_chunk_pool) do --data
         lovr.graphics.push()

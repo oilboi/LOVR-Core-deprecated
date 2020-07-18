@@ -21,22 +21,16 @@ end
 
 function do_chunk_buffer(dt)
 
-    if chunk_buffer_amount > 0 and chunk_buffer_timer == 0 then
+    local green_flag = channel5:pop()
+    
+    if chunk_buffer_amount > 0 and green_flag then
 
         local x = chunk_buffer[1].x
         local z = chunk_buffer[1].z
 
         core.gen_chunk_data(x,z)
-        
-        chunk_buffer_timer = 0.1
 
         delete_chunk_buffer()
-
-    elseif chunk_buffer_timer > 0 then
-        chunk_buffer_timer = chunk_buffer_timer - dt
-        if chunk_buffer_timer <= 0 then
-            chunk_buffer_timer = 0
-        end
     end
 end
 
@@ -52,6 +46,7 @@ function core.load_chunks_around_player()
         local direction = core.test_view_distance * chunk_diff
         for z = -core.test_view_distance+chunk_z,core.test_view_distance+chunk_z do
             create_chunk(chunk_x+direction,z)
+            channel5:push("true",false)
             --core.gen_chunk(chunk_x+direction,z)
         end
         for z = -core.test_view_distance+old_chunk.z,core.test_view_distance+old_chunk.z do
@@ -67,6 +62,7 @@ function core.load_chunks_around_player()
         local direction = core.test_view_distance * chunk_diff
         for x = -core.test_view_distance+chunk_x,core.test_view_distance+chunk_x do
             create_chunk(x,chunk_z+direction)
+            channel5:push("true",false)
             --core.gen_chunk(x,chunk_z+direction)
         end
         for x = -core.test_view_distance+old_chunk.x,core.test_view_distance+old_chunk.x do

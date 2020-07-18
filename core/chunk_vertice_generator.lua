@@ -133,6 +133,8 @@ function core.render_gpu_chunk(data)
     core.gpu_chunk_pool[hash]:setVertexMap(chunk_indexes)
     core.gpu_chunk_pool[hash]:setMaterial(core.atlas)
     --core.temp_output = lovr.timer.getTime() - time
+
+    channel5:push("true",false)
 end
 
 --item mesh

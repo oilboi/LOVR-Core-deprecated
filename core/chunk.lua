@@ -18,6 +18,7 @@ function core.chunk_set_data(data)
     --core.temp_output = lovr.timer.getTime() - time
     --local time = lovr.timer.getTime()
     local array = ffi.cast("double*", data:getPointer())
+
     local i_count = array[0]
     local count = 0
 
@@ -69,7 +70,6 @@ local dirs = {
 function core.gen_chunk(x,z)
     local c_index = core.hash_chunk_position(x,z)
     core.gen_chunk_data(x,z)
-
     --for _,dir in ipairs(dirs) do
         --core.chunk_update_vert(x+dir.x,z+dir.z)
     --end
