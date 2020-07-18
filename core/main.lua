@@ -6,7 +6,7 @@ core = {
 	gpu_chunk_pool = {}, --this holds the data for the gpu to render
 	chunk_map = {}, --this holds the chunk data for the game to work with
 	item_entities = {}, --this holds the item entities for now
-	test_view_distance = 7
+	test_view_distance = 5
 }
 
 
@@ -131,6 +131,7 @@ function lovr.draw()
         lovr.graphics.print("FPS:"..lovr.timer.getFPS(), -0.1, 0.062, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
         lovr.graphics.print("Items:"..item_count, -0.1, 0.052, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
         lovr.graphics.print("Debug:"..tostring(core.temp_output), -0.1, 0.042, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
+        lovr.graphics.print("x:"..tostring(core.player.pos.x), -0.1, 0.032, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
         
         lovr.graphics.print("+", 0, 0, -0.1, 0.01, 0, 0, 1, 0)
     lovr.graphics.pop()

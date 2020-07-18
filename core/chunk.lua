@@ -1,13 +1,11 @@
 local ffi = require('ffi')
 
+
+
+local blob = lovr.data.newBlob(3*8)
+local array = ffi.cast("double*", blob:getPointer())
+
 function core.gen_chunk_data(x,z)
-
-    local time = lovr.timer.getTime()
-
-    local blob = lovr.data.newBlob(3*8)
-
-    local array = ffi.cast("double*", blob:getPointer())
-
     array[1] = x
     array[2] = z
    
@@ -19,7 +17,7 @@ function core.chunk_set_data(data)
     --local time = lovr.timer.getTime()
     --core.temp_output = lovr.timer.getTime() - time
     --local time = lovr.timer.getTime()
-    local array = ffi.cast("double*", data:getPointer())   
+    local array = ffi.cast("double*", data:getPointer())
     local i_count = array[0]
     local count = 0
 

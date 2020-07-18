@@ -5,9 +5,13 @@ local max_ids = core.max_ids
 local index_translation = {1,  2,  3,  1,  3,  4 }
 
 
+local blob = lovr.data.newBlob((16*16*128*9*3)+3)
+local array = ffi.cast("double*", blob:getPointer())
+
 function core.generate_gpu_chunk(chunk_x,chunk_z)
     --local time = lovr.timer.getTime()
     --going to have to stream this to the other chunk
+   
     local x = (chunk_x * 16)-- - 1
     local y = 0
     local z = (chunk_z * 16)-- - 1
@@ -26,9 +30,7 @@ function core.generate_gpu_chunk(chunk_x,chunk_z)
     local temp_map = core.chunk_map[hash]
 
     --(chunk size * double byte usage * data) + usage for chunk_x and chunk_z
-    local blob = lovr.data.newBlob((16*16*128*9*3)+3)
-
-    local array = ffi.cast("double*", blob:getPointer())
+    
 
     for i = 1,16*16*128 do
 
@@ -70,17 +72,16 @@ function core.generate_gpu_chunk(chunk_x,chunk_z)
     --core.temp_output = lovr.timer.getTime() - time
     
     channel3:push(blob, false)
-
 end
 
 
 function core.render_gpu_chunk(data)
     --local time = lovr.timer.getTime()
 
-    local array = ffi.cast("double*", data:getPointer())
+    local gpu_array = ffi.cast("double*", data:getPointer())
 
 
-    local vertex_count = array[0]
+    local vertex_count = gpu_array[0]
     local table_goal = vertex_count/12
 
     local real_count = 0
@@ -95,12 +96,12 @@ function core.render_gpu_chunk(data)
         local temp_table = chunk_vertices[table_count]
         for i = 1,12 do
             real_count = real_count + 1
-            temp_table[i] = array[real_count]
+            temp_table[i] = gpu_array[real_count]
         end
     end
     
     real_count = real_count + 1
-    local index_count = array[real_count]
+    local index_count = gpu_array[real_count]
 
     local chunk_indexes = {}
 
@@ -109,13 +110,13 @@ function core.render_gpu_chunk(data)
     while count < index_count do
         count = count + 1
         real_count = real_count + 1
-        chunk_indexes[count] = array[real_count]
+        chunk_indexes[count] = gpu_array[real_count]
     end
 
     real_count = real_count + 1
-    local chunk_x = array[real_count]
+    local chunk_x = gpu_array[real_count]
     real_count = real_count + 1
-    local chunk_z = array[real_count]
+    local chunk_z = gpu_array[real_count]
 
 
     --print("----------",chunk_x,chunk_z)
