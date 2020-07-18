@@ -6,6 +6,8 @@ local index_translation = {1,  2,  3,  1,  3,  4 }
 
 
 function core.generate_gpu_chunk(chunk_x,chunk_z)
+
+    print(chunk_x,chunk_z)
     --going to have to stream this to the other chunk
     local x = (chunk_x * 16)-- - 1
     local y = 0

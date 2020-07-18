@@ -1,11 +1,6 @@
-function lovr.threaderror(thread, message)
-    print(thread,message)
-end
-
-
 chunk_generator_code = [[
-local lovr = { thread = require 'lovr.thread', math = require 'lovr.math' }
-local json = require 'cjson'
+local lovr = { thread = require 'lovr.thread', math = require 'lovr.math', data = require 'lovr.data' }
+local ffi = require('ffi')
 local channel = lovr.thread.getChannel("chunk")
 local channel2 = lovr.thread.getChannel("chunk_receive")
 local seed = lovr.math.random()
@@ -22,35 +17,58 @@ local message
 
 while true do    
     message = channel:pop(false)
+    
     if message then
-        local decoded = json.decode(message)        
-        local cx,cz = decoded.x,decoded.z
+        local array = ffi.cast("double*", message:getPointer())   
+        local cx,cz = array[1],array[2]
+
+        --overwrite
+        --(chunk size * double byte usage * data) + usage for chunk_x and chunk_z
+        local blob = lovr.data.newBlob((16*16*128*8*3)+3)
+
+        local array = ffi.cast("double*", blob:getPointer())
+
         local chunk = {x=cx,z=cz,data = {}}
+
         local x,y,z = 0,0,0
-        --this is subtracting the position that the chunk roots in and then adding positional data
-        --to the literal position inside of the chunk so that the noise generation follows
-        --the noise generation in sync with the rest of the map
+        --get real position for noise
         local noise = math.ceil(lovr.math.noise((x+(cx*16))/100, ((cz*16)+z)/100,seed)*100)
         local index
         local count = 0
         for i = 1,16*16*128 do
+            
             index = hash_position(x,y,z)
+            
             count = count + 1
-            if y == noise then
-                chunk.data[count] = {index = index,block=3,light=15}--lovr.math.random(1,3)
-            elseif y >= noise - 3 and y <= noise - 1 then
-                chunk.data[count] = {index = index,block=1,light=0}
-            elseif y < noise - 3 then
-                chunk.data[count] = {index = index,block=2,light=0}
-            else
-                chunk.data[count] = {index = index,block=0,light=0}
-            end
+            array[count] = index
 
-            --io.write( chunk.data[count].block .. "\n" )
-            --this is using literal counting to extract the full
-            --performance from luajit since the table[#table] and
-            --table[table.getn(table)] operators are extremely
-            --slow in comparison
+            if y == noise then
+                count = count + 1
+                array[count] = 3 --block
+
+                count = count + 1
+                array[count] = 15 --light
+
+            elseif y >= noise - 3 and y <= noise - 1 then
+                count = count + 1
+                array[count] = 1 --block
+                
+                count = count + 1
+                array[count] = 15 --light
+
+            elseif y < noise - 3 then
+                count = count + 1
+                array[count] = 2 --block
+                
+                count = count + 1
+                array[count] = 15 --light
+            else
+                count = count + 1
+                array[count] = 0 --block
+                
+                count = count + 1
+                array[count] = 15 --light
+            end
             --up
             y = y + 1
             if y > 127 then
@@ -68,11 +86,25 @@ while true do
                 end
             end
         end
-        channel2:push(json.encode(chunk),false)
-    end
+        
+        --reserve this for next step
+        array[0] = count
 
+        count = count + 1
+        array[count] = cx
+
+        count = count + 1
+        array[count] = cz
+
+        channel2:push(blob,false)
+    end
 end
 ]]
+
+
+function lovr.threaderror(thread, message)
+    print(thread,message)
+end
 
 
 vertex_generator_code = [[

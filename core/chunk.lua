@@ -1,9 +1,17 @@
-local json = require 'cjson'
-local math,lovr = math,lovr
-
+local ffi = require('ffi')
 
 function core.gen_chunk_data(x,z)
-    channel:push(json.encode({x=x,z=z}),false)
+
+    local time = lovr.timer.getTime()
+
+    local blob = lovr.data.newBlob(3*8)
+
+    local array = ffi.cast("double*", blob:getPointer())
+
+    array[1] = x
+    array[2] = z
+   
+    channel:push(blob,false)
 end
 
 
@@ -11,20 +19,38 @@ function core.chunk_set_data(data)
     --local time = lovr.timer.getTime()
     --core.temp_output = lovr.timer.getTime() - time
     --local time = lovr.timer.getTime()
-    
-    local decoded = json.decode(data)
+    local array = ffi.cast("double*", data:getPointer())   
+    local i_count = array[0]
+    local count = 0
 
-    --core.temp_output = lovr.timer.getTime() - time
+    local hash = core.hash_chunk_position(array[i_count+1],array[i_count+2])
+    core.chunk_map[hash] = {}
+
+    local chunk = core.chunk_map[hash]
+
+    while count < i_count do
+        
+        count = count + 1
+        
+        chunk[array[count]] = {}
+
+        local block_index = chunk[array[count]]
+
+        count = count + 1
+        block_index.block = array[count]
+
+        count = count + 1
+        block_index.light = array[count]
+    end
     
-    local hash = core.hash_chunk_position(decoded.x,decoded.z)
-    
+    --[[
     core.chunk_map[hash] = {}
     
     for _,i in ipairs(decoded.data) do
         core.chunk_map[hash][i.index] = {block=i.block,light=i.light}
     end
-
-    core.generate_gpu_chunk(decoded.x,decoded.z)
+    ]]--
+    core.generate_gpu_chunk(array[i_count+1],array[i_count+2])
 end
 
 

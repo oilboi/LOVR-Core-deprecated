@@ -6,7 +6,7 @@ core = {
 	gpu_chunk_pool = {}, --this holds the data for the gpu to render
 	chunk_map = {}, --this holds the chunk data for the game to work with
 	item_entities = {}, --this holds the item entities for now
-	test_view_distance = 5
+	test_view_distance = 2
 }
 
 
@@ -95,9 +95,9 @@ end
 function lovr.update(dt)
     lovr.event.pump()
 
-    core.tick_framerate(20)
+    --core.tick_framerate(20)
 
-    core.load_chunks_around_player()
+    --core.load_chunks_around_player()
 
     item_magnet()
 
@@ -107,17 +107,20 @@ function lovr.update(dt)
     
     do_item_physics(dt)
 
-    local message2 = channel4:pop(false)
-
-    if message2 then
-        core.render_gpu_chunk(message2)
-    end
 
     local message = channel2:pop(false)
 
     if message then
         core.chunk_set_data(message)
     end
+
+    local message2 = channel4:pop(false)
+
+    if message2 then
+        core.render_gpu_chunk(message2)
+    end
+
+    
 
     
     do_chunk_buffer(dt)
@@ -127,9 +130,9 @@ end
 function lovr.draw()
     --ui
     lovr.graphics.push()
-        lovr.graphics.print("FPS:"..lovr.timer.getFPS(), -0.1, 0.072, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
-        lovr.graphics.print("Items:"..item_count, -0.1, 0.062, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
-        lovr.graphics.print("Debug:"..tostring(core.temp_output), -0.1, 0.052, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
+        lovr.graphics.print("FPS:"..lovr.timer.getFPS(), -0.1, 0.062, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
+        lovr.graphics.print("Items:"..item_count, -0.1, 0.052, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
+        lovr.graphics.print("Debug:"..tostring(core.temp_output), -0.1, 0.042, -0.1, 0.01, 0, 0, 1, 0,0, "left","top")
         
         lovr.graphics.print("+", 0, 0, -0.1, 0.01, 0, 0, 1, 0)
     lovr.graphics.pop()
@@ -141,7 +144,7 @@ function lovr.draw()
     lovr.graphics.rotate(-core.camera.yaw, 0, 1, 0)
     lovr.graphics.transform(-x,-y,-z)
 
-    lovr.graphics.setProjection(lovr.math.mat4():perspective(0.01, 1000, 90/core.fov,core.s_width/core.s_height))
+    --lovr.graphics.setProjection(lovr.math.mat4():perspective(0.01, 1000, 90/core.fov,core.s_width/core.s_height))
 	
     for _,mesh in pairs(core.gpu_chunk_pool) do --data
         lovr.graphics.push()

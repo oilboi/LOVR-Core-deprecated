@@ -17,7 +17,7 @@ function lovr.conf(t)
 
     -- Enable or disable different modules
     t.modules.audio = false
-    t.modules.data = false
+    t.modules.data = true
     t.modules.event = true
     t.modules.graphics = true
     t.modules.headset = false
@@ -31,6 +31,7 @@ function lovr.conf(t)
     t.window.height = 900
     t.window.fullscreen = false
     t.window.msaa = 0
+    t.window.vsync = 0
     t.window.title = 'Core'
     t.window.icon = nil
   end
