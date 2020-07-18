@@ -391,9 +391,9 @@ while true do
             end
         end
 
-        print("vertex: "..vertex_count*12)
-        print("vertex_tables:"..vertex_count)
-        print("index: "..index_count)
+        --print("vertex: "..vertex_count*12)
+        --print("vertex_tables:"..vertex_count)
+        --print("index: "..index_count)
         --overwrite
         --(reserved+(vertex_count*table values)+reserved+index_count)*bytes needed per double
         local vertex_blob = lovr.data.newBlob((1+(vertex_count*12)+1+index_count)*9)
@@ -423,7 +423,7 @@ while true do
             vertex_array[real_count] = chunk_indexes[count]
         end
 
-        print(chunk_x,chunk_z)
+        --print(chunk_x,chunk_z)
         real_count = real_count + 1
         vertex_array[real_count] = chunk_x
 

@@ -118,12 +118,12 @@ function core.render_gpu_chunk(data)
     local chunk_z = array[real_count]
 
 
-    print("----------",chunk_x,chunk_z)
-    print("other_v:"..vertex_count)
+    --print("----------",chunk_x,chunk_z)
+    --print("other_v:"..vertex_count)
 
-    print("v_tables: "..vertex_count/12)
+    --print("v_tables: "..vertex_count/12)
 
-    print("other_i:"..index_count)
+    --print("other_i:"..index_count)
 
     local hash = core.hash_chunk_position(chunk_x,chunk_z)
 
