@@ -24,7 +24,7 @@ while true do
 
         --overwrite
         --(chunk size * double byte usage * data) + usage for chunk_x and chunk_z
-        local blob = lovr.data.newBlob((16*16*128*8*3)+3)
+        local blob = lovr.data.newBlob((16*16*128*9*3)+3)
 
         local array = ffi.cast("double*", blob:getPointer())
 
